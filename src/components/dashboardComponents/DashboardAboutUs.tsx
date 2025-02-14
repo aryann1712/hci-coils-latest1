@@ -3,24 +3,24 @@ import React from 'react'
 
 const DashboardAboutUs = () => {
     return (
-        <div className='w-full lg:w-[55%] mx-auto flex flex-col gap-y-10 py-10 justify-center items-center'>
+        <div className='w-full lg:w-[75%] mx-auto flex flex-col gap-y-10 py-10 justify-center items-center'>
             {/* Row -1 */}
             <div className='grid grid-cols-1 lg:grid-cols-3 items-center justify-center text-center gap-y-5'>
                 <div className='flex justify-center'>
-                    <Image src={"/hero.jpg"} alt="Hero" height={500} width={500} className='rounded-full h-60 w-60 object-cover' />
+                    <Image src={"/hero.jpg"} alt="Hero" height={800} width={800} className='rounded-full h-72 w-72 object-cover' />
                 </div>
-                <div className='lg:col-span-2 space-y-4 text-center lg:text-left px-4 mx-5 '>
-                    <h2 className='font-bold text-2xl'>About Us - Heat Craft Industries</h2>
-                    <p className='text-sm text-gray-500'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum id quo facere unde aliquam aliquid recusandae exercitationem doloribus fugit, beatae itaque distinctio deserunt nisi, libero minima, delectus hic nostrum similique? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nulla veritatis alias vel hic inventore debitis, molestias voluptas iusto. Magni quaerat voluptatibus aspernatur saepe esse natus hic vitae maiores, ut nobis.</p>
+                <div className='lg:col-span-2 space-y-4 text-center lg:text-left px-4  max-w-2xl'>
+                    <h2 className='font-bold text-4xl'>About Us - Heat Craft Industries</h2>
+                    <p className='text-base font-light text-gray-500'>Heat Craft Industries is a leading manufacturer of fin and tube type heat exchangers, specializing in condenser coils and cooling coils for various industrial applications. Based in Ghaziabad, India, we design and produce high-efficiency heat exchangers that enhance thermal performance and ensure optimal cooling efficiency. </p>
                 </div>
             </div>
             {/* Row -2 */}
             <div className='grid grid-cols-1 lg:grid-cols-3 items-center justify-center text-center gap-y-5 mx-5'>
                 <div className='lg:col-span-2 space-y-4 text-center lg:text-left px-4'>
-                    <p className='text-sm text-gray-500'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum id quo facere unde aliquam aliquid recusandae exercitationem doloribus fugit, beatae itaque distinctio deserunt nisi, libero minima, delectus hic nostrum similique? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nulla veritatis alias vel hic inventore debitis, molestias voluptas iusto. Magni quaerat voluptatibus aspernatur saepe esse natus hic vitae maiores, ut nobis.</p>
+                    <p className='text-base font-light text-gray-500'>At Heat Craft Industry, we specialize in providing cutting-edge heating solutions designed to meet the diverse needs of residential, commercial, and industrial applications. With a commitment to energy efficiency, reliability, and customer satisfaction, we are dedicated to helping you create comfortable and sustainable environments. </p>
                 </div>
                 <div className='flex justify-center'>
-                    <Image src={"/hero.jpg"} alt="Hero" height={500} width={500} className='rounded-full h-60 w-60 object-cover' />
+                    <Image src={"/hero.jpg"} alt="Hero" height={800} width={800} className='rounded-full h-72 w-72 object-cover' />
                 </div>
             </div>
         </div>

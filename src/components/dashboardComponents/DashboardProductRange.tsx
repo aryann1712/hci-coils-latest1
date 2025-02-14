@@ -1,43 +1,44 @@
+import Image from 'next/image';
 import React from 'react'
 import { SiRoamresearch } from "react-icons/si";
 
 
 const DashboardProductRange = () => {
     return (
-        <div className='w-full bg-purple-100 py-24 px-32 flex flex-col justify-center items-center space-y-16'>
-            <h3 className='text-3xl font-semibold mb-5'>Comprehensive Products Range</h3>
+        <div className='w-full bg-gray-100 py-24 px-16 flex flex-col justify-center items-center space-y-16'>
+            <h3 className='text-3xl font-normal mb-5'>Comprehensive <span className='font-extrabold'>Products</span> Range</h3>
             <div className='grid  grid-cols-2 lg:grid-cols-4 space-x-10 '>
                 {/* Item 1 */}
                 <div className='flex flex-col items-center justify-center gap-2'>
                     <div className='p-2 bg-gray-100 rounded-full'>
-                        <SiRoamresearch className='w-8 h-8 text-green-300' />
+                        <Image src={"/icons/seo-grey.png"} alt='' height={300} width={300} className='h-16 w-16' />
                     </div>
-                    <h3 className='font-semibold text-center'>Unit Coolers</h3>
-                    <p className='text-sm text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore, laboriosam, ipsa magni dolor aliquam sed harum numquam veniam unde libero inventore optio praesentium mollitia delectus, voluptatum modi vero odit tempora.</p>
+                    <h3 className='text-2xl font-bold text-center'>Unit Coolers</h3>
+                    <p className='text-base font-light text-gray-500 text-center'>Designed for efficient cooling in various applications, our unit coolers are available in multiple configurations to suit different environments.</p>
                 </div>
-                 {/* Item 2 */}
-                 <div className='flex flex-col items-center justify-center gap-2'>
+                {/* Item 2 */}
+                <div className='flex flex-col items-center justify-center gap-2'>
                     <div className='p-2 bg-gray-100 rounded-full'>
-                        <SiRoamresearch className='w-8 h-8 text-green-300' />
+                        <Image src={"/icons/seo-grey.png"} alt='' height={300} width={300} className='h-16 w-16' />
                     </div>
-                    <h3 className='font-semibold text-center'>Condensing Units</h3>
-                    <p className='text-sm text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore, laboriosam, ipsa magni dolor aliquam sed harum numquam veniam unde libero inventore optio praesentium mollitia delectus, voluptatum modi vero odit tempora.</p>
+                    <h3 className='text-2xl font-bold text-center'>Condensing Units</h3>
+                    <p className='text-base font-light text-gray-500 text-center'>Our condensing units are engineered for durability and performance, ensuring reliable operation in demanding conditions.</p>
                 </div>
-                 {/* Item 3 */}
-                 <div className='flex flex-col items-center justify-center gap-2'>
+                {/* Item 3 */}
+                <div className='flex flex-col items-center justify-center gap-2'>
                     <div className='p-2 bg-gray-100 rounded-full'>
-                        <SiRoamresearch className='w-8 h-8 text-green-300' />
+                        <Image src={"/icons/seo-grey.png"} alt='' height={300} width={300} className='h-16 w-16' />
                     </div>
-                    <h3 className='font-semibold text-center'>Compressorized Racks</h3>
-                    <p className='text-sm text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore, laboriosam, ipsa magni dolor aliquam sed harum numquam veniam unde libero inventore optio praesentium mollitia delectus, voluptatum modi vero odit tempora.</p>
+                    <h3 className='text-2xl font-bold text-center'>Compressorized Racks</h3>
+                    <p className='text-base font-light text-gray-500 text-center'>These systems provide a compact and efficient solution for refrigeration needs, optimizing space while delivering powerful cooling.</p>
                 </div>
-                 {/* Item 4 */}
-                 <div className='flex flex-col items-center justify-center gap-2'>
+                {/* Item 4 */}
+                <div className='flex flex-col items-center justify-center gap-2'>
                     <div className='p-2 bg-gray-100 rounded-full'>
-                        <SiRoamresearch className='w-8 h-8 text-green-300' />
+                        <Image src={"/icons/seo-grey.png"} alt='' height={300} width={300} className='h-16 w-16' />
                     </div>
-                    <h3 className='font-semibold text-center'>Condensors</h3>
-                    <p className='text-sm text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore, laboriosam, ipsa magni dolor aliquam sed harum numquam veniam unde libero inventore optio praesentium mollitia delectus, voluptatum modi vero odit tempora.</p>
+                    <h3 className='text-2xl font-bold text-center'>Condensors</h3>
+                    <p className='text-base font-light text-gray-500 text-center'>Built to withstand the rigors of commercial use, our condensers are designed for maximum efficiency and longevity.</p>
                 </div>
             </div>
 

@@ -7,26 +7,26 @@ import { FaRegHandshake } from "react-icons/fa";
 
 const DashboardWhyChooseUs = () => {
     return (
-        <div className='w-full lg:w-[55%] mx-auto flex flex-col gap-y-16 py-10 justify-center items-center'>
-            <h2 className='text-3xl font-medium'>Why people Choose the <span className='font-bold'>Heat Craft Industries</span></h2>
+        <div className='w-full lg:w-[75%] mx-auto flex flex-col gap-y-16 py-10 justify-center items-center'>
+            <h2 className='text-3xl font-medium'>Why people Choose the <span className='font-extrabold'>Heat Craft Industries</span></h2>
             <div className='grid grid-cols-2 lg:grid-cols-3 space-x-10'>
                 {/* Item 1 */}
-                <div className='flex flex-col justify-center items-center gap-y-5'>
+                <div className='flex flex-col justify-start items-center gap-y-5'>
                     <GrMoney className='text-blue-700 w-24 h-24' />
                     <h3 className='text-2xl font-semibold'>Energy Efficiency</h3>
-                    <p className='text-sm text-gray-500 text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis id unde voluptatem labore expedita mollitia, ipsam sint adipisci saepe. Quia temporibus nam saepe sequi deserunt unde expedita rem, voluptate magni.</p>
+                    <p className='text-sm text-gray-500 text-center'>One of the primary reasons people turn to the heat craft industry is the emphasis on energy efficiency. Modern heating systems are designed to consume less energy while providing optimal warmth.</p>
                 </div>
                 {/* Item 2 */}
-                <div className='flex flex-col justify-center items-center gap-y-5'>
+                <div className='flex flex-col justify-start items-center gap-y-5'>
                     <LuComputer className='text-red-700 w-24 h-24' />
                     <h3 className='text-2xl font-semibold'>Advanced Technology</h3>
-                    <p className='text-sm text-gray-500 text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis id unde voluptatem labore expedita mollitia, ipsam sint adipisci saepe. Quia temporibus nam saepe sequi deserunt unde expedita rem, voluptate magni.</p>
+                    <p className='text-sm text-gray-500 text-center'>The heat craft industry is at the forefront of technological innovation. From smart thermostats to advanced heat pumps, the latest heating solutions incorporate cutting-edge technology that enhances performance and user experience. </p>
                 </div>
                 {/* Item 3 */}
-                <div className='flex flex-col justify-center items-center gap-y-5'>
+                <div className='flex flex-col justify-start items-center gap-y-5'>
                     <FaRegHandshake className='text-green-700 w-24 h-24' />
                     <h3 className='text-2xl font-semibold'>Reliability and Durability</h3>
-                    <p className='text-sm text-gray-500 text-center'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis id unde voluptatem labore expedita mollitia, ipsam sint adipisci saepe. Quia temporibus nam saepe sequi deserunt unde expedita rem, voluptate magni.</p>
+                    <p className='text-sm text-gray-500 text-center'>Investing in heating solutions is a long-term commitment, and reliability is a crucial factor for many consumers. The heat craft industry is known for producing high-quality, durable products that stand the test of time. </p>
                 </div>
 
             </div>
