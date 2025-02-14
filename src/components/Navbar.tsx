@@ -2,24 +2,22 @@
 
 import { MdOutlineMailOutline } from "react-icons/md";
 
-import { TiSocialFacebook } from "react-icons/ti";
-import { FaXTwitter } from "react-icons/fa6";
-import { IoLogoInstagram } from "react-icons/io5";
-import { FaLinkedinIn } from "react-icons/fa";
-import Image from "next/image";
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
-} from "@/components/ui/navigation-menu"
+  NavigationMenuTrigger
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { cn } from "@/lib/utils";
+import { FaLinkedinIn } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { IoLogoInstagram } from "react-icons/io5";
+import { TiSocialFacebook } from "react-icons/ti";
 
 
 

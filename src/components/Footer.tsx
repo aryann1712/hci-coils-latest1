@@ -1,29 +1,60 @@
-import React from 'react'
-import { IoCallOutline } from "react-icons/io5";
+"use client";
+import Image from "next/image"
+
+import { MdOutlineMailOutline } from "react-icons/md";
+import { IoCallOutline } from 'react-icons/io5'
+
+
+import { TiSocialFacebook } from "react-icons/ti";
+import { FaXTwitter } from "react-icons/fa6";
+import { IoLogoInstagram } from "react-icons/io5";
+import { FaLinkedinIn } from "react-icons/fa";
 
 
 const Footer = () => {
   return (
-    <div className='bg-blue-700 px-16 py-20 grid lg:grid-cols-3'>
+    <div className="flex flex-col items-center">
+      <div className="grid grid-cols-3 py-16 px-10 space-x-10 max-w-[70%]">
+        {/* col 1 */}
+        <div className="space-y-4">
+          <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" onClick={() => { console.log("logo redirect to home") }} />
+          <p className="text-xs text-gray-400">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officiis velit suscipit doloribus, perferendis libero unde odio nesciunt accusamus minus aspernatur fugiat consequuntur dignissimos autem facilis quos. Possimus expedita debitis fugit!</p>
+        </div>
 
-    {/* item 1 */}
-    <div className='col-span-2 text-white space-y-5'> 
-      <h2 className='text-3xl font-bold'>Heat Craft Industries</h2>
-      <p className='text-sm '>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Aliquam provident ullam enim at repudiandae, adipisci eius nam consequatur corrupti, possimus quis fugiat! Quidem dolore debitis aperiam vel. Officia, nemo quos. Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nisi nobis nostrum perspiciatis, adipisci magnam repellendus magni, aliquam alias doloremque quasi fuga iure praesentium voluptate sunt quisquam earum tenetur ullam vero?</p>
 
-    </div>
-    {/* item 2 */}
-    <div className='flex flex-row justify-center items-center gap-2'>
-      {/* logo */}
-      <IoCallOutline  className='text-white h-8 w-8'/>
 
-      {/* call and phone number */}
-      <div className='text-sm font-semibold text-white'>
-        <h3>Call Us Now</h3>
-        <h3>931-504-5029</h3>
+        {/* col 2 */}
+        <div className=" flex flex-col justify-center items-center gap-y-2">
+          <h3 className="text-blue-800  text-2xl font-bold ">Navigation</h3>
+          <div className="flex flex-col justify-start items-start px-2 gap-y-1">
+            <h2 className="text-black text-[14px] font-bold cursor-pointer" onClick={() => console.log("send to home")}>Home</h2>
+            <h2 className="text-black text-[14px] font-bold cursor-pointer" onClick={() => console.log("send to home")}>About Us</h2>
+            <h2 className="text-black text-[14px] font-bold cursor-pointer" onClick={() => console.log("send to home")}>Products</h2>
+            <h2 className="text-black text-[14px] font-bold cursor-pointer" onClick={() => console.log("send to home")}>Contact Us</h2>
+          </div>
+        </div>
+
+
+
+        {/* col 3 */}
+        <div className="flex flex-col gap-y-2 justify-start items-start">
+          <div className="flex items-center gap-3 text-black text-sm font-semibold cursor-pointer" onClick={() => console.log("hi")}>
+            <MdOutlineMailOutline className="h-5 w-5" />
+            <h3>{process.env.NEXT_PUBLIC_CLIENT_EMAIL}</h3>
+          </div >
+          <div className="flex items-center gap-3 text-black text-sm font-semibold cursor-pointer" onClick={() => console.log("hi")}>
+            <IoCallOutline className="h-5 w-5" />
+            <h3>931-504-5029</h3>
+          </div >
+          <div className="mt-3 flex gap-3 text-gray-500 items-center">
+            <TiSocialFacebook className="h-6 w-6 cursor-pointer" />
+            <FaXTwitter className="h-4 w-4  cursor-pointer" />
+            <IoLogoInstagram className="h-5 w-5  cursor-pointer" />
+            <FaLinkedinIn className="h-5 w-5  cursor-pointer" />
+          </div>
+        </div>
       </div>
-
-    </div>
+      <p className="text-xs text-gray-400">All Right Reserved | Copyright@2025</p>
     </div>
   )
 }
