@@ -24,7 +24,8 @@ const DashboardLowerBottom = () => {
               className="block text-lg font-bold  cursor-pointer"
             >
               931-504-5029
-            </a>            </div>
+            </a>
+          </div>
         </div>
 
         {/* Line */}

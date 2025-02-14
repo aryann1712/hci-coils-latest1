@@ -3,11 +3,9 @@
 
 import {
     NavigationMenu,
-    NavigationMenuContent,
     NavigationMenuItem,
     NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger
+    NavigationMenuList
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -19,10 +17,10 @@ import React from "react";
 
 const Navbar2 = () => {
     return (
-        <div className="sticky top-0 w-full bg-white pt-1">
+        <div className="sticky top-0 w-full bg-white pt-1 ">
             <div className="w-full h-[1px] bg-gray-200"></div>
             {/* second row */}
-            <div className="py-5 px-20 space-y-5  flex justify-between items-center">
+            <div className=" max-w-[75%]  mx-auto py-5 space-y-5  flex justify-between items-center">
                 {/* logo */}
                 <Link href="/">
                     <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" /> </Link>
@@ -30,28 +28,28 @@ const Navbar2 = () => {
                 <NavigationMenu className="flex items-center pb-3">
                     <NavigationMenuList className="text-sm font-semibold flex gap-8">
                         <NavigationMenuItem className=" hover:text-blue-700">
-                            <Link href="/docs" legacyBehavior passHref>
+                            <Link href="/" legacyBehavior passHref>
                                 <NavigationMenuLink>
                                     HOME
                                 </NavigationMenuLink>
                             </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem className=" hover:text-blue-700">
-                            <Link href="/docs" legacyBehavior passHref>
+                            <Link href="/about" legacyBehavior passHref>
                                 <NavigationMenuLink>
                                     ABOUT
                                 </NavigationMenuLink>
                             </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem className=" hover:text-blue-700">
-                            <Link href="/docs" legacyBehavior passHref>
+                            <Link href="/products" legacyBehavior passHref>
                                 <NavigationMenuLink>
                                     PRODUCTS
                                 </NavigationMenuLink>
                             </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem className=" hover:text-blue-700">
-                            <Link href="/docs" legacyBehavior passHref>
+                            <Link href="/contact" legacyBehavior passHref>
                                 <NavigationMenuLink>
                                     CONTACT
                                 </NavigationMenuLink>
