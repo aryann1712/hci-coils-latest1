@@ -16,7 +16,6 @@ export default async function DashboardPage() {
       <DashboardAboutUs />
       <DashboardWhyChooseUs />
       <DashboardProductRange />
-      <DashboardLowerBottom />
       {/* <h1 className="text-2xl font-bold">Welcome to Our E-commerce</h1> */}
       {/* Highlight featured products, banners, etc. */}
     </section>

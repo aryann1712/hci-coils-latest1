@@ -5,6 +5,7 @@ import ServerNavbar from "@/components/ServerNavbar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CardContext";
 import Navbar2 from "@/components/Navbar2";
+import DashboardLowerBottom from "@/components/dashboardComponents/DashboardLowerBottom";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,6 +37,7 @@ export default function RootLayout({
           <ServerNavbar />
           <Navbar2 />
           {children}
+          <DashboardLowerBottom />
           <Footer />
         </CartProvider>
 

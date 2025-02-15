@@ -71,8 +71,8 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
             <FaLinkedinIn className="h-7 w-7  cursor-pointer hover:text-white hover:bg-blue-500 rounded-full p-[2px]" />
           </a>
 
-          <div className="ml-5 p-3 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
-            <h4>Log In</h4>
+          <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
+            <h4>Login</h4>
           </div>
         </div>
       </div>
