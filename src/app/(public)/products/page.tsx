@@ -1,3 +1,4 @@
+"use client";
 // src/app/(public)/products/page.tsx
 import ProductCard from "@/components/ProductCard";
 

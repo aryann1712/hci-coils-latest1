@@ -7,6 +7,7 @@ import { FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoLogoInstagram } from "react-icons/io5";
 import { TiSocialFacebook } from "react-icons/ti";
+import Link from "next/link";
 
 
 
@@ -29,12 +30,12 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
       <div className="flex justify-between items-center">
         {/* mail */}
         <a
-      href={`mailto:${process.env.NEXT_PUBLIC_CLIENT_EMAIL}`}
-      className="flex items-center gap-3 text-blue-700 hover:underline"
-    >
-      <MdOutlineMailOutline className="h-5 w-5" />
-      <h3>{process.env.NEXT_PUBLIC_CLIENT_EMAIL}</h3>
-    </a>
+          href={`mailto:${process.env.NEXT_PUBLIC_CLIENT_EMAIL}`}
+          className="flex items-center gap-3 text-blue-700 hover:underline"
+        >
+          <MdOutlineMailOutline className="h-5 w-5" />
+          <h3>{process.env.NEXT_PUBLIC_CLIENT_EMAIL}</h3>
+        </a>
 
         {/* social and login */}
         <div className="flex gap-3 text-gray-500 items-center">
@@ -72,7 +73,7 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
           </a>
 
           <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
-            <h4>Login</h4>
+            <Link href={"/auth/signin"}><h4>Login</h4></Link>
           </div>
         </div>
       </div>
