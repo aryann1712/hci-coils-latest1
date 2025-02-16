@@ -1,26 +1,32 @@
 "use client";
 
 import { CartItem, useCart } from '@/context/CardContext';
+import { ProductInterface } from '@/lib/interfaces/ProductInterface';
 import Image from 'next/image';
 import React from 'react'
 
-const ProductCard = ({ product }: { product: CartItem }) => {
+const ProductCard = ({ product }: { product: ProductInterface }) => {
   const { addToCart } = useCart();
 
   return (
-    <div className='p-3 rounded-md shadow-lg flex flex-col items-start justify-center gap-5'>
+    <div className='rounded-md shadow-lg flex flex-col items-start justify-center gap-5'>
       {/* Image */}
-      <div>
-        <Image src="https://stimg.cardekho.com/images/carexteriorimages/930x620/Maruti/Dzire/11387/1731318279714/front-left-side-47.jpg" alt='' height={1000} width={1000} className='rounded-lg' />
+      <div className="relative overflow-hidden group">
+        <Image
+          src={product.image}
+          alt={product.name}
+          height={800}
+          width={800}
+          className="object-cover transition-transform duration-300 group-hover:scale-110 h-[300px] rounded-t-md"
+        />
       </div>
-
-      <div className='space-y-2'>
+      <div className='space-y-2 p-3 '>
         {/* Name */}
-        <h3 className='text-xl font-semibold'>Condensing Artwork</h3>
+        <h3 className='text-xl font-semibold'>{product.name}</h3>
         {/* Desc */}
         <p className='text-sm font-thin text-gray-400 line-clamp-3'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aspernatur, molestiae. Rem eveniet provident odit, ratione adipisci consequatur consectetur nostrum dolorem magnam voluptate quisquam facere. Esse praesentium omnis modi dolorem laborum.</p>
         {/* Buttons */}
-        <div className='pt-5 flex justify-evenly'>
+        <div className='pt-5 px-10 flex justify-between'>
           <button
             className='bg-green-700 text-white px-5 py-2 rounded-md'
             onClick={() => console.log("enquire now")}>
