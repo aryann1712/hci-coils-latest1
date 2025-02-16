@@ -1,6 +1,9 @@
 // src/app/(protected)/cart/page.tsx
 "use client";
 
+import CartProductItemCard from "@/components/CartProductItemCard";
+import { CartItemType } from "@/lib/interfaces/CartInterface";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function CartPage() {
@@ -21,35 +24,66 @@ export default function CartPage() {
   };
 
   return (
-    <div className="p-4">
-      <h2>Your Cart</h2>
-      {cartItems.map((item) => (
-        <div key={item.productId} className="mb-2">
-          <p>{item.productName}</p>
-          <p>Qty: {item.quantity}</p>
-        </div>
-      ))}
+    <div className=" max-w-[75%] mx-auto py-10">
+      <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
+        <h1 className="text-blue-800 text-3xl font-semibold italic">Cart</h1>
+        
+        {/*Cart Item List  */}
+        <div>
+          {cartDatas.map((item, index) => <CartProductItemCard cardData={item}/>)}
 
-      <div className="mt-4 flex gap-4">
-        <button
-          onClick={handleSubmitEnquiry}
-          className="bg-green-500 text-white px-4 py-2"
-        >
-          Submit Enquiry
-        </button>
-        <button
-          onClick={() => {} /* handle place order similarly */}
-          className="bg-blue-500 text-white px-4 py-2"
-        >
-          Place Order
-        </button>
+        </div>
+
+        {/* 2 Button - Place order or continue Shopping */}
+        <div className="flex flex-row">
+
+
+        </div>
+
+
       </div>
+
     </div>
   );
 }
 
-interface CartItemType {
-  productId: number;
-  productName: string;
-  quantity: number;
-}
+
+
+
+let cartDatas: CartItemType[] = [
+  { 
+    productId: 1, 
+    productName: "Bmw x5",  
+    productImage: "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
+    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+    quantity: 500 
+    },
+  { 
+    productId: 2, 
+    productName: "Bmw x5",  
+    productImage: "https://stimg.cardekho.com/images/carexteriorimages/930x620/Maruti/Dzire/11387/1731318279714/front-left-side-47.jpg", 
+    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+    quantity: 10 
+  },
+  { 
+    productId: 3, 
+    productName: "Bmw x5",  
+    productImage: "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
+    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+    quantity: 300 
+  },
+  { 
+    productId: 4, 
+    productName: "Bmw x5",  
+    productImage: "https://images.pexels.com/photos/919073/pexels-photo-919073.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
+    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+    quantity: 120 
+  },
+  { 
+    productId: 5, 
+    productName: "Bmw x5",  
+    productImage: "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg", 
+    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+    quantity: 200 
+  },
+];
