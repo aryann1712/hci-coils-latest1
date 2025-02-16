@@ -1,6 +1,6 @@
 "use client";
 
-import { CartItem, useCart } from '@/context/CardContext';
+import {  useCart } from '@/context/CartContext';
 import { ProductInterface } from '@/lib/interfaces/ProductInterface';
 import Image from 'next/image';
 import React from 'react'
@@ -34,7 +34,13 @@ const ProductCard = ({ product }: { product: ProductInterface }) => {
           </button>
           <button
             className='bg-red-600 text-white px-5 py-2 rounded-md'
-            onClick={() => addToCart({ id: product.id, name: product.name, quantity: 1 })}>
+            onClick={() => addToCart({ 
+              productId: product.id, 
+              productName: product.name, 
+              productDesc: product.description,
+              productImage: product.image,
+              quantity: 1 
+              })}>
             Add to Cart
           </button>
         </div>

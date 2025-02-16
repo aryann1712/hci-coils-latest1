@@ -1,3 +1,5 @@
+"use client";
+import { useCart } from "@/context/CartContext";
 import { CartItemType } from "@/lib/interfaces/CartInterface";
 import Image from "next/image";
 import React from "react";
@@ -15,10 +17,13 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
   onDecrement,
   onUpdateQuantity,
 }) => {
+    const { addToCart, cartItems, removeFromCart, decrementToCart } = useCart();
+
   /**
    * Called when user manually types a new quantity in the input.
    */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    
     const newQty = parseInt(e.target.value, 10);
     // Ensure it's a valid, non-negative number
     if (!isNaN(newQty) && newQty >= 0) {
@@ -49,7 +54,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
       <div className="flex items-center justify-end gap-2">
         {/* Decrement Button */}
         <button
-          onClick={() => onDecrement?.(cardData.productId)}
+          onClick={() => decrementToCart(cardData.productId)}
           className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
         >
           –
@@ -65,7 +70,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
 
         {/* Increment Button */}
         <button
-          onClick={() => onIncrement?.(cardData.productId)}
+          onClick={() => addToCart(cardData)}
           className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
         >
           +

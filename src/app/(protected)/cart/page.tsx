@@ -1,20 +1,25 @@
-// src/app/(protected)/cart/page.tsx
 "use client";
+// src/app/(protected)/cart/page.tsx
+
 
 import CartProductItemCard from "@/components/CartProductItemCard";
+import { useCart } from "@/context/CartContext";
 import { CartItemType } from "@/lib/interfaces/CartInterface";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
+
+
+
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItemType[]>([]);
+  const { addToCart, cartItems, removeFromCart } = useCart();
+  // const [cartItems, setCartItems] = useState<CartItemType[]>([]);
 
   // On mount, load cart from localStorage or global store
   useEffect(() => {
-    const cartData = localStorage.getItem("cart");
-    if (cartData) {
-      setCartItems(JSON.parse(cartData));
-    }
+    // const cartData = localStorage.getItem("cart");
+    // if (cartData) {
+    //   setCartItems(JSON.parse(cartData));
+    // }
   }, []);
 
   const handleSubmitEnquiry = () => {
@@ -30,7 +35,7 @@ export default function CartPage() {
         
         {/*Cart Item List  */}
         <div>
-          {cartDatas.map((item, index) => <CartProductItemCard cardData={item}/>)}
+          {cartItems.map((item, index) => <CartProductItemCard cardData={item}/>)}
 
         </div>
 
@@ -50,40 +55,40 @@ export default function CartPage() {
 
 
 
-let cartDatas: CartItemType[] = [
-  { 
-    productId: 1, 
-    productName: "Bmw x5",  
-    productImage: "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
-    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
-    quantity: 500 
-    },
-  { 
-    productId: 2, 
-    productName: "Bmw x5",  
-    productImage: "https://stimg.cardekho.com/images/carexteriorimages/930x620/Maruti/Dzire/11387/1731318279714/front-left-side-47.jpg", 
-    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
-    quantity: 10 
-  },
-  { 
-    productId: 3, 
-    productName: "Bmw x5",  
-    productImage: "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
-    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
-    quantity: 300 
-  },
-  { 
-    productId: 4, 
-    productName: "Bmw x5",  
-    productImage: "https://images.pexels.com/photos/919073/pexels-photo-919073.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
-    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
-    quantity: 120 
-  },
-  { 
-    productId: 5, 
-    productName: "Bmw x5",  
-    productImage: "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg", 
-    productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
-    quantity: 200 
-  },
-];
+// let cartDatas: CartItemType[] = [
+//   { 
+//     productId: 1, 
+//     productName: "Bmw x5",  
+//     productImage: "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
+//     productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+//     quantity: 500 
+//     },
+//   { 
+//     productId: 2, 
+//     productName: "Bmw x5",  
+//     productImage: "https://stimg.cardekho.com/images/carexteriorimages/930x620/Maruti/Dzire/11387/1731318279714/front-left-side-47.jpg", 
+//     productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+//     quantity: 10 
+//   },
+//   { 
+//     productId: 3, 
+//     productName: "Bmw x5",  
+//     productImage: "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
+//     productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+//     quantity: 300 
+//   },
+//   { 
+//     productId: 4, 
+//     productName: "Bmw x5",  
+//     productImage: "https://images.pexels.com/photos/919073/pexels-photo-919073.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2", 
+//     productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+//     quantity: 120 
+//   },
+//   { 
+//     productId: 5, 
+//     productName: "Bmw x5",  
+//     productImage: "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg", 
+//     productDesc: "Lorem ispum dolor a4 kfasdhbkjcbjkasb  kascjnbkjasb klacshkljcnsakjcnsakjnbacskj",
+//     quantity: 200 
+//   },
+// ];
