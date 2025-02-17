@@ -40,7 +40,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
           alt={cardData.productName}
           width={1000}
           height={1000}
-          className="h-[200px] w-auto object-cover"
+          className="h-[200px] w-[350px] rounded-md object-cover"
         />
       </div>
 

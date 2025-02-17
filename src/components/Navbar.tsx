@@ -2,12 +2,13 @@
 
 import { MdOutlineMailOutline } from "react-icons/md";
 import { MdOutlineShoppingCart } from "react-icons/md";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoLogoInstagram } from "react-icons/io5";
 import { TiSocialFacebook } from "react-icons/ti";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 
 
@@ -24,6 +25,15 @@ type NavbarProps = {
 
 
 const Navbar: React.FC<NavbarProps> = ({ user }) => {
+  const { cartItems } = useCart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, [])
+
+
+
   return (
     <nav className="flex flex-col py-5 px-20 gap-y-5">
       {/* first row */}
@@ -81,7 +91,7 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
           <div className="relative mx-2">
             <Link href={"/cart"}>
               <MdOutlineShoppingCart className="font-bold text-[22px] cursor-pointer hover:text-red-500 relative" />
-              <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">1</p>
+             {mounted &&  (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{cartItems.length}</p>}
             </Link>
           </div>
 
