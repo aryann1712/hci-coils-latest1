@@ -2,10 +2,18 @@
 import React, { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import CartProductItemCard from "@/components/CartProductItemCard";
+import Link from "next/link";
 
 const CartPage: React.FC = () => {
   const { cartItems } = useCart();
   const [mounted, setMounted] = useState(false);
+
+
+
+  const handlePurchase = () => {
+    console.log(cartItems);
+
+  }
 
   useEffect(() => {
     setMounted(true);
@@ -17,14 +25,28 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div>
-      {cartItems.length === 0 ? (
-        <div>Your cart is empty.</div>
-      ) : (
-        cartItems.map((item) => (
-          <CartProductItemCard key={item.productId} cardData={item} />
-        ))
-      )}
+    <div className=" max-w-[75%] mx-auto py-10">
+      <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
+        <h1 className="text-blue-800 text-3xl font-semibold italic">Cart</h1>
+
+        <div>
+          {cartItems.length === 0 ? (
+            <div>Your cart is empty.</div>
+          ) : (
+            cartItems.map((item) => (
+              <CartProductItemCard key={item.productId} cardData={item} />
+            ))
+          )}
+        </div>
+
+        {/* 2 Button - Place order or continue Shopping */}
+        <div className="flex flex-row justify-evenly">
+          <Link href="/products">
+            <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
+          </Link>
+          <button className="px-8 py-3  lg:w-[250px] rounded-md bg-green-400 hover:bg-green-500 text-center text-white font-semibold" onClick={() => handlePurchase()}>Place Order</button>
+        </div>
+      </div>
     </div>
   );
 };

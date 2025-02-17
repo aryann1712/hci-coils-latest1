@@ -8,6 +8,7 @@ interface CartContextType {
   addToCart: (item: CartItemType) => void;
   decrementToCart: (id: number) => void;
   removeFromCart: (id: number) => void;
+  updateProductToCart: (item: CartItemType) => void;
 }
 
 const CartContext = createContext<CartContextType>({
@@ -15,6 +16,7 @@ const CartContext = createContext<CartContextType>({
   addToCart: () => {},
   decrementToCart: () => {},
   removeFromCart: () => {},
+  updateProductToCart: () => {},
 });
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -45,6 +47,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const updateProductToCart = (item: CartItemType) => {
+    console.log("updating to cart");
+    setCartItems((prev) => {
+      const existingItem = prev.find(c => c.productId === item.productId);
+      if (existingItem) {
+        return prev.map(c =>
+          c.productId === item.productId ? { ...c, quantity: item.quantity } : c
+        );
+      }
+      return [...prev, item];
+    });
+  };
+
   const decrementToCart = (id: number) => {
     console.log("decrement to cart");
     setCartItems((prev) => {
@@ -66,7 +81,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, decrementToCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, decrementToCart, updateProductToCart }}>
       {children}
     </CartContext.Provider>
   );
