@@ -3,16 +3,26 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import CartProductItemCard from "@/components/CartProductItemCard";
 import Link from "next/link";
+import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 
 const CartPage: React.FC = () => {
   const { cartItems } = useCart();
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const { user } = useUser();
 
 
 
   const handlePurchase = () => {
-    console.log(cartItems);
-
+    if (!user) {
+      console.log("no user found...try to sign in");
+      //redirect to login page
+      router.push("/auth/signin?redirect=/cart");
+    } else {
+      console.log("User found:", user);
+      console.log("Cart items:", cartItems);
+    }
   }
 
   useEffect(() => {

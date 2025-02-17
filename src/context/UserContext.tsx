@@ -2,6 +2,9 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { UserType } from "@/lib/interfaces/UserInterface";
+import { useRouter } from "next/navigation";
+
+
 
 interface UserContextType {
   user: UserType | null;
@@ -18,6 +21,9 @@ const UserContext = createContext<UserContextType>({
 });
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
+  
+    const router = useRouter();
+  
   // State for user
   const [user, setUser] = useState<UserType | null>(() => {
     if (typeof window !== "undefined") {
@@ -45,6 +51,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   // signOut clears user state
   const signOut = () => {
     setUser(null);
+    router.replace("/auth/signin")
   };
 
   // updateUser merges fields with the existing user data

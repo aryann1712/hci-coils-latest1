@@ -1,19 +1,57 @@
 // src/app/(public)/auth/signin/page.tsx
 "use client";
+import { useSearchParams, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useUser } from "@/context/UserContext";
 import { useState } from "react";
 
 export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ phone: "", password: "" });
 
+  const { signIn } = useUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || "/";
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // signIn("credentials" or "provider", { ...options });
-    // or call a custom route for sign in
+    // 1) Call your backend to verify phone/password
+    // const response = await fetch("/api/users/signin", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     phone: formData.phone,
+    //     password: formData.password
+    //   }),
+    // });
+    // const data = await response.json();
+
+    // if (!response.ok) {
+    //   alert(data.error || "Sign in failed");
+    //   return;
+    // }
+
+    const data = {
+      userId: "1",
+      phone: "9315045029",
+      role: 'user',
+      token: 'abcd'
+    }
+
+    // 2) If sign-in success, store user in context
+    //    This might include a token, user ID, role, etc.
+    signIn({
+      userId: data.userId,
+      phone: data.phone,
+      role: data.role,
+      token: data.token,
+    });
+
+    // 3) Now redirect to redirectPath
+    router.push(redirectPath);
     setLoading(false);
   };
 

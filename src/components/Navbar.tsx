@@ -9,28 +9,29 @@ import { IoLogoInstagram } from "react-icons/io5";
 import { TiSocialFacebook } from "react-icons/ti";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
 
 
 
 
 
-type NavbarProps = {
-  user?: {
-    name?: string | null;  // Allow `null` to match NextAuth types
-  };
-};
-
-
-
-
-
-const Navbar: React.FC<NavbarProps> = ({ user }) => {
+const Navbar = () => {
   const { cartItems } = useCart();
+  const { user, signOut } = useUser();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, [])
+
+
+  const handleSignOut = () => {
+    if (user) {
+      signOut();
+    } else {
+      console.log("user doesnt exist...so no sign out")
+    }
+  }
 
 
 
@@ -83,21 +84,27 @@ const Navbar: React.FC<NavbarProps> = ({ user }) => {
             <FaLinkedinIn className="h-7 w-7  cursor-pointer hover:text-white hover:bg-blue-500 rounded-full p-[2px]" />
           </a>
 
-          <div className=" ml-5">
+         {mounted && user && <div className=" ml-5">
             <Link href={"/orders"}><h4 className="font-semibold hover:text-red-500">Orders</h4></Link>
-          </div>
+          </div>}
 
 
           <div className="relative mx-2">
             <Link href={"/cart"}>
               <MdOutlineShoppingCart className="font-bold text-[22px] cursor-pointer hover:text-red-500 relative" />
-             {mounted &&  (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{cartItems.length}</p>}
+              {mounted && (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{cartItems.length}</p>}
             </Link>
           </div>
 
-          <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
+          {mounted && (!user) && <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
             <Link href={"/auth/signin"}><h4>Login</h4></Link>
-          </div>
+          </div>}
+
+          {mounted && (user) && <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer" onClick={() => handleSignOut()}>
+            <h4>Logout</h4>
+          </div>}
+
+
         </div>
       </div>
     </nav>
