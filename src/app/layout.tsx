@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
 import Navbar2 from "@/components/Navbar2";
 import DashboardLowerBottom from "@/components/dashboardComponents/DashboardLowerBottom";
+import { UserProvider } from "@/context/UserContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,13 +34,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
-        <CartProvider>
-          <ServerNavbar />
-          <Navbar2 />
-          {children}
-          <DashboardLowerBottom />
-          <Footer />
-        </CartProvider>
+        <UserProvider>
+          <CartProvider>
+            <ServerNavbar />
+            <Navbar2 />
+            {children}
+            <DashboardLowerBottom />
+            <Footer />
+          </CartProvider>
+        </UserProvider>
 
       </body>
     </html>
