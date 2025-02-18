@@ -1,20 +1,29 @@
+"use client";
 // src/app/(protected)/profile/page.tsx
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+import { useUser } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default async function ProfilePage() {
-  const session = await getServerSession(); 
-  if (!session) {
-    redirect("/auth/signin");
-  }
+  const { user } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
+    }
+  }, []);
+
+
 
   return (
-    <div className="p-4">
-      <h2>Profile</h2>
-      <p>Name: {session.user?.name}</p>
-      <p>Company ID: {/* load from user object */}</p>
-      <p>GST No: {/* from user object */}</p>
-      {/* Render order/enquiry history */}
+    <div className=" max-w-[75%] mx-auto py-10">
+      <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
+        <h1 className="text-blue-800 text-3xl font-semibold italic">Profile</h1>
+        <div>
+
+        </div>
+      </div>
     </div>
   );
 }

@@ -5,12 +5,14 @@ import OrderItemCard from '@/components/OrderItemCard';
 import { useUser } from '@/context/UserContext';
 import { OrderItemType } from '@/lib/interfaces/OrderInterface';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { CgSmile } from "react-icons/cg";
 
 
 const OrderPage = () => {
     const { user } = useUser();
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [userOrders, setUserOrders] = useState<OrderItemType[]>([]);
 
@@ -18,9 +20,14 @@ const OrderPage = () => {
         setMounted(true);
         async function fetchData() {
             const data = await getUserOrder();
-            setUserOrders(data);
+            setUserOrders(data);}
+
+        if (!user) {
+            router.replace("/");
+        } else {
+            fetchData();
         }
-        fetchData();
+
     }, []);
 
     if (!mounted) {
@@ -134,7 +141,7 @@ const OrderPage = () => {
         <div className=" max-w-[75%] mx-auto py-10">
             <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
                 <h1 className="text-blue-800 text-3xl font-semibold italic">Orders</h1>
-                
+
                 <div>
                     {
                         (userOrders.length === 0) ? (
