@@ -6,8 +6,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface CartContextType {
   cartItems: CartItemType[];
   addToCart: (item: CartItemType) => void;
-  decrementToCart: (id: number) => void;
-  removeFromCart: (id: number) => void;
+  decrementToCart: (id: string) => void;
+  removeFromCart: (id: string) => void;
   updateProductToCart: (item: CartItemType) => void;
 }
 
@@ -60,7 +60,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const decrementToCart = (id: number) => {
+  const decrementToCart = (id: string) => {
     console.log("decrement to cart");
     setCartItems((prev) => {
       const existingItem = prev.find(c => c.productId === id);
@@ -76,7 +76,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCartItems((prev) => prev.filter((c) => c.productId !== id));
   };
 

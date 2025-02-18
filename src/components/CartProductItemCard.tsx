@@ -43,7 +43,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
       {/* Name and Description */}
       <div className="col-span-2 flex flex-col px-4">
         <h1 className="text-lg font-semibold">{cardData.productName}</h1>
-        <p className="text-sm text-gray-600">{cardData.productDesc}</p>
+        <p className="text-sm text-gray-600 line-clamp-3">{cardData.productDesc}</p>
       </div>
 
       {/* Quantity Controls */}

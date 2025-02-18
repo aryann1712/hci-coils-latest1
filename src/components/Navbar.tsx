@@ -20,6 +20,9 @@ const Navbar = () => {
   const { user, signOut } = useUser();
   const [mounted, setMounted] = useState(false);
 
+  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+
   useEffect(() => {
     setMounted(true);
   }, [])
@@ -92,7 +95,7 @@ const Navbar = () => {
           <div className="relative mx-2">
             <Link href={"/cart"}>
               <MdOutlineShoppingCart className="font-bold text-[22px] cursor-pointer hover:text-red-500 relative" />
-              {mounted && (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{cartItems.length}</p>}
+              {mounted && (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{totalQuantity}</p>}
             </Link>
           </div>
 

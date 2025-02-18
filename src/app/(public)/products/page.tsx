@@ -155,7 +155,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
   return [
     // A car image from stimg.cardekho.com
     {
-      id: 1,
+      id: "1",
       name: "Product A1",
       image:
         "https://stimg.cardekho.com/images/carexteriorimages/930x620/Maruti/Dzire/11387/1731318279714/front-left-side-47.jpg",
@@ -166,7 +166,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
 
     // Cars (Unsplash)
     {
-      id: 2,
+      id: "2",
       name: "Product A2",
       image:
         "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -175,7 +175,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Cars",
     },
     {
-      id: 3,
+      id: "3",
       name: "Product A3",
       image:
         "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -184,7 +184,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Cars",
     },
     {
-      id: 4,
+      id: "4",
       name: "Product A4",
       image:
         "https://images.pexels.com/photos/919073/pexels-photo-919073.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -193,7 +193,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Cars",
     },
     {
-      id: 5,
+      id: "5",
       name: "Product A5",
       image:
         "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg",
@@ -204,7 +204,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
 
     // Trucks
     {
-      id: 6,
+      id: "6",
       name: "Product T1",
       image:
         "https://images.pexels.com/photos/1592384/pexels-photo-1592384.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -213,7 +213,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Trucks",
     },
     {
-      id: 7,
+      id: "7",
       name: "Product T2",
       image:
         "https://images.pexels.com/photos/248747/pexels-photo-248747.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -222,7 +222,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Trucks",
     },
     {
-      id: 8,
+      id: "8",
       name: "Product T3",
       image:
         "https://images.pexels.com/photos/707046/pexels-photo-707046.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -231,7 +231,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Trucks",
     },
     {
-      id: 9,
+      id: "9",
       name: "Product T4",
       image:
         "https://images.pexels.com/photos/13861/IMG_3496bfree.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -240,7 +240,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Trucks",
     },
     {
-      id: 10,
+      id: "10",
       name: "Product T5",
       image:
         "https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -251,7 +251,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
 
     // Motorcycles
     {
-      id: 11,
+      id: "11",
       name: "Product M1",
       image:
         "https://images.pexels.com/photos/909907/pexels-photo-909907.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -260,7 +260,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Motorcycles",
     },
     {
-      id: 12,
+      id: "12",
       name: "Product M2",
       image:
         "https://images.pexels.com/photos/70912/pexels-photo-70912.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -269,7 +269,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Motorcycles",
     },
     {
-      id: 13,
+      id: "13",
       name: "Product M3",
       image:
         "https://images.pexels.com/photos/35967/mini-cooper-auto-model-vehicle.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -278,7 +278,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Motorcycles",
     },
     {
-      id: 14,
+      id: "14",
       name: "Product M4",
       image:
         "https://images.pexels.com/photos/120049/pexels-photo-120049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -287,7 +287,7 @@ async function getProductsFromAPI(): Promise<ProductInterface[]> {
       category: "Motorcycles",
     },
     {
-      id: 15,
+      id: "15",
       name: "Product M5",
       image:
         "https://images.pexels.com/photos/733745/pexels-photo-733745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",

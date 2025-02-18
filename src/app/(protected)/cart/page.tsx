@@ -5,6 +5,7 @@ import CartProductItemCard from "@/components/CartProductItemCard";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
+import { CgSmile } from "react-icons/cg";
 
 const CartPage: React.FC = () => {
   const { cartItems } = useCart();
@@ -40,9 +41,7 @@ const CartPage: React.FC = () => {
         <h1 className="text-blue-800 text-3xl font-semibold italic">Cart</h1>
 
         <div>
-          {cartItems.length === 0 ? (
-            <div>Your cart is empty.</div>
-          ) : (
+          {cartItems.length > 0 && (
             cartItems.map((item) => (
               <CartProductItemCard key={item.productId} cardData={item} />
             ))
@@ -50,12 +49,22 @@ const CartPage: React.FC = () => {
         </div>
 
         {/* 2 Button - Place order or continue Shopping */}
-        <div className="flex flex-row justify-evenly">
+        {mounted && (cartItems.length > 0) && <div className="flex flex-row justify-evenly">
           <Link href="/products">
             <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
           </Link>
           <button className="px-8 py-3  lg:w-[250px] rounded-md bg-green-400 hover:bg-green-500 text-center text-white font-semibold" onClick={() => handlePurchase()}>Place Order</button>
-        </div>
+        </div>}
+
+        {mounted && (cartItems.length === 0) && (
+          <div className='flex flex-col items-center justify-center gap-10'>
+            <h3 className='text-gray-400 '>You don't have any item in cart</h3>
+            <CgSmile className='text-8xl text-gray-400' />
+            <Link href="/products">
+              <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
