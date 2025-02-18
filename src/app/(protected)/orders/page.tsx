@@ -24,6 +24,7 @@ const OrderPage = () => {
 
         if (!user) {
             router.replace("/");
+            return;
         } else {
             fetchData();
         }

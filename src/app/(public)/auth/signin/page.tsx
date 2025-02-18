@@ -38,7 +38,8 @@ export default function SignInPage() {
       userId: "1",
       phone: "9315045029",
       role: 'user',
-      token: 'abcd'
+      token: 'abcd',
+      name: "rounak"
     }
 
     // 2) If sign-in success, store user in context
@@ -48,6 +49,7 @@ export default function SignInPage() {
       phone: data.phone,
       role: data.role,
       token: data.token,
+      name: data.name
     });
 
     // 3) Now redirect to redirectPath
