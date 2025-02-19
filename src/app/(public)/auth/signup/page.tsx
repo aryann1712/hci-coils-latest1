@@ -12,6 +12,7 @@ export default function SignUpPage() {
     address: "",
     phone: "",
     password: "",
+    email: ""
     // ...
   });
 
@@ -51,6 +52,15 @@ export default function SignUpPage() {
             className="border px-3 py-3 rounded-sm"
             type="tel"
             placeholder="Phone"
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, phone: e.target.value }))
+            }
+          />
+          <input
+            className="border px-3 py-3 rounded-sm"
+            type="email"
+            placeholder="Email"
             value={formData.phone}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, phone: e.target.value }))

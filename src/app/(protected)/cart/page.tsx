@@ -36,7 +36,7 @@ const CartPage: React.FC = () => {
   }
 
   return (
-    <div className=" max-w-[75%] mx-auto py-10">
+    <div className=" max-w-[75%] mx-auto py-10 mb-10">
       <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
         <h1 className="text-blue-800 text-3xl font-semibold italic">Cart</h1>
 
