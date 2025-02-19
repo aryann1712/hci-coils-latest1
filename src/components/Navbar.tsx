@@ -87,6 +87,11 @@ const Navbar = () => {
             <FaLinkedinIn className="h-7 w-7  cursor-pointer hover:text-white hover:bg-blue-500 rounded-full p-[2px]" />
           </a>
 
+
+          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className=" ml-5">
+            <Link href={"/admin-products"}><h4 className="font-semibold hover:text-red-500">Add Products</h4></Link>
+          </div>}
+
           {mounted && user && <div className=" ml-5">
             <Link href={"/orders"}><h4 className="font-semibold hover:text-red-500">Orders</h4></Link>
           </div>}

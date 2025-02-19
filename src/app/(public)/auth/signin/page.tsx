@@ -37,7 +37,7 @@ export default function SignInPage() {
     const data = {
       userId: "1",
       phone: "9315045029",
-      role: 'user',
+      role: 'admin',
       token: 'abcd',
       name: "rounak"
     }

@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo } from "react";
 import ProductCard from "@/components/ProductCard";
 import { ProductInterface } from "@/lib/interfaces/ProductInterface";
-import { useCart } from "@/context/CartContext";
 
 
 
@@ -13,11 +12,9 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9;
-  const { cartItems, addToCart, removeFromCart } = useCart();
 
   // Fetch data (simulate API call)
   useEffect(() => {
-    console.log(`cart items ${cartItems}`);
     async function fetchData() {
       const data = await getProductsFromAPI();
       setProducts(data);
