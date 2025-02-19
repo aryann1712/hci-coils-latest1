@@ -4,6 +4,7 @@ import AdminProductCard from "@/components/AdminProductCard";
 
 import { useUser } from "@/context/UserContext";
 import { ProductInterface } from "@/lib/interfaces/ProductInterface";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 
@@ -111,7 +112,9 @@ const AdminProductsPage = () => {
             />
           </div>
           {/* Add Product Grid */}
-          <button className="bg-blue-800 hover:bg-blue-900 cursor-pointer px-5 py-2 text-white font-semibold rounded-md">Add New Product</button>
+          <Link href={"/admin-products/add-product"}>
+            <div className="bg-blue-800 hover:bg-blue-900 cursor-pointer px-5 py-2 text-white font-semibold rounded-md">Add New Product</div>
+          </Link>
         </div>
       </div>
 
