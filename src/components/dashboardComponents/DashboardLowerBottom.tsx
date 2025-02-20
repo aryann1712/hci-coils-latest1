@@ -8,7 +8,7 @@ const DashboardLowerBottom = () => {
       {/* item 1 */}
       <div className='col-span-2 text-white space-y-5 px-10 max-w-2xl'>
         <h2 className='text-3xl font-extrabold'>Heat Craft Industries</h2>
-        <p className='text-base font-thin '>In today's fast-paced world, the demand for efficient heating solutions is more critical than ever. The heat craft industry has emerged as a vital sector, providing innovative heating technologies that cater to various needs </p>
+        <p className='text-base font-thin '>In today&apos;s fast-paced world, the demand for efficient heating solutions is more critical than ever. The heat craft industry has emerged as a vital sector, providing innovative heating technologies that cater to various needs </p>
       </div>
 
       {/* item 2 */}

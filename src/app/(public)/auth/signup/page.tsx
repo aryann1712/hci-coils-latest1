@@ -5,6 +5,8 @@ import { useState } from "react";
 
 
 export default function SignUpPage() {
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     userName: "",
     companyName: "",
@@ -18,27 +20,21 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     // 1. Verify GST # (optional: via backend API).
     // 2. Verify phone with OTP (could be a separate step).
     // 3. Create user in database, auto-generate customer ID/password, send email.
   };
 
-  const [loading, setLoading] = useState(false);
 
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    // signIn("credentials" or "provider", { ...options });
-    // or call a custom route for sign in
-    setLoading(false);
-  };
+
 
   return (
     <div className=" max-w-[75%] mx-auto py-10">
       <h1 className="text-blue-800 text-3xl font-semibold italic">Sign Up</h1>
       <div className="mx-auto py-16 px-10 rounded-sm shadow-xl max-w-2xl">
-        <form onSubmit={handleSignIn} className="flex flex-col gap-y-12 px-10">
+        <form onSubmit={handleSignUp} className="flex flex-col gap-y-12 px-10">
           <input
             className="border px-3 py-3 rounded-sm"
             type="text"

@@ -1,6 +1,4 @@
 import Image from 'next/image';
-import React from 'react'
-import { SiRoamresearch } from "react-icons/si";
 
 
 const DashboardProductRange = () => {

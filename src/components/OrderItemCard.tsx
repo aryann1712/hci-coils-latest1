@@ -1,16 +1,15 @@
 "use client";
-import { OrderItemType } from '@/lib/interfaces/OrderInterface'
-import Image from 'next/image'
-import { FaReply } from "react-icons/fa";
-import React from 'react'
 import { useCart } from '@/context/CartContext';
+import { OrderItemType } from '@/lib/interfaces/OrderInterface';
+import Image from 'next/image';
+import { FaReply } from "react-icons/fa";
 
 const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
-    const { cartItems, addToCart } = useCart();
-  
+  const { addToCart } = useCart();
+
 
   const addItemsToCart = (() => {
-    for(let item of orderItem.products) {
+    for (const item of orderItem.products) {
       addToCart(item);
     }
   });

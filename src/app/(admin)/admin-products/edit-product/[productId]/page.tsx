@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@/context/UserContext";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import React, { ChangeEvent, useEffect, useState } from "react";
 
@@ -15,23 +16,6 @@ type NewImagePreview = {
 };
 
 export default function EditProductPage() {
-  const { user } = useUser();
-  const router = useRouter();
-
-  // If using the folder structure: (admin)/admin-products/edit-product/[productId]
-  // you can read productId via useParams
-  const params = useParams();
-  const productIds = params?.productId; // string | string[]
-  if (!productIds) return;
-
-  const productId = Array.isArray(productIds) ? productIds[0] : productIds;
-  // Now singleProductId is guaranteed to be a string
-
-
-  // Alternatively, if you had "?id=123" in the query, you'd do:
-  // const searchParams = useSearchParams();
-  // const productId = searchParams.get("productId");
-
   const [mounted, setMounted] = useState(false);
 
   // Form state
@@ -48,6 +32,23 @@ export default function EditProductPage() {
 
   const [categoryInput, setCategoryInput] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+
+  const { user } = useUser();
+  const router = useRouter();
+
+  // If using the folder structure: (admin)/admin-products/edit-product/[productId]
+  // you can read productId via useParams
+  const params = useParams();
+  const productIds = params?.productId; // string | string[]
+
+  const productId = Array.isArray(productIds) ? productIds[0] : productIds;
+  // Now singleProductId is guaranteed to be a string
+
+
+  // Alternatively, if you had "?id=123" in the query, you'd do:
+  // const searchParams = useSearchParams();
+  // const productId = searchParams.get("productId");
+
 
   // 1) On mount, check user and load product data
   useEffect(() => {
@@ -78,6 +79,7 @@ export default function EditProductPage() {
       //   throw new Error("Failed to fetch product");
       // }
       // const data = await res.json();
+      console.log(id);
 
       const data = {
         name: "Rounak Raj",
@@ -264,7 +266,9 @@ export default function EditProductPage() {
             <div className="mt-3 flex gap-4 flex-wrap">
               {existingImages.map((img, index) => (
                 <div key={index} className="border p-2 relative">
-                  <img
+                  <Image
+                    height={1000}
+                    width={1000}
                     src={img.url}
                     alt={`existing-${index}`}
                     className="w-32 h-32 object-cover"
@@ -311,7 +315,9 @@ export default function EditProductPage() {
             <div className="mt-3 flex gap-4 flex-wrap">
               {newImages.map((img, index) => (
                 <div key={index} className="border p-2 relative">
-                  <img
+                  <Image
+                   height={1000}
+                   width={1000}
                     src={img.previewUrl}
                     alt={`new-${index}`}
                     className="w-32 h-32 object-cover"

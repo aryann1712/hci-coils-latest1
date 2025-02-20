@@ -30,7 +30,7 @@ const OrderPage = () => {
             fetchData();
         }
 
-    }, []);
+    }, [user, router]);
 
     if (!mounted) {
         return null;
@@ -152,7 +152,7 @@ const OrderPage = () => {
                     {
                         (userOrders.length === 0) ? (
                             <div className='flex flex-col items-center justify-center gap-10'>
-                                <h3 className='text-gray-400 '>You don't have any previous order</h3>
+                                <h3 className='text-gray-400 '>You don&apos;t have any previous order</h3>
                                 <CgSmile className='text-8xl text-gray-400' />
                                 <Link href="/products">
                                     <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>

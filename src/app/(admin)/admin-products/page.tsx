@@ -81,7 +81,7 @@ const AdminProductsPage = () => {
       fetchData();
     }
 
-  }, []);
+  }, [user, router]);
 
 
 

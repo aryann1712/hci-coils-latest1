@@ -1,13 +1,10 @@
 // src/app/dashboard/page.tsx
 import DashboardAboutUs from "@/components/dashboardComponents/DashboardAboutUs";
-import DashboardLowerBottom from "@/components/dashboardComponents/DashboardLowerBottom";
 import DashboardProductRange from "@/components/dashboardComponents/DashboardProductRange";
 import DashboardVideo from "@/components/dashboardComponents/DashboardVideo";
 import DashboardWhyChooseUs from "@/components/dashboardComponents/DashboardWhyChooseUs";
-import { getSessionData } from "@/lib/auth";
 
 export default async function DashboardPage() {
-  const session = await getSessionData();
 
   // Welcome, {session?.user?.name}
   return (

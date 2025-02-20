@@ -2,11 +2,9 @@
 
 import AdminUserDetailsCard from '@/components/AdminUserDetailsCard';
 import { useUser } from '@/context/UserContext';
-import { OrderItemType } from '@/lib/interfaces/OrderInterface';
 import { UserAllInfoType } from '@/lib/interfaces/UserInterface';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { CgSmile } from 'react-icons/cg';
 
 
 const ManageEmployeePage = () => {
@@ -35,7 +33,7 @@ const ManageEmployeePage = () => {
     } else {
       fetchData();
     }
-  }, []);
+  }, [mounted, router, user]);
 
 
   // Filter the products by category AND search query

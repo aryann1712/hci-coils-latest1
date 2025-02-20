@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@/context/UserContext";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, ChangeEvent } from "react";
 
@@ -99,21 +100,21 @@ export default function AdminAddProduct() {
     // categories as JSON or repeated key
     formData.append("categories", JSON.stringify(categories));
 
-    images.forEach((img, idx) => {
+    images.forEach((img) => {
       formData.append("images", img.file);
     });
 
     // Send to your backend route, e.g. /api/admin/products
     try {
-    //   const res = await fetch("/api/admin/products", {
-    //     method: "POST",
-    //     body: formData,
-    //   });
-    //   if (!res.ok) {
-    //     const data = await res.json();
-    //     alert(data.error || "Failed to create product");
-    //     return;
-    //   }
+      //   const res = await fetch("/api/admin/products", {
+      //     method: "POST",
+      //     body: formData,
+      //   });
+      //   if (!res.ok) {
+      //     const data = await res.json();
+      //     alert(data.error || "Failed to create product");
+      //     return;
+      //   }
       // success
       alert("Product added successfully!");
       router.push("/admin-products"); // or wherever you list products
@@ -169,9 +170,11 @@ export default function AdminAddProduct() {
             <div className="mt-3 flex gap-4 flex-wrap">
               {images.map((img, index) => (
                 <div key={index} className="border p-2 relative">
-                  <img
+                  <Image
                     src={img.previewUrl}
                     alt={`preview-${index}`}
+                    height={1000}
+                    width={1000}
                     className="w-32 h-32 object-cover"
                   />
                   <button

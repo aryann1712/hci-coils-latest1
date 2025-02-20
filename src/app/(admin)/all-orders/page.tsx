@@ -36,7 +36,7 @@ const AdminAllOrders = () => {
             fetchData();
         }
 
-    }, []);
+    }, [mounted, user, router]);
 
 
     // Filter the products by category AND search query

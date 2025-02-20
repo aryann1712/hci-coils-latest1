@@ -41,7 +41,7 @@ const ProfilePage = () => {
       fetchData();
     }
     console.log("username => ", user)
-  }, []);
+  }, [user, router]);
 
   if (!mounted) {
     return null;
