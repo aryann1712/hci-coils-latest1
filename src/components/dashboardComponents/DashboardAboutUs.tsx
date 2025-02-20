@@ -3,7 +3,7 @@ import React from 'react'
 
 const DashboardAboutUs = () => {
     return (
-        <div className='w-full lg:w-[75%] mx-auto flex flex-col gap-y-10 py-10 justify-center items-center'>
+        <div className='w-full lg:w-[75%] mx-auto flex flex-col gap-y-10 py-10 justify-center items-center max-w-5xl'>
             {/* Row -1 */}
             <div className='grid grid-cols-1 lg:grid-cols-3 items-center justify-center text-center gap-y-5'>
                 <div className='flex justify-center'>
