@@ -76,7 +76,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <section className="p-4">
+    <section className="p-4 px-16 mb-10">
       {/* Search Bar */}
       <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
         {/* Category Filter */}
@@ -115,7 +115,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 gap-y-10 md:grid-cols-3">
         {currentPageProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
