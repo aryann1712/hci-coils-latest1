@@ -88,6 +88,11 @@ const Navbar = () => {
           </a>
 
 
+          {mounted && (user?.role == "admin" ) && <div className=" ml-5">
+            <Link href={"/manage-employee"}><h4 className="font-semibold hover:text-red-500">Manage Employee</h4></Link>
+          </div>}
+
+
           {mounted && (user?.role == "admin" || user?.role == "manager") && <div className=" ml-5">
             <Link href={"/all-orders"}><h4 className="font-semibold hover:text-red-500">All Orders</h4></Link>
           </div>}

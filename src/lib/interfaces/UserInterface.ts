@@ -11,6 +11,7 @@ export interface UserType {
 
   export interface UserAllInfoType {
     userId: string;
+    role?: string;
     name: string;
     phone: string;
     address: string;
