@@ -1,19 +1,9 @@
 "use client";
-import { OrderItemType } from '@/lib/interfaces/OrderInterface'
-import Image from 'next/image'
-import { FaReply } from "react-icons/fa";
-import React from 'react'
-import { useCart } from '@/context/CartContext';
+import { OrderItemType } from '@/lib/interfaces/OrderInterface';
+import Image from 'next/image';
 
-const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
-    const { cartItems, addToCart } = useCart();
+const AdminOrderCheckItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
   
-
-  const addItemsToCart = (() => {
-    for(let item of orderItem.products) {
-      addToCart(item);
-    }
-  });
 
   return (
     <div className='shadow-md rounded-md my-5 py-5 px-5 border-dashed border flex flex-row gap-5 items-center justify-center'>
@@ -53,14 +43,8 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
           </div>
         ))}
       </div>
-      <div className='group' >
-        <div className='min-w-[200px] flex flex-col justify-center items-center cursor-pointer gap-y-2' onClick={() => addItemsToCart()}>
-          <FaReply className='text-4xl text-gray-400 group-hover:text-red-500' />
-          <h1 className='font-semibold group-hover:text-red-500'>Add to cart</h1>
-        </div>
-      </div>
     </div>
   )
 }
 
-export default OrderItemCard
+export default AdminOrderCheckItemCard

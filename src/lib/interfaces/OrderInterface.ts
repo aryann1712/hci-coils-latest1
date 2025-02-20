@@ -8,5 +8,6 @@ export interface OrderItemType {
     name: string;
     phone: string;
     gstNumber: string;
+    companyName: string;
     address: string;
   }

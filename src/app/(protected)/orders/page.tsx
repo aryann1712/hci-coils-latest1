@@ -20,7 +20,8 @@ const OrderPage = () => {
         setMounted(true);
         async function fetchData() {
             const data = await getUserOrder();
-            setUserOrders(data);}
+            setUserOrders(data);
+        }
 
         if (!user) {
             router.replace("/");
@@ -69,6 +70,7 @@ const OrderPage = () => {
                 gstNumber: "1234567890",
                 phone: "9315045029",
                 userId: "1",
+                companyName: "apple",
                 name: "Rounak"
             },
             {
@@ -101,6 +103,8 @@ const OrderPage = () => {
                 gstNumber: "1234567890",
                 phone: "9315045029",
                 userId: "1",
+                companyName: "apple",
+
                 name: "Rounak"
             },
             {
@@ -131,6 +135,7 @@ const OrderPage = () => {
                 ],
                 address: "vasundhara",
                 gstNumber: "1234567890",
+                companyName: "apple",
                 phone: "9315045029",
                 userId: "1",
                 name: "Rounak"
