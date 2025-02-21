@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
 import ProductCard from "@/components/ProductCard";
-import { ProductInterface } from "@/lib/interfaces/ProductInterface";
 import { AllProducts, ProductAllTypeInterfact } from "@/data/allProducts";
+import { useEffect, useMemo, useState } from "react";
 
 
 
