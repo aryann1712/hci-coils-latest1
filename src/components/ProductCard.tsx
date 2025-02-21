@@ -4,6 +4,16 @@ import { useCart } from '@/context/CartContext';
 import { ProductAllTypeInterfact } from '@/data/allProducts';
 import Image from 'next/image';
 
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Card, CardContent } from './ui/card';
+
+
 const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
   const { addToCart } = useCart();
 
@@ -11,17 +21,27 @@ const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
     <div className='rounded-md shadow-lg flex flex-col items-start justify-center gap-5'>
       {/* Image */}
       <div className="relative overflow-hidden group">
-        <Image
-          src={product.imagePaths[0]}
-          alt={product.name}
-          height={800}
-          width={800}
-          className="object-cover transition-transform duration-300 group-hover:scale-110 h-[300px] rounded-t-md"
-        />
+        <Carousel className="w-full">
+          <CarouselContent>
+            {product.imagePaths.map((item, index) => (
+              <CarouselItem key={index}>
+                <Image
+                  src={item}
+                  alt={product.name}
+                  height={800}
+                  width={800}
+                  className="object-cover transition-transform duration-300 group-hover:scale-110 h-[300px] rounded-t-md"
+                />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+
+        </Carousel>
+
       </div>
       <div className='space-y-2 p-3 '>
         {/* Name */}
-        <h3 className='text-xl font-semibold'>{product.name}</h3>
+        <h3 className='text-xl font-semibold font-sans'>{product.name}</h3>
         {/* Desc */}
         <p className='text-sm font-thin text-gray-400 line-clamp-3'>{product.desc}</p>
         {/* Buttons */}
