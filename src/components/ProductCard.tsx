@@ -15,7 +15,7 @@ const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
   const { addToCart } = useCart();
 
   return (
-    <div className='rounded-md shadow-lg flex flex-col items-start justify-center gap-5'>
+    <div className='w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5'>
       {/* Image */}
       <div className="relative overflow-hidden group">
         <Carousel className="w-full">
@@ -42,14 +42,14 @@ const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
         {/* Desc */}
         <p className='text-sm font-thin text-gray-400 line-clamp-3'>{product.desc}</p>
         {/* Buttons */}
-        <div className='pt-5 px-10 flex justify-between'>
-          <button
+        <div className='pt-5 px-10 flex justify-center'>
+          {/* <button
             className='bg-green-700 text-white px-5 py-2 rounded-md'
             onClick={() => console.log("enquire now")}>
             Enquire Now
-          </button>
+          </button> */}
           <button
-            className='bg-red-600 text-white px-5 py-2 rounded-md'
+            className='bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md'
             onClick={() => addToCart({
               productId: product.id,
               productName: product.name,
