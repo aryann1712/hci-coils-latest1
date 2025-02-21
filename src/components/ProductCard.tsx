@@ -1,11 +1,10 @@
 "use client";
 
-import {  useCart } from '@/context/CartContext';
-import { ProductInterface } from '@/lib/interfaces/ProductInterface';
+import { useCart } from '@/context/CartContext';
+import { ProductAllTypeInterfact } from '@/data/allProducts';
 import Image from 'next/image';
-import React from 'react'
 
-const ProductCard = ({ product }: { product: ProductInterface }) => {
+const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
   const { addToCart } = useCart();
 
   return (
@@ -13,7 +12,7 @@ const ProductCard = ({ product }: { product: ProductInterface }) => {
       {/* Image */}
       <div className="relative overflow-hidden group">
         <Image
-          src={product.image}
+          src={product.imagePaths[0]}
           alt={product.name}
           height={800}
           width={800}
@@ -24,7 +23,7 @@ const ProductCard = ({ product }: { product: ProductInterface }) => {
         {/* Name */}
         <h3 className='text-xl font-semibold'>{product.name}</h3>
         {/* Desc */}
-        <p className='text-sm font-thin text-gray-400 line-clamp-3'>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aspernatur, molestiae. Rem eveniet provident odit, ratione adipisci consequatur consectetur nostrum dolorem magnam voluptate quisquam facere. Esse praesentium omnis modi dolorem laborum.</p>
+        <p className='text-sm font-thin text-gray-400 line-clamp-3'>{product.desc}</p>
         {/* Buttons */}
         <div className='pt-5 px-10 flex justify-between'>
           <button
@@ -34,13 +33,13 @@ const ProductCard = ({ product }: { product: ProductInterface }) => {
           </button>
           <button
             className='bg-red-600 text-white px-5 py-2 rounded-md'
-            onClick={() => addToCart({ 
-              productId: product.id, 
-              productName: product.name, 
-              productDesc: product.description,
-              productImage: product.image,
-              quantity: 1 
-              })}>
+            onClick={() => addToCart({
+              productId: product.id,
+              productName: product.name,
+              productDesc: product.desc,
+              productImage: product.imagePaths[0],
+              quantity: 1
+            })}>
             Add to Cart
           </button>
         </div>
