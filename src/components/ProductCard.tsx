@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/carousel";
 
 
-const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
+const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInterfact, showHover? : boolean }) => {
   const { addToCart } = useCart();
 
   return (
@@ -27,7 +27,7 @@ const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
                   alt={product.name}
                   height={800}
                   width={800}
-                  className="object-cover transition-transform duration-300 group-hover:scale-110 h-[300px] rounded-t-md"
+                  className={`object-cover transition-transform duration-300 ${showHover ? 'group-hover:scale-110' : 'group-hover:scale-100'}  h-[300px] rounded-t-md`}
                 />
               </CarouselItem>
             ))}
@@ -65,5 +65,7 @@ const ProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
     </div>
   );
 }
+
+
 
 export default ProductCard

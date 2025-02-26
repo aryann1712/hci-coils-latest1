@@ -17,7 +17,7 @@ import React from "react";
 
 const Navbar2 = () => {
     return (
-        <div className="sticky top-0 w-full bg-white pt-1 ">
+        <div className="sticky top-0 w-full bg-white pt-1 z-50 ">
             <div className="w-full h-[1px] bg-gray-200"></div>
             {/* second row */}
             <div className=" max-w-[75%]  mx-auto py-5 space-y-5  flex justify-between items-center">

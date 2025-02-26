@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
-import { AllProducts, ProductAllTypeInterfact } from '@/data/allProducts';
-import ProductCard from '../ProductCard';
-import Link from 'next/link';
+import React, { useEffect, useState } from "react";
+import { AllProducts, ProductAllTypeInterfact } from "@/data/allProducts";
+import ProductCard from "../ProductCard";
+import Link from "next/link";
+import { Marquee } from "@/components/magicui/marquee";
 
 const DashboardProductCarousel = () => {
   const [products, setProducts] = useState<ProductAllTypeInterfact[]>([]);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const scrollSpeed = 15;
 
   useEffect(() => {
     async function fetchData() {
@@ -18,57 +17,42 @@ const DashboardProductCarousel = () => {
     fetchData();
   }, []);
 
-  // Use useLayoutEffect to set initial scroll position
-  useLayoutEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo(0, 0); // Or containerRef.current.scrollLeft = 0;
-      // console.log("Initial scrollLeft:", containerRef.current.scrollLeft); // Debugging
-    }
-  }, []); // Empty dependency array ensures this runs only once on mount
+  // Ensure we only have products before splitting
+  if (products.length === 0) return null;
 
-  useEffect(() => {
-    let animationId: number | null = null;
-
-    const scroll = () => {
-      if (containerRef.current) {
-        containerRef.current.scrollLeft += scrollSpeed;
-
-        // Check if scrolled to the end and reset
-        if (containerRef.current.scrollLeft >= containerRef.current.scrollWidth - containerRef.current.offsetWidth) {
-          containerRef.current.scrollLeft = 0;
-          // console.log("Resetting scrollLeft:", containerRef.current.scrollLeft); // Debugging
-        }
-        // console.log("Current scrollLeft:", containerRef.current.scrollLeft); // Debugging
-        animationId = requestAnimationFrame(scroll);
-      }
-    };
-
-    if (products.length > 0 && containerRef.current) { // Check if containerRef is available
-      scroll();
-    }
-
-    return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
-  }, [products]);
+  // Split products into two rows
+  const firstRow = products.slice(0, Math.ceil(products.length / 2));
+  const secondRow = products.slice(Math.ceil(products.length / 2));
 
   return (
-    <div className='pt-10 my-10 mx-auto flex flex-col justify-center items-center'>
-      <h1 className='font-bold text-4xl w-full px-10'>Products</h1>
-      <div
-        ref={containerRef}
-        className='w-full flex flex-row gap-x-10 py-10 justify-start items-center px-5 overflow-x-auto scroll-smooth no-scrollbar'
-      >
-        {products.map((product) => (
-          <div key={product.id}>
-            <ProductCard key={product.id} product={product} />
-          </div>
-        ))}
+    <div className="pt-10 my-10 mx-auto flex flex-col justify-center items-center">
+      <h1 className="font-bold text-4xl w-full px-10">Products</h1>
+
+      {/* Marquee Animation for Products */}
+      <div className="relative flex w-full flex-col  space-y-10 items-center justify-center overflow-hidden">
+        {/* First Row - Moves Left */}
+        <Marquee  className="[--duration:25s]">
+          {firstRow.map((product) => (
+            <div key={product.id} className="mx-10 w-[350px]">
+              <ProductCard product={product} showHover={false} />
+            </div>
+          ))}
+        </Marquee>
+
+        {/* Second Row - Moves Right */}
+        <Marquee reverse className="[--duration:25s]">
+          {secondRow.map((product) => (
+            <div key={product.id} className="mx-10 w-[350px]">
+              <ProductCard product={product} showHover={false} />
+            </div>
+          ))}
+        </Marquee>
+
       </div>
-      <Link className='mt-10' href={'/products'}>
-        <div className='px-8 py-3 max-w-44 rounded-md bg-blue-800 hover:bg-blue-700 text-white font-semibold'>
+
+      {/* Show More Button */}
+      <Link className="mt-10" href={"/products"}>
+        <div className="px-8 py-3 max-w-44 rounded-md bg-blue-800 hover:bg-blue-700 text-white font-semibold">
           Show More
         </div>
       </Link>
@@ -79,6 +63,5 @@ const DashboardProductCarousel = () => {
 export default DashboardProductCarousel;
 
 async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
-  const data = AllProducts;
-  return data;
+  return AllProducts;
 }
