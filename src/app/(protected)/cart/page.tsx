@@ -7,6 +7,7 @@ import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 import { CgSmile } from "react-icons/cg";
 
+
 const CartPage: React.FC = () => {
   const { cartItems } = useCart();
   const [mounted, setMounted] = useState(false);
@@ -26,6 +27,16 @@ const CartPage: React.FC = () => {
       console.log("Cart items:", cartItems);
     }
   }
+
+  const handleEnquireNow = async () => {
+    if (user) {
+      
+    } else {
+      console.log("no user found...try to sign in");
+      // Redirect to sign-in page if not logged in
+      router.push("/auth/signin");
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -49,11 +60,12 @@ const CartPage: React.FC = () => {
           )}
         </div>
 
-        {/* 2 Button - Place order or continue Shopping */}
+        {/* 3 Button - Place order or continue Shopping */}
         {mounted && (cartItems.length > 0) && <div className="flex flex-row justify-evenly">
           <Link href="/products">
             <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
           </Link>
+            <button className="px-8 py-3 lg:w-[250px] rounded-md bg-blue-400 hover:bg-blue-500 text-center text-white font-semibold" onClick={() => handleEnquireNow()}>Enquire Now</button>
           <button className="px-8 py-3  lg:w-[250px] rounded-md bg-green-400 hover:bg-green-500 text-center text-white font-semibold" onClick={() => handlePurchase()}>Place Order</button>
         </div>}
 
