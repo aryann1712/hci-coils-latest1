@@ -97,9 +97,17 @@ const Navbar = () => {
             <Link href={"/all-orders"}><h4 className="font-semibold hover:text-red-500">All Orders</h4></Link>
           </div>}
 
+          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className=" ml-5">
+            <Link href={"/all-enquires"}><h4 className="font-semibold hover:text-red-500">All Enquires</h4></Link>
+          </div>}
+
 
           {mounted && (user?.role == "admin" || user?.role == "manager") && <div className=" ml-5">
             <Link href={"/admin-products"}><h4 className="font-semibold hover:text-red-500">Add Products</h4></Link>
+          </div>}
+
+          {mounted && user && <div className=" ml-5">
+            <Link href={"/enquire"}><h4 className="font-semibold hover:text-red-500">Enquires</h4></Link>
           </div>}
 
           {mounted && user && <div className=" ml-5">
@@ -114,6 +122,12 @@ const Navbar = () => {
             </Link>
           </div>
 
+          {mounted && user && <div className="">
+            <Link href={"/auth/change-password"}>
+            <h4 className="font-semibold hover:text-red-500">Change Password</h4>
+            </Link>
+          </div>}
+         
           {mounted && user && <div className="">
             <Link href={"/profile"}>
               <IoPersonCircleOutline className="font-bold text-[30px] cursor-pointer hover:text-red-500 relative" />
