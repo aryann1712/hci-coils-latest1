@@ -38,22 +38,23 @@ export default function ChangePasswordPage() {
     // }
 
     // For demonstration: mock data
-    const data = {
-      userId: "1",
-      phone: "9315045029",
-      role: "admin",
-      token: "abcd", // pretend JWT
-      name: "Rounak",
-    };
+    // const data = {
+    //   userId: "1",
+    //   phone: "9315045029",
+    //   role: "admin",
+    //   token: "abcd", // pretend JWT
+    //   name: "Rounak",
+    // };
 
     // Sign in with the user context
-    signIn({
-      userId: data.userId,
-      phone: data.phone,
-      role: data.role,
-      token: data.token,
-      name: data.name,
-    });
+    // signIn({
+    //   userId: data.userId,
+    //   email: data.email,
+    //   phone: data.phone,
+    //   role: data.role,
+    //   token: data.token,
+    //   name: data.name,
+    // });
 
     // Redirect
     router.push("/");

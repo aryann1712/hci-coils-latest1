@@ -10,6 +10,7 @@ import { TiSocialFacebook } from "react-icons/ti";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
+import { HiOutlineKey } from "react-icons/hi";
 
 
 
@@ -88,7 +89,7 @@ const Navbar = () => {
           </a>
 
 
-          {mounted && (user?.role == "admin" ) && <div className=" ml-5">
+          {mounted && (user?.role == "admin") && <div className=" ml-5">
             <Link href={"/manage-employee"}><h4 className="font-semibold hover:text-red-500">Manage Employee</h4></Link>
           </div>}
 
@@ -114,20 +115,22 @@ const Navbar = () => {
             <Link href={"/orders"}><h4 className="font-semibold hover:text-red-500">Orders</h4></Link>
           </div>}
 
+          {mounted && user && <div className="ml-5">
+            <Link href={"/auth/change-password"}>
+              <HiOutlineKey className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
+            </Link>
+          </div>}
+
 
           <div className="relative mx-2">
             <Link href={"/cart"}>
-              <MdOutlineShoppingCart className="font-bold text-[22px] cursor-pointer hover:text-red-500 relative" />
+              <MdOutlineShoppingCart className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
               {mounted && (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{totalQuantity}</p>}
             </Link>
           </div>
 
-          {mounted && user && <div className="">
-            <Link href={"/auth/change-password"}>
-            <h4 className="font-semibold hover:text-red-500">Change Password</h4>
-            </Link>
-          </div>}
-         
+
+
           {mounted && user && <div className="">
             <Link href={"/profile"}>
               <IoPersonCircleOutline className="font-bold text-[30px] cursor-pointer hover:text-red-500 relative" />

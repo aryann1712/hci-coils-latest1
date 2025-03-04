@@ -10,7 +10,7 @@ import { useState } from "react";
 
 export default function SignInPage() {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ phone: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
 
 
@@ -22,33 +22,29 @@ export default function SignInPage() {
     setLoading(true);
 
     // Example: Real sign-in (uncomment to use real API)
-    // const response = await fetch("/api/users/signin", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     phone: formData.phone,
-    //     password: formData.password,
-    //   }),
-    // });
-    // const data = await response.json();
-    // if (!response.ok) {
-    //   alert(data.error || "Sign in failed");
-    //   setLoading(false);
-    //   return;
-    // }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/signin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
+    const data = await response.json();
 
-    // For demonstration: mock data
-    const data = {
-      userId: "1",
-      phone: "9315045029",
-      role: "admin",
-      token: "abcd", // pretend JWT
-      name: "Rounak",
-    };
 
+    console.log("data", data);
+    if (!response.ok) {
+      alert(data.error || "Sign in failed");
+      setLoading(false);
+      return;
+    }
+
+  
     // Sign in with the user context
     signIn({
       userId: data.userId,
+      email: data.email,
       phone: data.phone,
       role: data.role,
       token: data.token,
@@ -68,11 +64,11 @@ export default function SignInPage() {
           <form onSubmit={handleSignIn} className="flex flex-col gap-y-12 px-10">
             <input
               className="border px-3 py-3 rounded-sm"
-              type="tel"
-              placeholder="Phone"
-              value={formData.phone}
+              type="email"
+              placeholder="Email"
+              value={formData.email}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
               }
             />
 

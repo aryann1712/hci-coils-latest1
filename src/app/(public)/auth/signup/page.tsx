@@ -1,19 +1,21 @@
 // src/app/(public)/auth/signup/page.tsx
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
 
   const [formData, setFormData] = useState({
-    userName: "",
+    name: "",
     companyName: "",
     gstNumber: "",
     address: "",
     phone: "",
-    password: "",
     email: ""
     // ...
   });
@@ -24,6 +26,34 @@ export default function SignUpPage() {
     // 1. Verify GST # (optional: via backend API).
     // 2. Verify phone with OTP (could be a separate step).
     // 3. Create user in database, auto-generate customer ID/password, send email.
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.name, 
+        phone: formData.phone, 
+        email: formData.email, 
+        gstNumber: formData.gstNumber, 
+        companyName: formData.companyName, 
+        address: formData.address 
+      }),
+    });
+    const data = await response.json();
+
+    console.log("data", data);
+    if (!response.ok) {
+      alert(data.error || "Sign in failed");
+      setLoading(false);
+      return;
+    }
+
+
+    router.push("/auth/signin");
+    setLoading(false);
+    
+
+
   };
 
 
@@ -39,9 +69,9 @@ export default function SignUpPage() {
             className="border px-3 py-3 rounded-sm"
             type="text"
             placeholder="Name"
-            value={formData.phone}
+            value={formData.name}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, phone: e.target.value }))
+              setFormData((prev) => ({ ...prev, name: e.target.value }))
             }
           />
           <input
@@ -57,25 +87,25 @@ export default function SignUpPage() {
             className="border px-3 py-3 rounded-sm"
             type="email"
             placeholder="Email"
-            value={formData.phone}
+            value={formData.email}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, phone: e.target.value }))
+              setFormData((prev) => ({ ...prev, email: e.target.value }))
             }
           />
           <input
             className="border px-3 py-3 rounded-sm"
             type="text"
             placeholder="Gst Number"
-            value={formData.phone}
+            value={formData.gstNumber}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, phone: e.target.value }))
+              setFormData((prev) => ({ ...prev, gstNumber: e.target.value }))
             }
           />
           <input
             className="border px-3 py-3 rounded-sm"
-            type="company Name"
+            type="text"
             placeholder="Company Name"
-            value={formData.phone}
+            value={formData.companyName}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, phone: e.target.value }))
             }
@@ -89,15 +119,7 @@ export default function SignUpPage() {
               setFormData((prev) => ({ ...prev, phone: e.target.value }))
             }
           />
-          <input
-            className="border px-3 py-3 rounded-sm"
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, password: e.target.value }))
-            }
-          />
+        
           <button
             type="submit"
             className="bg-blue-800 text-white px-4 py-2 rounded-lg"
