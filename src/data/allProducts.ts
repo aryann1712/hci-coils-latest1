@@ -1,11 +1,15 @@
 export interface ProductAllTypeInterfact {
     id: string;
+    category?: string;
+    price?: number;
     name: string;
-    desc: string;
-    imagePaths: string[]
+    sku: string;
+    description: string;
+    images: string[]
 }
 
-export const AllProducts: ProductAllTypeInterfact[] = [
+
+export const AllProducts = [
     {
         id: "1",
         name: "10/11/2R/C/OM/8F 577.11233",

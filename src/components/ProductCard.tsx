@@ -20,9 +20,10 @@ const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInter
       <div className="relative overflow-hidden group">
         <Carousel className="w-full">
           <CarouselContent>
-            {product.imagePaths.map((item, index) => (
+            {product.images.map((item, index) => (
               <CarouselItem key={index}>
                 <Image
+                key={index}
                   src={item}
                   alt={product.name}
                   height={800}
@@ -40,7 +41,7 @@ const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInter
         {/* Name */}
         <h3 className='text-xl font-semibold font-sans'>{product.name}</h3>
         {/* Desc */}
-        <p className='text-sm font-thin text-gray-400 line-clamp-3'>{product.desc}</p>
+        <p className='text-sm font-thin text-gray-400 line-clamp-3'>{product.description}</p>
         {/* Buttons */}
         <div className='pt-5 px-10 flex justify-center'>
           {/* <button
@@ -51,10 +52,12 @@ const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInter
           <button
             className='bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md'
             onClick={() => addToCart({
-              productId: product.id,
-              productName: product.name,
-              productDesc: product.desc,
-              productImage: product.imagePaths[0],
+              _id: product.id,
+              name: product.name,
+              description: product.description,
+              images: product.images,
+              category: product.category || '',
+              sku: product.sku,
               quantity: 1
             })}>
             Add to Cart

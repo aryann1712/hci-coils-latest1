@@ -6,10 +6,11 @@ import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 import { CgSmile } from "react-icons/cg";
+import { CartItemType } from "@/lib/interfaces/CartInterface";
 
 
 const CartPage: React.FC = () => {
-  const { cartItems } = useCart();
+  const { cartItems, setAllToCart } = useCart();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { user } = useUser();
@@ -30,7 +31,7 @@ const CartPage: React.FC = () => {
 
   const handleEnquireNow = async () => {
     if (user) {
-      
+
     } else {
       console.log("no user found...try to sign in");
       // Redirect to sign-in page if not logged in
@@ -40,7 +41,18 @@ const CartPage: React.FC = () => {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    console.log("user", user);
+  
+    async function fetchData() {
+      if (user && user.userId) {
+        const data  = await getCartFromAPI(user.userId);
+        if(data) {
+          setAllToCart(data);
+        }
+      }
+    }
+    fetchData();
+  }, [user]);
 
   // Until the component is mounted, you can render a placeholder or nothing.
   if (!mounted) {
@@ -54,8 +66,9 @@ const CartPage: React.FC = () => {
 
         <div>
           {cartItems.length > 0 && (
-            cartItems.map((item) => (
-              <CartProductItemCard key={item.productId} cardData={item} />
+            cartItems.map((item, index) => (
+              console.log("item in cart", item),
+              <CartProductItemCard key={index} cardData={item} />
             ))
           )}
         </div>
@@ -65,7 +78,7 @@ const CartPage: React.FC = () => {
           <Link href="/products">
             <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
           </Link>
-            <button className="px-8 py-3 lg:w-[250px] rounded-md bg-blue-400 hover:bg-blue-500 text-center text-white font-semibold" onClick={() => handleEnquireNow()}>Enquire Now</button>
+          <button className="px-8 py-3 lg:w-[250px] rounded-md bg-blue-400 hover:bg-blue-500 text-center text-white font-semibold" onClick={() => handleEnquireNow()}>Enquire Now</button>
           <button className="px-8 py-3  lg:w-[250px] rounded-md bg-green-400 hover:bg-green-500 text-center text-white font-semibold" onClick={() => handlePurchase()}>Place Order</button>
         </div>}
 
@@ -84,3 +97,21 @@ const CartPage: React.FC = () => {
 };
 
 export default CartPage;
+
+
+
+async function getCartFromAPI(userId: any) {
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${userId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.error || "Sign in failed");
+    return [];
+  }
+
+  return data.data;
+}

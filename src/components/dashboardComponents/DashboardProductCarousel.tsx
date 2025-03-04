@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { AllProducts, ProductAllTypeInterfact } from "@/data/allProducts";
+import { ProductAllTypeInterfact } from "@/data/allProducts";
 import ProductCard from "../ProductCard";
 import Link from "next/link";
 import { Marquee } from "@/components/magicui/marquee";
@@ -31,7 +31,7 @@ const DashboardProductCarousel = () => {
       {/* Marquee Animation for Products */}
       <div className="relative flex w-full flex-col  space-y-10 items-center justify-center overflow-hidden">
         {/* First Row - Moves Left */}
-        <Marquee  className="[--duration:25s]">
+        <Marquee className="[--duration:25s]">
           {firstRow.map((product) => (
             <div key={product.id} className="mx-10 w-[350px]">
               <ProductCard product={product} showHover={false} />
@@ -63,5 +63,24 @@ const DashboardProductCarousel = () => {
 export default DashboardProductCarousel;
 
 async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
-  return AllProducts;
+
+
+  // const data = AllProducts;
+
+  // return data;
+
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  const data = await response.json();
+
+  console.log("data", data);
+  if (!response.ok) {
+    alert(data.error || "Sign in failed");
+    return [];
+  }
+
+  return data.data;
 }

@@ -14,6 +14,12 @@ const nextConfig = {
             port: '',              // usually empty
             pathname: '/**' // or '/photos/*' or '/**' if you prefer
           },
+          {
+            protocol: 'https',
+            hostname: 'hci-private.s3.us-east-1.amazonaws.com',
+            port: '',              // usually empty
+            pathname: '/**' // or '/photos/*' or '/**' if you prefer
+          },
         ],
       },    
 };

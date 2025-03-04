@@ -43,7 +43,7 @@ export default function SignInPage() {
   
     // Sign in with the user context
     signIn({
-      userId: data.userId,
+      userId: data.id,
       email: data.email,
       phone: data.phone,
       role: data.role,

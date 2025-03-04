@@ -1,7 +1,7 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
-import { AllProducts, ProductAllTypeInterfact } from "@/data/allProducts";
+import {  ProductAllTypeInterfact } from "@/data/allProducts";
 import { useEffect, useMemo, useState } from "react";
 
 
@@ -38,7 +38,7 @@ export default function ProductsPage() {
       filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(lowerQuery) ||
-          p.desc.toLowerCase().includes(lowerQuery)
+          p.description.toLowerCase().includes(lowerQuery)
       );
     }
 
@@ -124,153 +124,22 @@ export default function ProductsPage() {
 async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
 
 
-  const data = AllProducts;
+  // const data = AllProducts;
 
-  return data;
+  // return data;
 
 
-  // return [
-  //   // A car image from stimg.cardekho.com
-  //   {
-  //     id: "1",
-  //     name: "Product A1",
-  //     image:
-  //       "https://stimg.cardekho.com/images/carexteriorimages/930x620/Maruti/Dzire/11387/1731318279714/front-left-side-47.jpg",
-  //     description: "Lorem ipsum dolor A1...",
-  //     quantity: 1,
-  //     category: "Cars",
-  //   },
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+  const data = await response.json();
 
-  //   // Cars (Unsplash)
-  //   {
-  //     id: "2",
-  //     name: "Product A2",
-  //     image:
-  //       "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Lorem ipsum dolor A2...",
-  //     quantity: 1,
-  //     category: "Cars",
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Product A3",
-  //     image:
-  //       "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Lorem ipsum dolor A3...",
-  //     quantity: 1,
-  //     category: "Cars",
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Product A4",
-  //     image:
-  //       "https://images.pexels.com/photos/919073/pexels-photo-919073.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Lorem ipsum dolor A4...",
-  //     quantity: 1,
-  //     category: "Cars",
-  //   },
-  //   {
-  //     id: "5",
-  //     name: "Product A5",
-  //     image:
-  //       "https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg",
-  //     description: "Lorem ipsum dolor A5...",
-  //     quantity: 1,
-  //     category: "Cars",
-  //   },
+  console.log("data", data);
+  if (!response.ok) {
+    alert(data.error || "Sign in failed");
+    return [];
+  }
 
-  //   // Trucks
-  //   {
-  //     id: "6",
-  //     name: "Product T1",
-  //     image:
-  //       "https://images.pexels.com/photos/1592384/pexels-photo-1592384.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Truck product T1...",
-  //     quantity: 1,
-  //     category: "Trucks",
-  //   },
-  //   {
-  //     id: "7",
-  //     name: "Product T2",
-  //     image:
-  //       "https://images.pexels.com/photos/248747/pexels-photo-248747.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Truck product T2...",
-  //     quantity: 1,
-  //     category: "Trucks",
-  //   },
-  //   {
-  //     id: "8",
-  //     name: "Product T3",
-  //     image:
-  //       "https://images.pexels.com/photos/707046/pexels-photo-707046.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Truck product T3...",
-  //     quantity: 1,
-  //     category: "Trucks",
-  //   },
-  //   {
-  //     id: "9",
-  //     name: "Product T4",
-  //     image:
-  //       "https://images.pexels.com/photos/13861/IMG_3496bfree.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Truck product T4...",
-  //     quantity: 1,
-  //     category: "Trucks",
-  //   },
-  //   {
-  //     id: "10",
-  //     name: "Product T5",
-  //     image:
-  //       "https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Truck product T5...",
-  //     quantity: 1,
-  //     category: "Trucks",
-  //   },
-
-  //   // Motorcycles
-  //   {
-  //     id: "11",
-  //     name: "Product M1",
-  //     image:
-  //       "https://images.pexels.com/photos/909907/pexels-photo-909907.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Motorcycle product M1...",
-  //     quantity: 1,
-  //     category: "Motorcycles",
-  //   },
-  //   {
-  //     id: "12",
-  //     name: "Product M2",
-  //     image:
-  //       "https://images.pexels.com/photos/70912/pexels-photo-70912.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Motorcycle product M2...",
-  //     quantity: 1,
-  //     category: "Motorcycles",
-  //   },
-  //   {
-  //     id: "13",
-  //     name: "Product M3",
-  //     image:
-  //       "https://images.pexels.com/photos/35967/mini-cooper-auto-model-vehicle.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Motorcycle product M3...",
-  //     quantity: 1,
-  //     category: "Motorcycles",
-  //   },
-  //   {
-  //     id: "14",
-  //     name: "Product M4",
-  //     image:
-  //       "https://images.pexels.com/photos/120049/pexels-photo-120049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Motorcycle product M4...",
-  //     quantity: 1,
-  //     category: "Motorcycles",
-  //   },
-  //   {
-  //     id: "15",
-  //     name: "Product M5",
-  //     image:
-  //       "https://images.pexels.com/photos/733745/pexels-photo-733745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //     description: "Motorcycle product M5...",
-  //     quantity: 1,
-  //     category: "Motorcycles",
-  //   },
-  // ];
+ return data.data;
 }

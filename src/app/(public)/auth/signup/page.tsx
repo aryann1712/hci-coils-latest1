@@ -107,16 +107,16 @@ export default function SignUpPage() {
             placeholder="Company Name"
             value={formData.companyName}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, phone: e.target.value }))
+              setFormData((prev) => ({ ...prev, companyName: e.target.value }))
             }
           />
           <input
             className="border px-3 py-3 rounded-sm"
             type="text"
             placeholder="Address"
-            value={formData.phone}
+            value={formData.address}
             onChange={(e) =>
-              setFormData((prev) => ({ ...prev, phone: e.target.value }))
+              setFormData((prev) => ({ ...prev, address: e.target.value }))
             }
           />
         

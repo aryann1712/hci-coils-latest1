@@ -27,13 +27,16 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
     }
   };
 
+
+  console.log("cardData in CardProductData", cardData);
+
   return (
     <div className="grid grid-cols-4 items-center py-5 px-5 border-b">
       {/* Image */}
       <div>
         <Image
-          src={cardData.productImage}
-          alt={cardData.productName}
+          src={cardData.images[0] || "/logo.png"}
+          alt={cardData.name}
           width={1000}
           height={1000}
           className="h-[200px] w-[350px] rounded-md object-cover"
@@ -42,8 +45,8 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
 
       {/* Name and Description */}
       <div className="col-span-2 flex flex-col px-4">
-        <h1 className="text-lg font-semibold">{cardData.productName}</h1>
-        <p className="text-sm text-gray-600 line-clamp-3">{cardData.productDesc}</p>
+        <h1 className="text-lg font-semibold">{cardData.name}</h1>
+        <p className="text-sm text-gray-600 line-clamp-3">{cardData.description}</p>
       </div>
 
       {/* Quantity Controls */}
@@ -53,7 +56,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
           <div className="flex items-center justify-end gap-2">
             {/* Decrement Button */}
             <button
-              onClick={() => decrementToCart(cardData.productId)}
+              onClick={() => decrementToCart(cardData._id)}
               className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
             >
               –
@@ -76,7 +79,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
             </button>
           </div>
         </div>
-        <MdDelete className="text-2xl mb-1 text-gray-500 hover:text-black" onClick={() => removeFromCart(cardData.productId)}/>
+        <MdDelete className="text-2xl mb-1 text-gray-500 hover:text-black" onClick={() => removeFromCart(cardData._id)}/>
       </div>
     </div>
   );
