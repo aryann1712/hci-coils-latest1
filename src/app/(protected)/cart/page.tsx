@@ -1,12 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useCart } from "@/context/CartContext";
 import CartProductItemCard from "@/components/CartProductItemCard";
-import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { CgSmile } from "react-icons/cg";
-import { CartItemType } from "@/lib/interfaces/CartInterface";
 
 
 const CartPage: React.FC = () => {
@@ -18,14 +17,52 @@ const CartPage: React.FC = () => {
 
 
   const handlePurchase = () => {
+
+
+    async function placeOrders() {
+      if (user && cartItems.length > 0) {
+        console.log("cartItems --> ", cartItems);
+
+        let tempItems: any = [];
+
+        cartItems.map((item) => {
+          const temp = {
+            product: item._id,
+            quantity: item.quantity
+          }
+          tempItems.push(temp);
+        })
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${user.token}`
+          },
+          body: JSON.stringify({
+            items: tempItems
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.error || "Order failed");
+          return;
+        }
+        console.log("Order placed successfully");
+        setAllToCart([]);
+        router.push("/orders");
+      }
+    }
+
+
+
     if (!user) {
       console.log("no user found...try to sign in");
-      //redirect to login page
       // router.push("/auth/signin?redirect=/cart");
       router.push("/auth/signin");
     } else {
-      console.log("User found:", user);
-      console.log("Cart items:", cartItems);
+      placeOrders();
+
     }
   }
 
@@ -42,11 +79,11 @@ const CartPage: React.FC = () => {
   useEffect(() => {
     setMounted(true);
     console.log("user", user);
-  
+
     async function fetchData() {
       if (user && user.userId) {
-        const data  = await getCartFromAPI(user.userId);
-        if(data) {
+        const data = await getCartFromAPI(user.userId);
+        if (data) {
           setAllToCart(data);
         }
       }
