@@ -2,6 +2,7 @@
 import { useCart } from "@/context/CartContext";
 import { CartItemType } from "@/lib/interfaces/CartInterface";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { MdDelete } from "react-icons/md";
 
@@ -14,6 +15,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
 
 }) => {
   const { addToCart, decrementToCart, updateProductToCart, removeFromCart } = useCart();
+  const router = useRouter();
 
   /**
    * Called when user manually types a new quantity in the input.
@@ -28,7 +30,6 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
   };
 
 
-  console.log("cardData in CardProductData", cardData);
 
   return (
     <div className="grid grid-cols-4 items-center py-5 px-5 border-b">
@@ -39,12 +40,13 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
           alt={cardData.name}
           width={1000}
           height={1000}
-          className="h-[200px] w-[350px] rounded-md object-cover"
+          className="h-[200px] w-[350px] rounded-md object-cover cursor-pointer"
+          onClick={() => router.push(`/products/${cardData._id}`)}
         />
       </div>
 
       {/* Name and Description */}
-      <div className="col-span-2 flex flex-col px-4">
+      <div className="col-span-2 flex flex-col px-4 cursor-pointer h-full gap-y-5 justify-center" onClick={() => router.push(`/products/${cardData._id}`)}>
         <h1 className="text-lg font-semibold">{cardData.name}</h1>
         <p className="text-sm text-gray-600 line-clamp-3">{cardData.description}</p>
       </div>
