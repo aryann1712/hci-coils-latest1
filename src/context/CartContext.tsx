@@ -40,8 +40,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCartItems(items);
   };
 
-  const addToCart = (item: CartItemType) => {
+  const addToCart = async (item: CartItemType) => {
     console.log("adding to cart");
+
+    
+
+
     setCartItems((prev) => {
       const existingItem = prev.find(c => c._id === item._id);
       if (existingItem) {
