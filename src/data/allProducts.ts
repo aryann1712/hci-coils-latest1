@@ -1,5 +1,5 @@
 export interface ProductAllTypeInterfact {
-    id: string;
+    _id: string;
     category?: string;
     price?: number;
     name: string;
