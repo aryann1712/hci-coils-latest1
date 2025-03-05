@@ -20,8 +20,8 @@ const AdminOrderCheckItemCard = ({ orderItem }: { orderItem: OrderItemType }) =>
             {/* Image */}
             <div>
               <Image
-                src={item.productImage}
-                alt={item.productName}
+                src={item.images[0] || '/logo.png'}
+                alt={item.name}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -30,8 +30,8 @@ const AdminOrderCheckItemCard = ({ orderItem }: { orderItem: OrderItemType }) =>
 
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-4">
-              <h1 className="text-lg font-semibold">{item.productName}</h1>
-              <p className="text-sm text-gray-600 line-clamp-3">{item.productDesc}</p>
+              <h1 className="text-lg font-semibold">{item.name}</h1>
+              <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
             </div>
 
             {/* Quantity */}
