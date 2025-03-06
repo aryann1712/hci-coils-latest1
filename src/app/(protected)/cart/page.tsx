@@ -17,8 +17,7 @@ const CartPage: React.FC = () => {
 
 
   const handlePurchase = () => {
-
-
+    
     async function placeOrders() {
       if (user && cartItems.length > 0) {
         console.log("cartItems --> ", cartItems);
@@ -55,8 +54,6 @@ const CartPage: React.FC = () => {
       }
     }
 
-
-
     if (!user) {
       console.log("no user found...try to sign in");
       // router.push("/auth/signin?redirect=/cart");
@@ -67,15 +64,60 @@ const CartPage: React.FC = () => {
     }
   }
 
-  const handleEnquireNow = async () => {
-    if (user) {
+ 
 
-    } else {
-      console.log("no user found...try to sign in");
-      // Redirect to sign-in page if not logged in
-      router.push("/auth/signin");
+  const handleEnquire = () => {
+    
+    async function placeEnquires() {
+      if (user && cartItems.length > 0) {
+        console.log("cartItems --> ", cartItems);
+
+        let tempItems: any = [];
+
+        cartItems.map((item) => {
+          const temp = {
+            product: item._id,
+            quantity: item.quantity
+          }
+          tempItems.push(temp);
+        })
+
+        console.log("tempItems", tempItems);
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user: user.userId,
+            items: tempItems
+          }),
+        });
+        const data = await response.json();
+
+        console.log("data ----", data);
+        if (!response.ok) {
+          alert(data.error || "Order failed");
+          return;
+        }
+        console.log("Order placed successfully");
+        setAllToCart([]);
+        router.push("/enquire");
+      }
     }
-  };
+
+    if (!user) {
+      console.log("no user found...try to sign in");
+      // router.push("/auth/signin?redirect=/cart");
+      router.push("/auth/signin");
+    } else {
+      placeEnquires();
+
+    }
+  }
+
+ 
 
   useEffect(() => {
     setMounted(true);
@@ -115,7 +157,7 @@ const CartPage: React.FC = () => {
           <Link href="/products">
             <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
           </Link>
-          <button className="px-8 py-3 lg:w-[250px] rounded-md bg-blue-400 hover:bg-blue-500 text-center text-white font-semibold" onClick={() => handleEnquireNow()}>Enquire Now</button>
+          <button className="px-8 py-3 lg:w-[250px] rounded-md bg-blue-400 hover:bg-blue-500 text-center text-white font-semibold" onClick={() => handleEnquire()}>Enquire Now</button>
           <button className="px-8 py-3  lg:w-[250px] rounded-md bg-green-400 hover:bg-green-500 text-center text-white font-semibold" onClick={() => handlePurchase()}>Place Order</button>
         </div>}
 
