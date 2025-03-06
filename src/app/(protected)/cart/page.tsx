@@ -40,6 +40,7 @@ const CartPage: React.FC = () => {
             "Authorization": `Bearer ${user.token}`
           },
           body: JSON.stringify({
+            user: user.userId,
             items: tempItems
           }),
         });
