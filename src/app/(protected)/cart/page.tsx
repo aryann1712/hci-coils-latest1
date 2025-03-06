@@ -78,7 +78,7 @@ const CartPage: React.FC = () => {
 
   useEffect(() => {
     setMounted(true);
-    console.log("user", user);
+    // console.log("user", user);
 
     async function fetchData() {
       if (user && user.userId) {
@@ -104,7 +104,6 @@ const CartPage: React.FC = () => {
         <div>
           {cartItems.length > 0 && (
             cartItems.map((item, index) => (
-              console.log("item in cart", item),
               <CartProductItemCard key={index} cardData={item} />
             ))
           )}

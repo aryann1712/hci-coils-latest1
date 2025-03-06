@@ -21,11 +21,10 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
    * Called when user manually types a new quantity in the input.
    */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-
     const newQty = parseInt(e.target.value, 10);
-    cardData.quantity = newQty;
-    if (!isNaN(newQty) && newQty >= 0) {
-      updateProductToCart?.(cardData);
+    if(newQty >= 1) {
+      cardData.quantity  = newQty;
+      addToCart(cardData);
     }
   };
 
@@ -58,8 +57,12 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
           <div className="flex items-center justify-end gap-2">
             {/* Decrement Button */}
             <button
-              onClick={() => decrementToCart(cardData._id)}
-              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+              onClick={() => {
+                cardData.quantity--;
+                return addToCart(cardData);
+              }}
+              disabled={cardData.quantity <= 1}
+              className={`w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:bg-gray-100 transition`}
             >
               –
             </button>
@@ -74,14 +77,17 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
 
             {/* Increment Button */}
             <button
-              onClick={() => addToCart(cardData)}
+              onClick={() => {
+                cardData.quantity++;
+                return addToCart(cardData);
+              }}
               className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
             >
               +
             </button>
           </div>
         </div>
-        <MdDelete className="text-2xl mb-1 text-gray-500 hover:text-black" onClick={() => removeFromCart(cardData._id)}/>
+        <MdDelete className="text-2xl mb-1 text-gray-500 hover:text-black" onClick={() => removeFromCart(cardData._id)} />
       </div>
     </div>
   );
