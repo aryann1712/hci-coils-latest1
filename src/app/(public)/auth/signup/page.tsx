@@ -118,6 +118,33 @@ export default function SignUpPage() {
       <h1 className="text-blue-800 text-3xl font-semibold italic">Sign Up</h1>
       <div className="mx-auto py-16 px-10 rounded-sm shadow-xl max-w-2xl">
         <form onSubmit={handleSignUp} className="flex flex-col gap-y-12 px-10">
+        <div className="relative">
+            <div className="flex gap-2">
+              <input
+                className="border px-3 py-3 rounded-sm flex-grow"
+                type="text"
+                name="gstNumber"
+                placeholder="GST Number"
+                value={formData.gstNumber}
+                onChange={handleInputChange}
+              />
+              {/* <button
+                onClick={handleVerifyGst}
+                className="bg-blue-500 text-white px-3 py-2 rounded-sm"
+                disabled={gstVerifying || formData.gstNumber.length !== 15}
+              >
+                {gstVerifying ? "Verifying..." : "Verify"}
+              </button> */}
+            </div>
+            {gstVerifying && (
+              <div className="absolute right-20 top-3">
+                <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+              </div>
+            )}
+            {formData.gstNumber && formData.gstNumber.length !== 15 && formData.gstNumber.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">GST Number must be 15 characters</p>
+            )}
+          </div>
           <input
             className="border px-3 py-3 rounded-sm"
             type="text"
@@ -142,33 +169,7 @@ export default function SignUpPage() {
             value={formData.email}
             onChange={handleInputChange}
           />
-          <div className="relative">
-            <div className="flex gap-2">
-              <input
-                className="border px-3 py-3 rounded-sm flex-grow"
-                type="text"
-                name="gstNumber"
-                placeholder="GST Number"
-                value={formData.gstNumber}
-                onChange={handleInputChange}
-              />
-              <button
-                onClick={handleVerifyGst}
-                className="bg-blue-500 text-white px-3 py-2 rounded-sm"
-                disabled={gstVerifying || formData.gstNumber.length !== 15}
-              >
-                {gstVerifying ? "Verifying..." : "Verify"}
-              </button>
-            </div>
-            {gstVerifying && (
-              <div className="absolute right-20 top-3">
-                <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
-              </div>
-            )}
-            {formData.gstNumber && formData.gstNumber.length !== 15 && formData.gstNumber.length > 0 && (
-              <p className="text-xs text-gray-500 mt-1">GST Number must be 15 characters</p>
-            )}
-          </div>
+          
           <input
             className="border px-3 py-3 rounded-sm"
             type="text"
