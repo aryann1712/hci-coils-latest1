@@ -22,7 +22,7 @@ const ProductPage = () => {
             }
         }
         fetchData();
-    }, []);
+    }, [getProductFromAPI]);
 
     async function getProductFromAPI() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${params.id}`, {

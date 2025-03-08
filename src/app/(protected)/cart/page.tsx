@@ -22,7 +22,10 @@ const CartPage: React.FC = () => {
       if (user && cartItems.length > 0) {
         console.log("cartItems --> ", cartItems);
 
-        let tempItems: any = [];
+        const tempItems: {
+          product: string;
+          quantity: number;
+      }[] = [];
 
         cartItems.map((item) => {
           const temp = {
@@ -72,7 +75,10 @@ const CartPage: React.FC = () => {
       if (user && cartItems.length > 0) {
         console.log("cartItems --> ", cartItems);
 
-        let tempItems: any = [];
+        const  tempItems: {
+          product: string;
+          quantity: number;
+      }[] = [];
 
         cartItems.map((item) => {
           const temp = {
@@ -132,7 +138,7 @@ const CartPage: React.FC = () => {
       }
     }
     fetchData();
-  }, [user]);
+  }, [user, setAllToCart]);
 
   // Until the component is mounted, you can render a placeholder or nothing.
   if (!mounted) {
@@ -179,7 +185,7 @@ export default CartPage;
 
 
 
-async function getCartFromAPI(userId: any) {
+async function getCartFromAPI(userId: string) {
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${userId}`, {
     method: "GET",

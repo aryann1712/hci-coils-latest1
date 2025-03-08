@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
@@ -103,15 +103,6 @@ export default function SignUpPage() {
     }
   };
 
-  // Add a button to manually verify GST
-  const handleVerifyGst = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (formData.gstNumber && formData.gstNumber.length === 15) {
-      fetchGstInfo(formData.gstNumber);
-    } else {
-      alert("Please enter a valid 15-digit GST number");
-    }
-  };
 
   return (
     <div className="max-w-[75%] mx-auto py-10">

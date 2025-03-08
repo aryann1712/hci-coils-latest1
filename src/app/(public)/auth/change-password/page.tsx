@@ -1,7 +1,6 @@
 "use client";
 
 
-import { useUser } from "@/context/UserContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,7 +13,7 @@ export default function ChangePasswordPage() {
 
 
 
-  const { signIn } = useUser();
+  // const { signIn } = useUser();
   const router = useRouter();
 
   const handleChangePassword = async (e: React.FormEvent) => {

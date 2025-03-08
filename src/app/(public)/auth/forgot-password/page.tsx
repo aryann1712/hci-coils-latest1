@@ -36,14 +36,7 @@ export default function ForgotPasswordPage() {
         // }
 
         // For demonstration: mock data
-        const data = {
-            userId: "1",
-            phone: "9315045029",
-            role: "admin",
-            token: "abcd", // pretend JWT
-            name: "Rounak",
-        };
-
+        
 
         // Redirect
         router.push("/");

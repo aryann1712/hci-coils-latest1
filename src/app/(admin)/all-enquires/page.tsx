@@ -42,37 +42,37 @@ const AdminAllEnquires = () => {
     // Filter the products by category AND search query
     const filteredOrders = useMemo(() => {
         // Start with the full array
-        let filtered = userOrders;
+        const filtered = userOrders;
 
         // If there's a search query, filter
         const lowerQuery = searchQuery.trim().toLowerCase();
         if (lowerQuery) {
-            filtered = filtered.filter((order) => {
-                // Match on order fields
-                // const matchOrderName = order.items.toLowerCase().includes(lowerQuery);
-                // const matchGst = order.gstNumber.toLowerCase().includes(lowerQuery);
-                // const matchOrderDate = order.orderDate.toLowerCase().includes(lowerQuery);
-                // const matchOrderId = order.orderId.toLowerCase().includes(lowerQuery);
-                // const matchPhone = order.phone.toLowerCase().includes(lowerQuery);
+            // filtered = filtered.filter((order) => {
+            //     // Match on order fields
+            //     // const matchOrderName = order.items.toLowerCase().includes(lowerQuery);
+            //     // const matchGst = order.gstNumber.toLowerCase().includes(lowerQuery);
+            //     // const matchOrderDate = order.orderDate.toLowerCase().includes(lowerQuery);
+            //     // const matchOrderId = order.orderId.toLowerCase().includes(lowerQuery);
+            //     // const matchPhone = order.phone.toLowerCase().includes(lowerQuery);
 
-                // // Match on ANY product in the order
-                // const matchAnyProduct = order.products.some((item) => {
-                //     const matchProductName = item.name.toLowerCase().includes(lowerQuery);
-                //     const matchdescription = item.description.toLowerCase().includes(lowerQuery);
-                //     return matchProductName || matchdescription;
-                // });
+            //     // // Match on ANY product in the order
+            //     // const matchAnyProduct = order.products.some((item) => {
+            //     //     const matchProductName = item.name.toLowerCase().includes(lowerQuery);
+            //     //     const matchdescription = item.description.toLowerCase().includes(lowerQuery);
+            //     //     return matchProductName || matchdescription;
+            //     // });
 
-                // Return true if any of these conditions pass
-                return (
-                    // matchOrderName ||
-                    // matchGst ||
-                    // matchOrderDate ||
-                    // matchOrderId ||
-                    // matchPhone ||
-                    // matchAnyProduct
-                    ''
-                );
-            });
+            //     // Return true if any of these conditions pass
+            //     return (
+            //         // matchOrderName ||
+            //         // matchGst ||
+            //         // matchOrderDate ||
+            //         // matchOrderId ||
+            //         // matchPhone ||
+            //         // matchAnyProduct
+            //         ''
+            //     );
+            // });
         }
 
         return filtered;

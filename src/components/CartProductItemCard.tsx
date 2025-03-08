@@ -14,7 +14,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
   cardData,
 
 }) => {
-  const { addToCart, decrementToCart, updateProductToCart, removeFromCart } = useCart();
+  const { addToCart, removeFromCart } = useCart();
   const router = useRouter();
 
   /**

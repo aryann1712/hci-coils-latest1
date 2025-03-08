@@ -30,7 +30,7 @@ const OrderPage = () => {
             fetchData();
         }
 
-    }, [user, router]);
+    }, [user, router, getUserOrder]);
 
     if (!mounted) {
         return null;
