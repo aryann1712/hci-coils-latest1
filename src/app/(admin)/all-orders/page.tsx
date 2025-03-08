@@ -39,7 +39,6 @@ const AdminAllOrders = () => {
     }, [mounted, user, router]);
 
 
-    // Filter the products by category AND search query
     const filteredOrders = useMemo(() => {
         // Start with the full array
         let filtered = userOrders;
@@ -49,18 +48,21 @@ const AdminAllOrders = () => {
         if (lowerQuery) {
             filtered = filtered.filter((order) => {
                 // Match on order fields
-                const matchOrderName = order.name.toLowerCase().includes(lowerQuery);
-                const matchGst = order.gstNumber.toLowerCase().includes(lowerQuery);
-                const matchOrderDate = order.orderDate.toLowerCase().includes(lowerQuery);
-                const matchOrderId = order.orderId.toLowerCase().includes(lowerQuery);
-                const matchPhone = order.phone.toLowerCase().includes(lowerQuery);
-
-                // Match on ANY product in the order
-                const matchAnyProduct = order.products.some((item) => {
-                    const matchProductName = item.name.toLowerCase().includes(lowerQuery);
-                    const matchProductDesc = item.description.toLowerCase().includes(lowerQuery);
-                    return matchProductName || matchProductDesc;
+                const matchOrderName = order.items.some((item) => {
+                    const matchProductName = item.product.name.toLowerCase().includes(lowerQuery);
+                    const matchProductDesc = item.product.description.toLowerCase().includes(lowerQuery);
+                    const matchProductCategory = item.product.category.toLowerCase().includes(lowerQuery);
+                    const matchProductId = item.product._id.toLowerCase().includes(lowerQuery);
+                    return matchProductName || matchProductDesc || matchProductCategory || matchProductId;
                 });
+
+                const matchGst = order.user.gstNumber?.toLowerCase().includes(lowerQuery) || false;
+                const matchOrderDate = order.createdAt?.toLowerCase().includes(lowerQuery) || false;
+                const matchOrderId = order.orderId?.toLowerCase().includes(lowerQuery) || false;
+                const matchName = order.user.name?.toLowerCase().includes(lowerQuery) || false;
+                const matchCompanyName = order.user.companyName?.toLowerCase().includes(lowerQuery) || false;
+                const matchEmail = order.user.email?.toLowerCase().includes(lowerQuery) || false;
+                const matchAddress = order.user.address?.toLowerCase().includes(lowerQuery) || false;
 
                 // Return true if any of these conditions pass
                 return (
@@ -68,8 +70,10 @@ const AdminAllOrders = () => {
                     matchGst ||
                     matchOrderDate ||
                     matchOrderId ||
-                    matchPhone ||
-                    matchAnyProduct
+                    matchName ||
+                    matchCompanyName ||
+                    matchEmail ||
+                    matchAddress
                 );
             });
         }
@@ -103,126 +107,8 @@ const AdminAllOrders = () => {
 
 
     async function getUserOrder(): Promise<OrderItemType[]> {
-        return [
-            {
-                orderId: "123",
-                orderDate: "2024-03-17",
-                products: [
-                    {
-                        _id: "1",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/1592384/pexels-photo-1592384.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A9",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                    {
-                        _id: "2",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/248747/pexels-photo-248747.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A8",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                    {
-                        _id: "3",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/707046/pexels-photo-707046.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A7",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                ],
-                address: "vasundhara",
-                gstNumber: "1234567890",
-                companyName: "apple",
-                phone: "9315045029",
-                userId: "1",
-                name: "Rounak"
-            },
-            {
-                orderId: "1232",
-                orderDate: "2025-02-18",
-                products: [
-                    {
-                        _id: "1",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/13861/IMG_3496bfree.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A6",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                    {
-                        _id: "2",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A5",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                    {
-                        _id: "3",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/909907/pexels-photo-909907.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A4",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                ],
-                address: "vasundhara",
-                gstNumber: "abc@$defgh",
-                companyName: "apple",
-                phone: "9315045029",
-                userId: "1",
-                name: "Rounak"
-            },
-            {
-                orderId: "1233",
-                orderDate: "2025-02-21",
-                products: [
-                    {
-                        _id: "1",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/1592384/pexels-photo-1592384.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A1",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                    {
-                        _id: "2",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/248747/pexels-photo-248747.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A2",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                    {
-                        _id: "3",
-                        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eveniet, impedit. Neque esse nesciunt quod asperiores doloribus officia id blanditiis minus molestiae saepe facilis repellendus corporis, molestias temporibus error doloremque nobis.",
-                        images: ["https://images.pexels.com/photos/707046/pexels-photo-707046.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"],
-                        name: "A3",
-                        quantity: 1,
-                        sku: "1",
-                        category: ""
-                    },
-                ],
-                address: "vasundhara",
-                gstNumber: "poiu___ytr",
-                companyName: "apple",
-                phone: "9315045029",
-                userId: "1",
-                name: "Rounak"
-            },
-        ]
-    }
+        return [];
+               }
 
     return (
         <div className=" max-w-[75%] mx-auto py-10 mb-10">

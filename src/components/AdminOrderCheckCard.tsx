@@ -9,19 +9,19 @@ const AdminOrderCheckItemCard = ({ orderItem }: { orderItem: OrderItemType }) =>
     <div className='shadow-md rounded-md my-5 py-5 px-5 border-dashed border flex flex-row gap-5 items-center justify-center'>
       <div className=''>
         <div className='text-sm text-gray-400'>
-          <h1>Order Id: {orderItem.orderId}</h1>
-          <h1>Purchase Date: {orderItem.orderDate}</h1>
-          <h1>GST No: {orderItem.gstNumber}</h1>
+          <h1>Order Id: {orderItem.orderId || ''}</h1>
+          <h1>Purchase Date: {orderItem.createdAt || ''}</h1>
+          <h1>GST No: {orderItem.user.gstNumber || ''}</h1>
 
         </div>
-        {orderItem.products.map((item, index) =>
+        {orderItem.items.map((item, index) =>
         (
           <div key={index} className='grid grid-cols-4 items-center py-5 px-5 border-b'>
             {/* Image */}
             <div>
               <Image
-                src={item.images[0] || '/logo.png'}
-                alt={item.name}
+                src={item.product.images[0] || '/logo.png'}
+                alt={item.product.name || ''}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -30,14 +30,14 @@ const AdminOrderCheckItemCard = ({ orderItem }: { orderItem: OrderItemType }) =>
 
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-4">
-              <h1 className="text-lg font-semibold">{item.name}</h1>
-              <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
+              <h1 className="text-lg font-semibold">{item.product.name || ''}</h1>
+              <p className="text-sm text-gray-600 line-clamp-3">{item.product.description || ''}</p>
             </div>
 
             {/* Quantity */}
             <div className="flex flex-col justify-center">
               <h1 className="text-xs  text-gray-400 font-semibold">Qty</h1>
-              <h1 className="text-lg font-semibold">{item.quantity}</h1>
+              <h1 className="text-lg font-semibold">{item.quantity || ''}</h1>
             </div>
 
           </div>
