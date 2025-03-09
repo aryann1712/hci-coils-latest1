@@ -4,7 +4,8 @@ export interface OrderItemType {
     _id: string;
     user: {
       _id: string;
-      name: string;
+      name?: string;
+      phone?: string;
       email: string;
       gstNumber: string;
       companyName: string;

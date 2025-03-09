@@ -107,8 +107,32 @@ const AdminAllOrders = () => {
 
 
     async function getUserOrder(): Promise<OrderItemType[]> {
-        return [];
-               }
+
+        if (user) {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || "Error in fetching orders");
+                    return [];
+                }
+
+                return data.data;
+            } catch (error) {
+                console.error("Error loading orders:", error);
+                return [];
+            }
+        } else {
+            return [];
+        }
+
+    }
 
     return (
         <div className=" max-w-[75%] mx-auto py-10 mb-10">

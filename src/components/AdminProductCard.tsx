@@ -27,19 +27,19 @@ const AdminProductCard = ({ product }: { product: ProductAllTypeInterfact }) => 
   const handleConfirmDelete = async () => {
     try {
       // Example API call: DELETE /api/admin/products/[id]
-    //   const res = await fetch(`/api/admin/products/${product.id}`, {
-    //     method: "DELETE",
-    //   });
-    //   if (!res.ok) {
-    //     const error = await res.json();
-    //     alert(error.message || "Failed to delete product");
-    //     return;
-    //   }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${product._id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        alert(error.message || "Failed to delete product");
+        return;
+      }
       // Possibly refetch products or remove from list in parent
       alert("Product deleted successfully.");
       setShowDeleteConfirm(false);
       router.refresh();
-    //   window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error(error);
       alert("Error deleting product");
