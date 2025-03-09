@@ -23,6 +23,7 @@ export default function SignUpPage() {
     
     console.log("Verifying GST:", gstNumber); // Debug log
     setGstVerifying(true);
+    setLoading(true);
     
     try {
       const response = await fetch(
@@ -37,6 +38,8 @@ export default function SignUpPage() {
       console.log("GST API Response:", data); // Debug log
       
       if (!response.ok) {
+        setLoading(false);
+        setGstVerifying(false);
         console.error("GST verification failed:", data.error);
         alert(data.error || "GST verification failed");
         return;
@@ -52,6 +55,9 @@ export default function SignUpPage() {
         }));
       }
     } catch (error) {
+      setLoading(false);
+      setGstVerifying(false);
+      alert("An error occurred while verifying GST. Please try again.");
       console.error("GST verification error:", error);
     } finally {
       setGstVerifying(false);
@@ -79,12 +85,14 @@ export default function SignUpPage() {
       const data = await response.json();
       
       if (!response.ok) {
+        setLoading(false);
         alert(data.error || "Sign up failed");
         return;
       }
       
       router.push("/auth/signin");
     } catch (error) {
+      setLoading(false);
       console.error("Signup error:", error);
       alert("An error occurred during sign up. Please try again.");
     } finally {
