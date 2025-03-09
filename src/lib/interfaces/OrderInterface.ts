@@ -21,3 +21,26 @@ export interface OrderItemType {
     createdAt: string;
     updatedAt: string;
   }
+
+
+export interface EnquireItemType {
+    _id: string;
+    user: {
+      _id: string;
+      name?: string;
+      phone?: string;
+      email: string;
+      gstNumber: string;
+      companyName: string;
+      address: string;
+      role: string;
+    };
+    enquiryId: string;
+    status: string;
+    items: {
+      product: CartItemType;
+      quantity: number;
+    }[];
+    createdAt: string;
+    updatedAt: string;
+  }
