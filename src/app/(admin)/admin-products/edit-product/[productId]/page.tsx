@@ -1,34 +1,22 @@
 "use client";
 
 import { useUser } from "@/context/UserContext";
-import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 
-type ExistingImage = {
-  url: string;            // existing image URL from the database
-  _id?: string;           // ID if you track images separately
-};
 
-type NewImagePreview = {
-  file: File;
-  previewUrl: string;
-};
+
 
 export default function EditProductPage() {
   const [mounted, setMounted] = useState(false);
 
+  const [loading, setLoading] = useState(false);
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<number>(0);
-  const [gst, setGst] = useState<number>(18);
 
-  // We separate "existingImages" from "newImages"
-  // existingImages = images from the DB
-  // newImages = local, newly selected files to upload
-  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
-  const [newImages, setNewImages] = useState<NewImagePreview[]>([]);
+
 
   const [categoryInput, setCategoryInput] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
@@ -70,101 +58,33 @@ export default function EditProductPage() {
   // 2) fetch existing product data
   async function fetchProduct(id: string) {
     try {
-      // const res = await fetch(`/api/admin/products/${id}`, {
-      //   method: "GET",
-      //   // or any auth headers if needed
-      // });
-      // if (!res.ok) {
-      //   // e.g. redirect or show error
-      //   throw new Error("Failed to fetch product");
-      // }
-      // const data = await res.json();
-      console.log(id);
-
-      const data = {
-        name: "Rounak Raj",
-        description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta totam fugit voluptas facere voluptates ab tenetur molestias atque mollitia eum nostrum, minima in, modi possimus! Ad praesentium assumenda minima soluta?",
-        price: 300,
-        gst: 24,
-        categories: ["smart", "genius", "coder"],
-        images: [
-          { url: "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" },
-          { url: "https://images.pexels.com/photos/112460/pexels-photo-112460.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" },
-          { url: "https://images.pexels.com/photos/919073/pexels-photo-919073.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" }
-        ]
+      setLoading(true);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${id}`, {
+        method: "GET",
+      });
+      if (!res.ok) {
+        setLoading(false);
+        // e.g. redirect or show error
+        throw new Error("Failed to fetch product");
       }
+      const response = await res.json();
+      const data = response.data;
 
+      setLoading(false);
       // Fill form states
       setName(data.name || "");
       setDescription(data.description || "");
       setPrice(data.price || 0);
-      setGst(data.gst || 18);
-      setCategories(data.categories || []);
-      setExistingImages(data.images || []);
-      // data.images might be an array like [{ url: "...", _id: "..." }, ...]
+      setCategories(data.category.split(",") || []);
 
     } catch (error) {
+      setLoading(false);
       console.error("Error loading product:", error);
       // possibly redirect or show error message
     }
   }
 
-  // Handle new file selection
-  const handleNewImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const selectedFiles = Array.from(e.target.files);
 
-    const newPreviews: NewImagePreview[] = selectedFiles.map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }));
-
-    setNewImages((prev) => [...prev, ...newPreviews]);
-  };
-
-  // Remove an existing image
-  const removeExistingImage = (index: number) => {
-    setExistingImages((prev) => {
-      const newArr = [...prev];
-      newArr.splice(index, 1);
-      return newArr;
-    });
-  };
-
-  // Reorder existing images
-  const moveExistingImage = (index: number, direction: "up" | "down") => {
-    setExistingImages((prev) => {
-      const newArr = [...prev];
-      const targetIndex = direction === "up" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= newArr.length) return newArr;
-      const temp = newArr[index];
-      newArr[index] = newArr[targetIndex];
-      newArr[targetIndex] = temp;
-      return newArr;
-    });
-  };
-
-  // Remove newly selected image
-  const removeNewImage = (index: number) => {
-    setNewImages((prev) => {
-      const newArr = [...prev];
-      newArr.splice(index, 1);
-      return newArr;
-    });
-  };
-
-  // Reorder newly selected images
-  const moveNewImage = (index: number, direction: "up" | "down") => {
-    setNewImages((prev) => {
-      const newArr = [...prev];
-      const targetIndex = direction === "up" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= newArr.length) return newArr;
-      const temp = newArr[index];
-      newArr[index] = newArr[targetIndex];
-      newArr[targetIndex] = temp;
-      return newArr;
-    });
-  };
 
   // handle categories
   const addCategory = () => {
@@ -182,39 +102,41 @@ export default function EditProductPage() {
     e.preventDefault();
     if (!productId) return;
 
+
+    setLoading(true);
+
+
+    if (!name || !description || !price || !categories.length) {
+      alert("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
     // construct form data (multipart) or JSON
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price.toString());
-    formData.append("gst", gst.toString());
-    formData.append("categories", JSON.stringify(categories));
+    formData.append("category", categories.join(","));
 
-    // existing images: pass their order + any flagged for removal
-    // For example, you might pass them as JSON
-    formData.append(
-      "existingImages",
-      JSON.stringify(existingImages.map((img) => ({ url: img.url, _id: img._id })))
-    );
 
-    // new images
-    newImages.forEach((img) => {
-      formData.append("newImages", img.file);
-    });
 
     try {
-      // const res = await fetch(`/api/admin/products/${productId}`, {
-      //   method: "PUT",
-      //   body: formData,
-      // });
-      // if (!res.ok) {
-      //   const errorData = await res.json();
-      //   alert(errorData.error || "Update failed");
-      //   return;
-      // }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${productId}`, {
+        method: "PUT",
+        body: formData,
+      });
+      if (!res.ok) {
+        setLoading(false);
+        const errorData = await res.json();
+        alert(errorData.error || "Update failed");
+        return;
+      }
       alert("Product updated successfully!");
+      setLoading(false);
       router.push("/admin-products");
     } catch (error) {
+      setLoading(false);
       console.error(error);
       alert("Something went wrong updating product");
     }
@@ -258,97 +180,7 @@ export default function EditProductPage() {
             />
           </div>
 
-          {/* Existing Images */}
-          <div>
-            <label className="block font-medium mb-1">
-              Existing Images (from server)
-            </label>
-            <div className="mt-3 flex gap-4 flex-wrap">
-              {existingImages.map((img, index) => (
-                <div key={index} className="border p-2 relative">
-                  <Image
-                    height={1000}
-                    width={1000}
-                    src={img.url}
-                    alt={`existing-${index}`}
-                    className="w-32 h-32 object-cover"
-                  />
-                  <button
-                    type="button"
-                    className="absolute top-1 right-1 text-white bg-red-500 rounded-full px-2"
-                    onClick={() => removeExistingImage(index)}
-                  >
-                    X
-                  </button>
-                  <div className="flex gap-1 mt-2 justify-center">
-                    <button
-                      type="button"
-                      onClick={() => moveExistingImage(index, "up")}
-                      className="bg-blue-500 text-white px-2 rounded-sm"
-                    >
-                      {`<`}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => moveExistingImage(index, "down")}
-                      className="bg-blue-500 text-white px-2 rounded-sm"
-                    >
-                      {`>`}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Add New Images */}
-          <div>
-            <label className="block font-medium mb-1">
-              Add New Images
-            </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleNewImageChange}
-            />
-            <div className="mt-3 flex gap-4 flex-wrap">
-              {newImages.map((img, index) => (
-                <div key={index} className="border p-2 relative">
-                  <Image
-                   height={1000}
-                   width={1000}
-                    src={img.previewUrl}
-                    alt={`new-${index}`}
-                    className="w-32 h-32 object-cover"
-                  />
-                  <button
-                    type="button"
-                    className="absolute top-1 right-1 text-white bg-red-500 rounded-full px-2"
-                    onClick={() => removeNewImage(index)}
-                  >
-                    X
-                  </button>
-                  <div className="flex gap-1 mt-2 justify-center">
-                    <button
-                      type="button"
-                      onClick={() => moveNewImage(index, "up")}
-                      className="bg-blue-500 text-white px-2 rounded-sm"
-                    >
-                      {`<`}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => moveNewImage(index, "down")}
-                      className="bg-blue-500 text-white px-2 rounded-sm"
-                    >
-                      {`>`}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {/* Categories */}
           <div>
@@ -402,25 +234,14 @@ export default function EditProductPage() {
                 step={0.01}
               />
             </div>
-            <div className="w-1/2">
-              <label className="block font-medium mb-1">GST (%)</label>
-              <input
-                type="number"
-                className="border px-3 py-2 rounded-sm w-full"
-                value={gst}
-                onChange={(e) => setGst(Number(e.target.value))}
-                placeholder="18"
-                min={0}
-                step={0.01}
-              />
-            </div>
           </div>
 
           <button
+          disabled={loading}
             type="submit"
             className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4"
           >
-            Update Product
+            {loading ? "Loading" : "Update Product"}
           </button>
         </form>
       </div>

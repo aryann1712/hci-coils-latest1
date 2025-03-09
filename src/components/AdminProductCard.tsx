@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ProductInterface } from "@/lib/interfaces/ProductInterface";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MdDelete, MdEdit } from "react-icons/md";
+import { ProductAllTypeInterfact } from "@/data/allProducts";
 
-const AdminProductCard = ({ product }: { product: ProductInterface }) => {
+const AdminProductCard = ({ product }: { product: ProductAllTypeInterfact }) => {
   const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleEdit = () => {
     // Navigate to your edit page
-    router.push(`/admin-products/edit-product/${product.id}`);
+    router.push(`/admin-products/edit-product/${product._id}`);
   };
 
   const handleDeleteClick = () => {
@@ -51,7 +51,7 @@ const AdminProductCard = ({ product }: { product: ProductInterface }) => {
       {/* Image */}
       <div>
         <Image
-          src={product.image}
+          src={product.images[0] || "/logo.png"}
           alt={product.name}
           width={1000}
           height={1000}

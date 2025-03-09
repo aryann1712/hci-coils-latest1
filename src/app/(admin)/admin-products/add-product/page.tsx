@@ -15,11 +15,12 @@ export default function AdminAddProduct() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
+  const [loading, setLoading] = useState(false);
   // Form state
+  const [sku, setSku] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<number>(0);
-  const [gst, setGst] = useState<number>(18);
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [categoryInput, setCategoryInput] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
@@ -89,37 +90,50 @@ export default function AdminAddProduct() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setLoading(true);
+
+
+    if(!sku || !name || !description || !price || !categories.length || !images.length) {
+      alert("Please fill in all fields");
+      setLoading(false);
+      return;
+    }
+
     // Example: create form data to send to backend
     // If you want to handle images, you might need an API route that handles multipart/form-data
     const formData = new FormData();
+    formData.append("sku", sku);
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price.toString());
-    formData.append("gst", gst.toString());
 
     // categories as JSON or repeated key
-    formData.append("categories", JSON.stringify(categories));
+    formData.append("category", categories.join(","));
 
     images.forEach((img) => {
-      formData.append("images", img.file);
+      formData.append("image", img.file);
     });
 
     // Send to your backend route, e.g. /api/admin/products
     try {
-      //   const res = await fetch("/api/admin/products", {
-      //     method: "POST",
-      //     body: formData,
-      //   });
-      //   if (!res.ok) {
-      //     const data = await res.json();
-      //     alert(data.error || "Failed to create product");
-      //     return;
-      //   }
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+          method: "POST",
+          body: formData,
+        });
+        console.log("res",res);
+        if (!res.ok) {
+          const data = await res.json();
+          alert(data.error || "Failed to create product");
+          setLoading(false);
+          return;
+        }
       // success
       alert("Product added successfully!");
+      setLoading(false);
       router.push("/admin-products"); // or wherever you list products
     } catch (error) {
       console.error(error);
+      setLoading(false);
       alert("Something went wrong");
     }
   };
@@ -253,30 +267,29 @@ export default function AdminAddProduct() {
                 onChange={(e) => setPrice(Number(e.target.value))}
                 placeholder="0"
                 min={0}
-                step={0.01}
+                step={1}
               />
             </div>
 
             {/* GST */}
             <div className="w-1/2">
-              <label className="block font-medium mb-1">GST (%)</label>
+              <label className="block font-medium mb-1">SKU</label>
               <input
-                type="number"
+                type="text"
                 className="border px-3 py-2 rounded-sm w-full"
-                value={gst}
-                onChange={(e) => setGst(Number(e.target.value))}
-                placeholder="18"
-                min={0}
-                step={0.01}
+                value={sku}
+                onChange={(e) => setSku(e.target.value)}
+                placeholder="SKU"
               />
             </div>
           </div>
 
           <button
+          disabled={loading}
             type="submit"
             className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4"
           >
-            Submit
+           {loading ? "Submitting": "Submit"}
           </button>
         </form>
       </div>
