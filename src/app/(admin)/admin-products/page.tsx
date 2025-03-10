@@ -1,5 +1,6 @@
 "use client"
 import AdminProductCard from "@/components/AdminProductCard";
+import { Skeleton } from "@/components/ui/skeleton";
 // src/app/(admin)/products/page.tsx
 
 import { useUser } from "@/context/UserContext";
@@ -12,6 +13,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from 'react'
 
 const AdminProductsPage = () => {
+  const [loading, setLoading] = useState(false);
   const { user } = useUser();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -91,8 +93,36 @@ const AdminProductsPage = () => {
 
 
 
+
+
+  async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      setLoading(false);
+
+      console.log("data", data);
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+        return [];
+      }
+      return data.data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      return [];
+
+    }
+
+
+  }
+
   return (
-    <section className="px-14 pt-10 pb-28">
+    <section className="px-14 pt-10 pb-28 min-h-[60vh]">
       {/* Search Bar */}
       <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
 
@@ -118,8 +148,25 @@ const AdminProductsPage = () => {
         </div>
       </div>
 
+
+
+
       {/* Product Grid */}
       <div className="grid grid-cols-1 gap-6">
+
+        {loading && [...Array(9)].map((_, i) => (
+            <div className="flex flex-row space-y-3 gap-x-16">
+            <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+            <div className="space-y-2 flex flex-col">
+              <Skeleton className="h-4 w-[450px]" />
+              <Skeleton className="h-4 w-[700px]" />
+              <Skeleton className="h-12 w-[750px]" />
+            </div>
+          </div>
+        ))}
+
+
+
         {currentPageProducts.map((product) => (
           <AdminProductCard key={product._id} product={product} />
         ))}
@@ -153,21 +200,3 @@ const AdminProductsPage = () => {
 
 export default AdminProductsPage
 
-
-
-async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-  const data = await response.json();
-
-  console.log("data", data);
-  if (!response.ok) {
-    alert(data.error || "Sign in failed");
-    return [];
-  }
-
- return data.data;
-}

@@ -36,9 +36,11 @@ export default function SignUpPage() {
       
       const data = await response.json();
       console.log("GST API Response:", data); // Debug log
+      setLoading(false);
+      setGstVerifying(false);
+
       
       if (!response.ok) {
-        setLoading(false);
         setGstVerifying(false);
         console.error("GST verification failed:", data.error);
         alert(data.error || "GST verification failed");
@@ -60,6 +62,7 @@ export default function SignUpPage() {
       alert("An error occurred while verifying GST. Please try again.");
       console.error("GST verification error:", error);
     } finally {
+      setLoading(false);
       setGstVerifying(false);
     }
   };
@@ -83,9 +86,9 @@ export default function SignUpPage() {
       });
       
       const data = await response.json();
+      setLoading(false);
       
       if (!response.ok) {
-        setLoading(false);
         alert(data.error || "Sign up failed");
         return;
       }

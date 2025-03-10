@@ -107,22 +107,22 @@ const Navbar = () => {
             <Link href={"/admin-products"}><h4 className="font-semibold hover:text-red-500">Add Products</h4></Link>
           </div>}
 
-          {mounted && user && (user?.role != "admin") && <div className=" ml-5">
+          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className=" ml-5">
             <Link href={"/enquire"}><h4 className="font-semibold hover:text-red-500">Enquires</h4></Link>
           </div>}
 
-          {mounted && user && (user?.role != "admin") && <div className=" ml-5">
+          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className=" ml-5">
             <Link href={"/orders"}><h4 className="font-semibold hover:text-red-500">Orders</h4></Link>
           </div>}
 
-          {mounted && user && (user?.role != "admin")  && <div className="ml-5">
+          {mounted && user && (user?.role != "admin" && user?.role != "manager")  && <div className="ml-5">
             <Link href={"/auth/change-password"}>
               <HiOutlineKey className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
             </Link>
           </div>}
 
 
-         {(user?.role != "admin") && <div className="relative mx-2">
+         {(user?.role != "admin" && user?.role != "manager") && <div className="relative mx-2">
             <Link href={"/cart"}>
               <MdOutlineShoppingCart className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
               {mounted && (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{totalQuantity}</p>}

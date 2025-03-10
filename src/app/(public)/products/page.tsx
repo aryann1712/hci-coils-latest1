@@ -1,12 +1,13 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
-import {  ProductAllTypeInterfact } from "@/data/allProducts";
+import { ProductAllTypeInterfact } from "@/data/allProducts";
 import { useEffect, useMemo, useState } from "react";
 
 
 
 export default function ProductsPage() {
+  const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<ProductAllTypeInterfact[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,8 +68,37 @@ export default function ProductsPage() {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
 
+  // Example placeholder fetch
+  async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      setLoading(false);
+
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+        return [];
+      }
+
+      return data.data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      return [];
+    }
+
+  }
+
+
   return (
-    <section className="p-4 px-16 mb-10">
+    <section className="p-4 px-16 mb-10 min-h-[60vh]">
       {/* Search Bar */}
       <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-3">
         {/* Search Input */}
@@ -86,6 +116,15 @@ export default function ProductsPage() {
           />
         </div>
       </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="grid grid-col-1 gap-8 gap-y-10 md:grid-cols-3">
+          {[...Array(9)].map((_, i) => (
+            <div key={i} className="animate-pulse rounded-md bg-primary/10 h-96" />
+          ))}
+        </div>
+      )}
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 gap-8 gap-y-10 md:grid-cols-3">
@@ -120,26 +159,3 @@ export default function ProductsPage() {
   );
 }
 
-// Example placeholder fetch
-async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
-
-
-  // const data = AllProducts;
-
-  // return data;
-
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-  const data = await response.json();
-
-  console.log("data", data);
-  if (!response.ok) {
-    alert(data.error || "Sign in failed");
-    return [];
-  }
-
- return data.data;
-}

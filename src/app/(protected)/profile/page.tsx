@@ -15,14 +15,36 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState<UserAllInfoType | null>(null)
 
   async function getUserInfoFromAPI(): Promise<UserAllInfoType> {
-    return {
-      userId: "1",
-      phone: "9315045029",
-      name: "Rounak Raj",
-      address: "sector 11, h no 324, Vasundhara, Ghaziabad, Uttar Pradesh, India, 201012",
-      companyName: "Stellar Group",
-      email: "rounakraj0309@gmail.com",
-      gstNumber: "GSTIN12334565767"
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/profile/${user?.userId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+        return {
+          userId: "",
+          phone: "",
+          name: "",
+          address: "",
+          companyName: "",
+          email: "",
+          gstNumber: ""
+        };
+      }
+      return data.data;
+    } catch (error) {
+      console.error("Sign in failed:", error);
+      return {
+        userId: "",
+        phone: "",
+        name: "",
+        address: "",
+        companyName: "",
+        email: "",
+        gstNumber: ""
+      };
     }
   };
 
@@ -49,31 +71,31 @@ const ProfilePage = () => {
 
   return (
     <div className="max-w-[75%] mx-auto py-10 mb-10">
-    <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
-      <h1 className="text-blue-800 text-3xl font-semibold italic">Profile</h1>
-      <div className="grid grid-cols-2 gap-x-5 gap-y-10 text-xl text-gray-400 font-semibold text-end">
-        <div className="flex justify-between">
-          <h3>Name:</h3> <h3  className="max-w-lg">{user?.name || ""}</h3>
-        </div>
-        <div className="flex justify-between">
-          <h3>Phone:</h3> <h3 className="max-w-lg">{user?.phone || ""}</h3>
-        </div>
-        <div className="flex justify-between">
-          <h3>Email:</h3> <h3 className="max-w-lg">{userData?.email || ""}</h3>
-        </div>
-        <div className="flex justify-between">
-          <h3>Address:</h3> <h3 className="max-w-lg">{userData?.address || ""}</h3>
-        </div>
-        <div className="flex justify-between">
-          <h3>Company Name:</h3> <h3 className="max-w-lg">{userData?.companyName || ""}</h3>
-        </div>
-        <div className="flex justify-between">
-          <h3>GST No:</h3> <h3 className="max-w-lg">{userData?.gstNumber || ""}</h3>
+      <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
+        <h1 className="text-blue-800 text-3xl font-semibold italic">Profile</h1>
+        <div className="grid grid-cols-2 gap-x-5 gap-y-10 text-xl text-gray-400 font-semibold text-end">
+          <div className="flex justify-between">
+            <h3>Name:</h3> <h3 className="max-w-lg">{user?.name || ""}</h3>
+          </div>
+          <div className="flex justify-between">
+            <h3>Phone:</h3> <h3 className="max-w-lg">{user?.phone || ""}</h3>
+          </div>
+          <div className="flex justify-between">
+            <h3>Email:</h3> <h3 className="max-w-lg">{userData?.email || ""}</h3>
+          </div>
+          <div className="flex justify-between">
+            <h3>Address:</h3> <h3 className="max-w-lg">{userData?.address || ""}</h3>
+          </div>
+          <div className="flex justify-between">
+            <h3>Company Name:</h3> <h3 className="max-w-lg">{userData?.companyName || ""}</h3>
+          </div>
+          <div className="flex justify-between">
+            <h3>GST No:</h3> <h3 className="max-w-lg">{userData?.gstNumber || ""}</h3>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
+
   );
 }
 
