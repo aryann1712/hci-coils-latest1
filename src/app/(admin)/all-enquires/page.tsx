@@ -1,12 +1,10 @@
 "use client";
 
-
 import AdminOrderCheckItemCard from '@/components/AdminOrderCheckCard';
 import { useUser } from '@/context/UserContext';
-import { EnquireItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
+import { EnquireItemType } from '@/lib/interfaces/OrderInterface';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-
 
 const AdminAllEnquires = () => {
     const { user } = useUser();
@@ -16,8 +14,6 @@ const AdminAllEnquires = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 9;
-
-
 
     useEffect(() => {
         setMounted(true);
@@ -38,41 +34,44 @@ const AdminAllEnquires = () => {
 
     }, [mounted, user, router]);
 
-
     // Filter the products by category AND search query
     const filteredOrders = useMemo(() => {
         // Start with the full array
-        const filtered = userOrders;
+        let filtered = userOrders;
 
         // If there's a search query, filter
         const lowerQuery = searchQuery.trim().toLowerCase();
         if (lowerQuery) {
-            // filtered = filtered.filter((order) => {
-            //     // Match on order fields
-            //     // const matchOrderName = order.items.toLowerCase().includes(lowerQuery);
-            //     // const matchGst = order.gstNumber.toLowerCase().includes(lowerQuery);
-            //     // const matchOrderDate = order.orderDate.toLowerCase().includes(lowerQuery);
-            //     // const matchOrderId = order.orderId.toLowerCase().includes(lowerQuery);
-            //     // const matchPhone = order.phone.toLowerCase().includes(lowerQuery);
+            filtered = filtered.filter((order) => {
+                // Match on order fields
+                const matchOrderName = order.items.some((item) => {
+                    const matchProductName = item.product.name.toLowerCase().includes(lowerQuery);
+                    const matchProductDesc = item.product.description.toLowerCase().includes(lowerQuery);
+                    const matchProductCategory = item.product.category.toLowerCase().includes(lowerQuery);
+                    const matchProductId = item.product._id.toLowerCase().includes(lowerQuery);
+                    return matchProductName || matchProductDesc || matchProductCategory || matchProductId;
+                });
 
-            //     // // Match on ANY product in the order
-            //     // const matchAnyProduct = order.products.some((item) => {
-            //     //     const matchProductName = item.name.toLowerCase().includes(lowerQuery);
-            //     //     const matchdescription = item.description.toLowerCase().includes(lowerQuery);
-            //     //     return matchProductName || matchdescription;
-            //     // });
+                const matchGst = order.user.gstNumber?.toLowerCase().includes(lowerQuery) || false;
+                const matchOrderDate = order.createdAt?.toLowerCase().includes(lowerQuery) || false;
+                const matchOrderId = order.enquiryId?.toLowerCase().includes(lowerQuery) || false;
+                const matchName = order.user.name?.toLowerCase().includes(lowerQuery) || false;
+                const matchCompanyName = order.user.companyName?.toLowerCase().includes(lowerQuery) || false;
+                const matchEmail = order.user.email?.toLowerCase().includes(lowerQuery) || false;
+                const matchAddress = order.user.address?.toLowerCase().includes(lowerQuery) || false;
 
-            //     // Return true if any of these conditions pass
-            //     return (
-            //         // matchOrderName ||
-            //         // matchGst ||
-            //         // matchOrderDate ||
-            //         // matchOrderId ||
-            //         // matchPhone ||
-            //         // matchAnyProduct
-            //         ''
-            //     );
-            // });
+                // Return true if any of these conditions pass
+                return (
+                    matchOrderName ||
+                    matchGst ||
+                    matchOrderDate ||
+                    matchOrderId ||
+                    matchName ||
+                    matchCompanyName ||
+                    matchEmail ||
+                    matchAddress
+                );
+            });
         }
 
         return filtered;
@@ -102,6 +101,78 @@ const AdminAllEnquires = () => {
         setCurrentPage((prev) => Math.max(prev - 1, 1));
     };
 
+    // Excel export function
+    const exportToExcel = () => {
+        // Define the type for our export row
+        type ExportRowType = {
+            "S.No": number;
+            "Enquiry ID": string;
+            "Customer Name": string;
+            "Company": string;
+            "Email": string;
+            "GST Number": string;
+            "Address": string;
+            "Enquiry Date": string;
+            "Status": string;
+            "Total Items": number;
+            "Products": string;
+        };
+
+        // Format data for export
+        const exportData: ExportRowType[] = filteredOrders.map((enquiry, index) => {
+            return {
+                "S.No": index + 1,
+                "Enquiry ID": enquiry.enquiryId || "N/A",
+                "Customer Name": enquiry.user.name || "N/A",
+                "Company": enquiry.user.companyName || "N/A",
+                "Email": enquiry.user.email || "N/A",
+                "GST Number": enquiry.user.gstNumber || "N/A",
+                "Address": enquiry.user.address || "N/A",
+                "Enquiry Date": enquiry.createdAt || "N/A",
+                "Status": enquiry.status || "N/A",
+                "Total Items": enquiry.items.length,
+                "Products": enquiry.items.map(item => 
+                    `${item.product.name} (Qty: ${item.quantity})`
+                ).join(", ")
+            };
+        });
+
+        // Convert to CSV
+        if (exportData.length === 0) {
+            alert("No data to export");
+            return;
+        }
+
+        const headers = Object.keys(exportData[0]);
+        const csvRows = [];
+        
+        // Add headers
+        csvRows.push(headers.join(','));
+        
+        // Add data rows
+        for (const row of exportData) {
+            const values = headers.map(header => {
+                const value = row[header as keyof ExportRowType];
+                const escaped = ('' + value).replace(/"/g, '\\"');
+                return `"${escaped}"`;
+            });
+            csvRows.push(values.join(','));
+        }
+        
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        // Create a link to download
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `Enquiries_Export_${new Date().toLocaleDateString()}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     async function getUserOrder(): Promise<EnquireItemType[]> {
         if (user) {
@@ -127,46 +198,49 @@ const AdminAllEnquires = () => {
         } else {
             return [];
         }
-       
     }
 
     return (
-        <div className=" max-w-[75%] mx-auto py-10 mb-10">
+        <div className="max-w-[75%] mx-auto py-10 mb-10">
             <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
-                <h1 className="text-blue-800 text-3xl font-semibold italic">All Enquires</h1>
+                <div className="flex justify-between items-center">
+                    <h1 className="text-blue-800 text-3xl font-semibold italic">All Enquires</h1>
+                    <button 
+                        onClick={exportToExcel}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
+                    >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export to Excel
+                    </button>
+                </div>
 
-                <div>
-                    <label htmlFor="search" className="mr-2">
-                        Search:
-                    </label>
-                    <input
-                        id="search"
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        placeholder="Search by name or desc..."
-                        className="border p-1"
-                    />
+                <div className="flex justify-between items-center">
+                    <div>
+                        <label htmlFor="search" className="mr-2">
+                            Search:
+                        </label>
+                        <input
+                            id="search"
+                            type="text"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            placeholder="Search by name or desc..."
+                            className="border p-1"
+                        />
+                    </div>
+                    <div className="text-sm text-gray-600">
+                        {filteredOrders.length} enquiries found
+                    </div>
                 </div>
 
                 <div>
-                    {
-                        // (currentPageProducts.length === 0) ? (
-                        //     <div className='flex flex-col items-center justify-center gap-10'>
-                        //         <h3 className='text-gray-400 '>You don't have any previous order</h3>
-                        //         <CgSmile className='text-8xl text-gray-400' />
-                        //         <Link href="/products">
-                        //             <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
-                        //         </Link>
-                        //     </div>
-                        // ) : 
-
-                        (
-                            // add here the logic of order Card
-                            <div className=''>
-                                {currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} enquireItem={orderData} />)}
-                            </div>
-                        )}
+                    <div className=''>
+                        {currentPageProducts.map((orderData, index) => (
+                            <AdminOrderCheckItemCard key={index} enquireItem={orderData} />
+                        ))}
+                    </div>
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
