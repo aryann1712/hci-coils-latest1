@@ -1,12 +1,10 @@
 "use client";
 
-
 import AdminOrderCheckItemCard from '@/components/AdminOrderCheckCard';
 import { useUser } from '@/context/UserContext';
 import { OrderItemType } from '@/lib/interfaces/OrderInterface';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-
 
 const AdminAllOrders = () => {
     const { user } = useUser();
@@ -16,8 +14,6 @@ const AdminAllOrders = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 9;
-
-
 
     useEffect(() => {
         setMounted(true);
@@ -37,7 +33,6 @@ const AdminAllOrders = () => {
         }
 
     }, [mounted, user, router]);
-
 
     const filteredOrders = useMemo(() => {
         // Start with the full array
@@ -81,7 +76,6 @@ const AdminAllOrders = () => {
         return filtered;
     }, [userOrders, searchQuery]);
 
-
     // Pagination
     const totalPages = Math.ceil(filteredOrders.length / pageSize);
     const currentPageProducts = useMemo(() => {
@@ -105,9 +99,92 @@ const AdminAllOrders = () => {
         setCurrentPage((prev) => Math.max(prev - 1, 1));
     };
 
+    // Excel export function
+    const exportToExcel = () => {
+        // Define the type for our export row
+        type ExportRowType = {
+            "S.No": number;
+            "Order ID": string;
+            "Customer Name": string;
+            "Company": string;
+            "Email": string;
+            "GST Number": string;
+            "Address": string;
+            "Order Date": string;
+            // "Order Status": string;
+            "Total Items": number;
+            // "Order Total": string;
+            "Products": string;
+        };
+
+        // Format data for export
+        const exportData: ExportRowType[] = filteredOrders.map((order, index) => {
+            // Calculate order total - ensure price property exists
+            const orderTotal = order.items.reduce(
+                (sum, item) => {
+                    // Check if product has price property, if not default to 0
+                    const price = 'price' in item.product ? (item.product as any).price : 0;
+                    return sum + item.quantity * price;
+                }, 
+                0
+            );
+            
+            return {
+                "S.No": index + 1,
+                "Order ID": order.orderId || "N/A",
+                "Customer Name": order.user.name || "N/A",
+                "Company": order.user.companyName || "N/A",
+                "Email": order.user.email || "N/A",
+                "GST Number": order.user.gstNumber || "N/A",
+                "Address": order.user.address || "N/A",
+                "Order Date": order.createdAt || "N/A",
+                // "Order Status": order.status || "N/A",
+                "Total Items": order.items.length,
+                // "Order Total": `₹${orderTotal.toFixed(2)}`,
+                "Products": order.items.map(item => {
+                    return `${item.product.name}  x (${item.quantity})`;
+                }).join(",\n")
+            };
+        });
+
+        // Convert to CSV
+        if (exportData.length === 0) {
+            alert("No data to export");
+            return;
+        }
+
+        const headers = Object.keys(exportData[0]);
+        const csvRows = [];
+        
+        // Add headers
+        csvRows.push(headers.join(','));
+        
+        // Add data rows
+        for (const row of exportData) {
+            const values = headers.map(header => {
+                const value = row[header as keyof ExportRowType];
+                const escaped = ('' + value).replace(/"/g, '\\"');
+                return `"${escaped}"`;
+            });
+            csvRows.push(values.join(','));
+        }
+        
+        const csvString = csvRows.join('\n');
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        
+        // Create a link to download
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `Orders_Export_${new Date().toLocaleDateString()}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     async function getUserOrder(): Promise<OrderItemType[]> {
-
         if (user) {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
@@ -131,46 +208,47 @@ const AdminAllOrders = () => {
         } else {
             return [];
         }
-
     }
 
     return (
-        <div className=" max-w-[75%] mx-auto py-10 mb-10">
+        <div className="max-w-[75%] mx-auto py-10 mb-10">
             <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
-                <h1 className="text-blue-800 text-3xl font-semibold italic">All Orders</h1>
+                <div className="flex justify-between items-center">
+                    <h1 className="text-blue-800 text-3xl font-semibold italic">All Orders</h1>
+                    <button 
+                        onClick={exportToExcel}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
+                    >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Export to Excel
+                    </button>
+                </div>
 
-                <div>
-                    <label htmlFor="search" className="mr-2">
-                        Search:
-                    </label>
-                    <input
-                        id="search"
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        placeholder="Search by name or desc..."
-                        className="border p-1"
-                    />
+                <div className="flex justify-between items-center">
+                    <div>
+                        <label htmlFor="search" className="mr-2">
+                            Search:
+                        </label>
+                        <input
+                            id="search"
+                            type="text"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            placeholder="Search by name or desc..."
+                            className="border p-1"
+                        />
+                    </div>
+                    <div className="text-sm text-gray-600">
+                        {filteredOrders.length} orders found
+                    </div>
                 </div>
 
                 <div>
-                    {
-                        // (currentPageProducts.length === 0) ? (
-                        //     <div className='flex flex-col items-center justify-center gap-10'>
-                        //         <h3 className='text-gray-400 '>You don't have any previous order</h3>
-                        //         <CgSmile className='text-8xl text-gray-400' />
-                        //         <Link href="/products">
-                        //             <div className="px-8 py-3 lg:w-[250px] rounded-md bg-red-400 hover:bg-red-500 text-center text-white font-semibold">Continue Shopping</div>
-                        //         </Link>
-                        //     </div>
-                        // ) : 
-
-                        (
-                            // add here the logic of order Card
-                            <div className=''>
-                                {currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} orderItem={orderData} />)}
-                            </div>
-                        )}
+                    <div className=''>
+                        {currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} orderItem={orderData} />)}
+                    </div>
 
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
