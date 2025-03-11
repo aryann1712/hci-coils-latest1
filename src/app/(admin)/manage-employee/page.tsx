@@ -2,7 +2,7 @@
 
 import AdminUserDetailsCard from '@/components/AdminUserDetailsCard';
 import { useUser } from '@/context/UserContext';
-import { UserAllInfoType } from '@/lib/interfaces/UserInterface';
+import { EmployyeeAllInfoType } from '@/lib/interfaces/UserInterface';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -11,7 +11,7 @@ const ManageEmployeePage = () => {
   const { user } = useUser();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [employeeList, setEmployeeList] = useState<UserAllInfoType[]>([]);
+  const [employeeList, setEmployeeList] = useState<EmployyeeAllInfoType[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9;
@@ -77,29 +77,28 @@ const ManageEmployeePage = () => {
   };
 
 
-  async function getEmployeeList(): Promise<UserAllInfoType[]> {
-    return [
-      {
-        userId: "123",
-        role: "admin",
-        address: "Vasundhara",
-        companyName: "Apple",
-        email: "rounakraj0309@gmail.com",
-        gstNumber: "GSTIN123454665",
-        name: "Rounak",
-        phone: "9315045029"
-      },
-      ...Array.from({ length: 19 }, (_, i) => ({
-        userId: (124 + i).toString(),
-        role: i % 2 === 0 ? "user" : "manager",
-        address: `Location ${i + 1}`,
-        companyName: "Apple",
-        email: `user${i + 1}@example.com`,
-        gstNumber: "GSTIN123454665",
-        name: `User ${i + 1}`,
-        phone: `93150${45030 + i}`
-      }))
-    ];
+  async function getEmployeeList(): Promise<EmployyeeAllInfoType[]> {
+    if (user) {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/employees/${user.userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || "Error in fetching employees");
+          return [];
+        }
+        return data.employees;
+      } catch (error) {
+        console.error("Error employees:", error);
+        return [];
+      }
+    } else {
+      return [];
+    }
   }
 
   return (
@@ -121,10 +120,11 @@ const ManageEmployeePage = () => {
         </div>
 
         <div>
-          {
+          {user &&
             (
+              console.log(currentPageProducts),
               <div className=''>
-                {<AdminUserDetailsCard userAllInfoTypes={currentPageProducts} />}
+                {<AdminUserDetailsCard userAllInfoTypes={currentPageProducts} currentUserId={user.userId} />}
               </div>
             )}
 

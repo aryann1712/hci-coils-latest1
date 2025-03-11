@@ -21,3 +21,15 @@ export interface UserType {
     email: string
 
   } 
+
+  export interface EmployyeeAllInfoType {
+    _id: string;
+    role?: string;
+    name: string;
+    phone: string;
+    address: string;
+    gstNumber: string;
+    companyName: string;
+    email: string
+
+  } 
