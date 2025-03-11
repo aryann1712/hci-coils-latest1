@@ -83,7 +83,6 @@ const AdminAllEnquires = () => {
     const currentPageProducts = useMemo(() => {
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
-        console.log("refiltered page");
         return filteredOrders.slice(startIndex, endIndex);
     }, [filteredOrders, currentPage]);
 
@@ -189,7 +188,6 @@ const AdminAllEnquires = () => {
                     alert(data.error || "Error in fetching orders");
                     return [];
                 }
-
                 return data.data;
             } catch (error) {
                 console.error("Error loading orders:", error);
