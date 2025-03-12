@@ -33,7 +33,7 @@ const DashboardProductCarousel = () => {
         {/* First Row - Moves Left */}
         <Marquee className="[--duration:25s]">
           {firstRow.map((product) => (
-            <div key={product._id} className="mx-10 w-[350px]">
+            <div key={product._id} className="lg:mx-10 w-48 lg:w-[350px]">
               <ProductCard product={product} showHover={false} />
             </div>
           ))}
@@ -42,7 +42,7 @@ const DashboardProductCarousel = () => {
         {/* Second Row - Moves Right */}
         <Marquee reverse className="[--duration:25s]">
           {secondRow.map((product) => (
-            <div key={product._id} className="mx-10 w-[350px]">
+            <div key={product._id} className="lg:mx-10 w-48 lg:w-[350px]">
               <ProductCard product={product} showHover={false} />
             </div>
           ))}

@@ -57,11 +57,11 @@ export default function SignInPage() {
   };
 
   return (
-      <div className="max-w-[75%] mx-auto py-10">
+      <div className="w-full px-5  lg:px-0 lg:max-w-[75%] mx-auto py-10">
         <h1 className="text-blue-800 text-3xl font-semibold italic">Sign In</h1>
 
-        <div className="mx-auto py-16 px-10 rounded-sm shadow-xl max-w-2xl">
-          <form onSubmit={handleSignIn} className="flex flex-col gap-y-12 px-10">
+        <div className="mx-auto py-16 px-4 lg:px-10 rounded-sm shadow-xl max-w-2xl">
+          <form onSubmit={handleSignIn} className="flex flex-col gap-y-12 px-2 lg:px-10">
             <input
               className="border px-3 py-3 rounded-sm"
               type="email"
@@ -92,9 +92,9 @@ export default function SignInPage() {
           </form>
 
           <div className="mt-10 space-y-10">
-            <h4 className="text-sm font-semibold text-blue-800 cursor-pointer mb-5">
+            {/* <h4 className="text-sm font-semibold text-blue-800 cursor-pointer mb-5">
               forgot password?
-            </h4>
+            </h4> */}
 
             <Link href="/auth/signup">
               <h4>

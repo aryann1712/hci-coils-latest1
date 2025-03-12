@@ -14,8 +14,8 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <div className="flex flex-col items-start justify-center max-w-[75%] mx-auto">
-      <div className="grid grid-cols-4 py-16 space-x-5 ">
+    <div className="flex flex-col items-start justify-center px-2 lg:px-0 lg:max-w-[75%] mx-auto">
+      <div className="  lg:grid  lg:grid-cols-4 py-16 space-x-5 space-y-12 ">
         {/* col 1 */}
         <div className="space-y-4 col-span-2">
           <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" onClick={() => { console.log("logo redirect to home") }} />
@@ -25,7 +25,7 @@ const Footer = () => {
 
 
         {/* col 2 */}
-        <div className=" flex flex-col justify-center items-center gap-y-2">
+        <div className=" flex flex-col justify-center items-start lg:items-center gap-y-2">
           <h3 className="text-blue-800  text-2xl font-[900] ">Navigation</h3>
           <div className="flex flex-col justify-start items-start px-2 gap-y-1 space-y-2">
             <Link href="/">  <h2 className="text-black text-lg hover:text-blue-700 font-bold cursor-pointer">Home</h2></Link>
@@ -38,7 +38,7 @@ const Footer = () => {
 
 
         {/* col 3 */}
-        <div className="flex flex-col gap-y-2 justify-start items-start">
+        <div className="mt-5 lg:mt-0 flex flex-col gap-y-2 justify-start items-start">
           <a
             href={`mailto:${process.env.NEXT_PUBLIC_CLIENT_EMAIL}`}
             className="flex items-center gap-3"

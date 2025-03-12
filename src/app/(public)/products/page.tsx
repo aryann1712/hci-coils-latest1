@@ -11,7 +11,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<ProductAllTypeInterfact[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 9;
+  const pageSize = 12;
 
   // Fetch data (simulate API call)
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function ProductsPage() {
 
 
   return (
-    <section className="p-4 px-16 mb-10 min-h-[60vh]">
+    <section className="p-4 lg:px-16 mb-10 min-h-[60vh]">
       {/* Search Bar */}
       <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-3">
         {/* Search Input */}
@@ -127,7 +127,7 @@ export default function ProductsPage() {
       )}
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 gap-8 gap-y-10 md:grid-cols-3">
+      <div className="grid grid-cols-2  gap-8 gap-y-10 md:grid-cols-3">
         {currentPageProducts.map((product) => (
           <ProductCard key={product._id} product={product} />
         ))}

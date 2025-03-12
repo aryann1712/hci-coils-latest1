@@ -7,9 +7,9 @@ import { FaRegHandshake } from "react-icons/fa";
 
 const DashboardWhyChooseUs = () => {
     return (
-        <div className='w-full lg:w-[75%] mx-auto flex flex-col gap-y-16 py-10 justify-center items-center'>
+        <div className='w-full px-5 md:px-0 lg:w-[75%] mx-auto flex flex-col gap-y-16 py-10 justify-center items-center'>
             <h2 className='text-3xl font-medium'>Why people Choose the <span className='font-extrabold'>Heat Craft Industries</span></h2>
-            <div className='grid grid-cols-2 lg:grid-cols-3 space-x-10'>
+            <div className='grid grid-cols-1 lg:grid-cols-3 space-y-12 md:space-x-10'>
                 {/* Item 1 */}
                 <div className='flex flex-col justify-start items-center gap-y-5'>
                     <GrMoney className='text-blue-700 w-24 h-24' />

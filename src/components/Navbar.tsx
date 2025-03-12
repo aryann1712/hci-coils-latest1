@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useUser } from "@/context/UserContext";
 import { HiOutlineKey } from "react-icons/hi";
+import Image from "next/image";
 
 
 
@@ -40,22 +41,26 @@ const Navbar = () => {
 
 
   return (
-    <nav className="flex flex-col py-5 px-20 gap-y-5">
+    <nav className="flex flex-col py-5 px-5 lg:px-20 gap-y-5">
       {/* first row */}
       <div className="flex justify-between items-center">
         {/* mail */}
         <a
           href={`mailto:${process.env.NEXT_PUBLIC_CLIENT_EMAIL}`}
-          className="flex items-center gap-3 text-blue-700 hover:underline"
+          className="hidden md:flex items-center gap-3 text-blue-700 hover:underline"
         >
           <MdOutlineMailOutline className="h-5 w-5" />
           <h3>{process.env.NEXT_PUBLIC_CLIENT_EMAIL}</h3>
         </a>
 
+        <Link href="/" className="block md:hidden">
+                    <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" /> </Link>
+
 
         {/* card and order and social and login */}
         <div className="flex gap-3 text-gray-500 items-center">
           <a
+            className="hidden md:block"
             href={process.env.NEXT_PUBLIC_FACEBOOK_LINK}
             target="_blank"
             rel="noopener noreferrer"
@@ -64,6 +69,7 @@ const Navbar = () => {
             <TiSocialFacebook className="h-8 w-8 cursor-pointer hover:text-white hover:bg-blue-500 rounded-full p-1" />
           </a>
           <a
+            className="hidden md:block"
             href={process.env.NEXT_PUBLIC_TWITTER_LINK}
             target="_blank"
             rel="noopener noreferrer"
@@ -72,6 +78,7 @@ const Navbar = () => {
             <FaXTwitter className="h-7 w-7  cursor-pointer  hover:text-white hover:bg-cyan-500 rounded-full p-1" />
           </a>
           <a
+            className="hidden md:block"
             href={process.env.NEXT_PUBLIC_INSTAGRAM_LINK}
             target="_blank"
             rel="noopener noreferrer"
@@ -80,6 +87,7 @@ const Navbar = () => {
             <IoLogoInstagram className="h-8 w-8  cursor-pointer  hover:text-white           hover:bg-[linear-gradient(45deg,_#f09433_0%,_#e6683c_25%,_#dc2743_50%,_#cc2366_75%,_#bc1888_100%)]  rounded-full p-1" />
           </a>
           <a
+            className="hidden md:block"
             href={process.env.NEXT_PUBLIC_LINKEDIN_LINK}
             target="_blank"
             rel="noopener noreferrer"
@@ -115,14 +123,14 @@ const Navbar = () => {
             <Link href={"/orders"}><h4 className="font-semibold hover:text-red-500">Orders</h4></Link>
           </div>}
 
-          {mounted && user && (user?.role != "admin" && user?.role != "manager")  && <div className="ml-5">
+          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className="ml-5">
             <Link href={"/auth/change-password"}>
               <HiOutlineKey className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
             </Link>
           </div>}
 
 
-         {(user?.role != "admin" && user?.role != "manager") && <div className="relative mx-2">
+          {(user?.role != "admin" && user?.role != "manager") && <div className="relative mx-2">
             <Link href={"/cart"}>
               <MdOutlineShoppingCart className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
               {mounted && (cartItems.length > 0) && <p className="absolute -bottom-3 -right-3 rounded-full text-sm  text-center font-semibold text-white bg-red-500 h-5 px-[4px] pb-[10px]">{totalQuantity}</p>}

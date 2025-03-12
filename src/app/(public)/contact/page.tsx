@@ -17,10 +17,10 @@ export default function ContactPage() {
   };
 
   return (
-    <section className="py-4 max-w-[75%] mx-auto">
-      <div className="flex items-start justify-center gap-5 py-10">
+    <section className="py-4 w-full px-3 lg:px-0 lg:max-w-[75%] mx-auto">
+      <div className="flex flex-col lg:flex-row items-start justify-center gap-5 py-10">
 
-        <div className="w-1/2 space-y-10">
+        <div className=" w-full lg:w-1/2 space-y-10">
           <h2 className="text-4xl text-blue-700 font-semibold">Contact Us</h2>
           <h3 className="text-2xl text-gray-400">We are the world class services and solutions to our customers. </h3>
 
@@ -45,7 +45,7 @@ export default function ContactPage() {
         </div>
 
 
-        <div className="w-1/2 bg-white p-6 shadow-md rounded-sm">
+        <div className="w-full lg:w-1/2 bg-white  lg:p-6 shadow-md rounded-sm">
 
           <form onSubmit={onSubmit} className="flex flex-col gap-8">
             <input

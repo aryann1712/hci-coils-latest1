@@ -5,7 +5,7 @@ const DashboardProductRange = () => {
     return (
         <div className='w-full bg-gray-100 py-24 px-16 flex flex-col justify-center items-center space-y-16'>
             <h3 className='text-3xl font-normal mb-5'>Comprehensive <span className='font-extrabold'>Products</span> Range</h3>
-            <div className='grid  grid-cols-2 lg:grid-cols-4 space-x-10 '>
+            <div className='grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-4 space-y-12 md:space-x-10'>
                 {/* Item 1 */}
                 <div className='flex flex-col items-center justify-center gap-2'>
                     <div className='p-2 bg-gray-100 rounded-full'>

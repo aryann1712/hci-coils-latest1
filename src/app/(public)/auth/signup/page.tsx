@@ -116,10 +116,10 @@ export default function SignUpPage() {
 
 
   return (
-    <div className="max-w-[75%] mx-auto py-10">
+    <div className="w-full px-5  lg:px-0 lg:max-w-[75%] mx-auto py-10">
       <h1 className="text-blue-800 text-3xl font-semibold italic">Sign Up</h1>
-      <div className="mx-auto py-16 px-10 rounded-sm shadow-xl max-w-2xl">
-        <form onSubmit={handleSignUp} className="flex flex-col gap-y-12 px-10">
+      <div className="mx-auto py-16 px-0 lg:px-10 rounded-sm shadow-xl max-w-2xl">
+        <form onSubmit={handleSignUp} className="flex flex-col gap-y-12  px-4 lg:px-10">
         <div className="relative">
             <div className="flex gap-2">
               <input
