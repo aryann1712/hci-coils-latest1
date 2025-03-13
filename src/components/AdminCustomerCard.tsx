@@ -2,7 +2,7 @@
 import { EmployyeeAllInfoType } from '@/lib/interfaces/UserInterface';
 import { useEffect, useState } from 'react';
 
-const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfoTypes: EmployyeeAllInfoType[], currentUserId: string }) => {
+const AdminCustomerCard = ({ userAllInfoTypes, currentUserId }: { userAllInfoTypes: EmployyeeAllInfoType[], currentUserId: string }) => {
   // Create local state to manage users data
   const [users, setUsers] = useState<EmployyeeAllInfoType[]>([]);
 
@@ -11,13 +11,13 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
     setUsers(userAllInfoTypes);
   }, [userAllInfoTypes]);
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    console.log(`Updating user ${userId} to role ${newRole}`);
+  const handleStatusChange = async (userId: string, newRole: string) => {
+    console.log(`Updating user ${userId} to status ${newRole}`);
     if (window.confirm("Are you sure?")) {
       // Call API to update role if currentUserId exists
       if (currentUserId) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/employees/role`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/customers/status`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -25,7 +25,7 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
             body: JSON.stringify({
               "adminId": currentUserId,
               "updateId": userId,
-              "role": newRole
+              "status": newRole
             })
           });
 
@@ -57,7 +57,7 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
           <h2>Name</h2>
           <h2>Email</h2>
           <h2>Phone</h2>
-          <h2>Role</h2>
+          <h2>Status</h2>
         </div>
 
         {users.map((data, index) => (
@@ -66,15 +66,15 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
             <h2>{data.email}</h2>
             <h2>{data.phone}</h2>
             {data.role === "admin" ? (
-              <h2>{data.role}</h2>
+              <h2>{data.status}</h2>
             ) : (
               <select
                 value={data.role}
-                onChange={(e) => handleRoleChange(data._id, e.target.value)}
+                onChange={(e) => handleStatusChange(data._id, e.target.value)}
                 className='border p-1 rounded'
               >
-                <option value="user">User</option>
-                <option value="manager">Manager</option>
+                <option value="true">Active</option>
+                <option value="false">Not Active</option>
               </select>
             )}
           </div>
@@ -83,4 +83,4 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
   );
 };
 
-export default AdminUserDetailsCard;
+export default AdminCustomerCard;

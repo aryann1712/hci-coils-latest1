@@ -104,6 +104,10 @@ const Navbar = () => {
 
 
           {mounted && (user?.role == "admin") && <div className="hidden md:block ml-5">
+            <Link href={"/manage-customer"}><h4 className="font-semibold hover:text-red-500">Manage Customer</h4></Link>
+          </div>}
+
+          {mounted && (user?.role == "admin") && <div className="hidden md:block ml-5">
             <Link href={"/manage-employee"}><h4 className="font-semibold hover:text-red-500">Manage Employee</h4></Link>
           </div>}
 
@@ -182,6 +186,15 @@ const Navbar = () => {
 
           {isOpen && (
             <div className="fixed top-0 left-0 w-screen h-screen overflow-hidden bg-gray-300 bg-opacity-100 flex flex-col items-center justify-center gap-10 z-[90] text-white text-lg">
+
+              {mounted && (user?.role == "admin") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/manage-customer");
+                  }}
+                >Manage Customer</h4>
+              </div>}
 
               {mounted && (user?.role == "admin") && <div className="ml-5">
                 <h4 className="font-semibold hover:text-red-500"

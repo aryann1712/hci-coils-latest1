@@ -31,5 +31,6 @@ export interface UserType {
     gstNumber: string;
     companyName: string;
     email: string
+    status?: boolean
 
   } 
