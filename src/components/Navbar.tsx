@@ -1,17 +1,16 @@
 "use client";
 
-import { MdOutlineMailOutline } from "react-icons/md";
-import { MdOutlineShoppingCart } from "react-icons/md";
-import React, { useEffect, useState } from "react";
+import { useCart } from "@/context/CartContext";
+import { useUser } from "@/context/UserContext";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { IoLogoInstagram, IoPersonCircleOutline } from "react-icons/io5";
+import { MdOutlineMailOutline, MdOutlineShoppingCart } from "react-icons/md";
 import { TiSocialFacebook } from "react-icons/ti";
-import Link from "next/link";
-import { useCart } from "@/context/CartContext";
-import { useUser } from "@/context/UserContext";
-import { HiOutlineKey } from "react-icons/hi";
-import Image from "next/image";
 
 
 
@@ -21,6 +20,9 @@ const Navbar = () => {
   const { cartItems } = useCart();
   const { user, signOut } = useUser();
   const [mounted, setMounted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const router = useRouter();
 
   const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -41,7 +43,7 @@ const Navbar = () => {
 
 
   return (
-    <nav className="flex flex-col py-5 px-5 lg:px-20 gap-y-5">
+    <nav className="flex flex-col py-5 px-5 lg:px-20 gap-y-5 ">
       {/* first row */}
       <div className="flex justify-between items-center">
         {/* mail */}
@@ -54,7 +56,11 @@ const Navbar = () => {
         </a>
 
         <Link href="/" className="block md:hidden">
-                    <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" /> </Link>
+          <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" /> </Link>
+
+
+
+
 
 
         {/* card and order and social and login */}
@@ -97,37 +103,37 @@ const Navbar = () => {
           </a>
 
 
-          {mounted && (user?.role == "admin") && <div className=" ml-5">
+          {mounted && (user?.role == "admin") && <div className="hidden md:block ml-5">
             <Link href={"/manage-employee"}><h4 className="font-semibold hover:text-red-500">Manage Employee</h4></Link>
           </div>}
 
 
-          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className=" ml-5">
+          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className="hidden md:block  ml-5">
             <Link href={"/all-orders"}><h4 className="font-semibold hover:text-red-500">All Orders</h4></Link>
           </div>}
 
-          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className=" ml-5">
+          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className="hidden md:block  ml-5">
             <Link href={"/all-enquires"}><h4 className="font-semibold hover:text-red-500">All Enquires</h4></Link>
           </div>}
 
 
-          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className=" ml-5">
+          {mounted && (user?.role == "admin" || user?.role == "manager") && <div className="hidden md:block  ml-5">
             <Link href={"/admin-products"}><h4 className="font-semibold hover:text-red-500">Add Products</h4></Link>
           </div>}
 
-          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className=" ml-5">
+          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className=" hidden md:block ml-5">
             <Link href={"/enquire"}><h4 className="font-semibold hover:text-red-500">Enquires</h4></Link>
           </div>}
 
-          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className=" ml-5">
+          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className="hidden md:block  ml-5">
             <Link href={"/orders"}><h4 className="font-semibold hover:text-red-500">Orders</h4></Link>
           </div>}
 
-          {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className="ml-5">
+          {/* {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className="ml-5">
             <Link href={"/auth/change-password"}>
               <HiOutlineKey className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
             </Link>
-          </div>}
+          </div>} */}
 
 
           {(user?.role != "admin" && user?.role != "manager") && <div className="relative mx-2">
@@ -137,21 +143,127 @@ const Navbar = () => {
             </Link>
           </div>}
 
+          <div
+            className="flex md:hidden gap-2 items-center cursor-pointer"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? (
+              // Cross Icon
+              <div className="flex flex-col justify-center items-center  transform z-[100]">
+                <span className="block w-6 h-[2px] bg-black ms-6 rotate-45 origin-left"></span>
+                <span className="block w-6 h-[2px] bg-black ms-2 -rotate-45 origin-right"></span>
+              </div>
+            ) : (
+              // Hamburger Icon
+              <div className="flex flex-col justify-center items-center gap-1">
+                <span className="block w-6 h-[2px] bg-black"></span>
+                <span className="block w-6 h-[2px] bg-black"></span>
+                <span className="block w-6 h-[2px] bg-black"></span>
+              </div>
+            )}
+          </div>
 
 
-          {mounted && user && (user?.role != "admin") && <div className="">
+
+          {mounted && user && (user?.role != "admin") && <div className="hidden md:block">
             <Link href={"/profile"}>
               <IoPersonCircleOutline className="font-bold text-[30px] cursor-pointer hover:text-red-500 relative" />
             </Link>
           </div>}
 
-          {mounted && (!user) && <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
+          {mounted && (!user) && <div className="hidden md:block ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
             <Link href={"/auth/signin"}><h4>Login</h4></Link>
           </div>}
 
-          {mounted && (user) && <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer" onClick={() => handleSignOut()}>
+          {mounted && (user) && <div className="hidden md:block ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer" onClick={() => handleSignOut()}>
             <h4>Logout</h4>
           </div>}
+
+
+          {isOpen && (
+            <div className="fixed top-0 left-0 w-screen h-screen overflow-hidden bg-gray-300 bg-opacity-100 flex flex-col items-center justify-center gap-10 z-[90] text-white text-lg">
+
+              {mounted && (user?.role == "admin") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/manage-employee");
+                  }}
+                >Manage Employee</h4>
+              </div>}
+
+
+              {mounted && (user?.role == "admin" || user?.role == "manager") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/all-orders");
+                  }}
+                >All Orders</h4>
+              </div>}
+
+              {mounted && (user?.role == "admin" || user?.role == "manager") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/all-enquires");
+                  }}
+                >All Enquires</h4>
+              </div>}
+
+
+              {mounted && (user?.role == "admin" || user?.role == "manager") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/admin-products");
+                  }}
+                >Add Products</h4>
+              </div>}
+
+              {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/enquire");
+                  }}
+                >Enquires</h4>
+              </div>}
+
+              {mounted && user && (user?.role != "admin" && user?.role != "manager") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/orders");
+                  }}
+                >Orders</h4>
+              </div>}
+
+
+              {mounted && user && (user?.role != "admin") && <div className="ml-5">
+                <h4 className="font-semibold hover:text-red-500"
+                  onClick={() => {
+                    setIsOpen(false);
+                    return router.push("/profile");
+                  }}>Profile</h4>
+              </div>}
+
+              {mounted && (!user) && <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer">
+                <h4 onClick={() => {
+                  setIsOpen(false);
+                  return router.push("/auth/signin");
+                }}>Login</h4>
+              </div>}
+
+              {mounted && (user) && <div className="ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold  cursor-pointer" onClick={() => {
+                setIsOpen(false);
+                return handleSignOut();
+              }}>
+                <h4>Logout</h4>
+              </div>}
+
+            </div>
+          )}
 
 
         </div>

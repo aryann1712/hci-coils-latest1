@@ -199,13 +199,13 @@ const AdminAllEnquires = () => {
     }
 
     return (
-        <div className="max-w-[75%] mx-auto py-10 mb-10">
-            <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
+        <div className=" w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
+            <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
                 <div className="flex justify-between items-center">
-                    <h1 className="text-blue-800 text-3xl font-semibold italic">All Enquires</h1>
+                    <h1 className="text-blue-800 text-2xl md:text-3xl font-semibold italic">All Enquires</h1>
                     <button 
                         onClick={exportToExcel}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
+                        className="px-2 md:px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
                     >
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -216,7 +216,7 @@ const AdminAllEnquires = () => {
 
                 <div className="flex justify-between items-center">
                     <div>
-                        <label htmlFor="search" className="mr-2">
+                        <label htmlFor="search" className="mr-2 text-sm md:text-base">
                             Search:
                         </label>
                         <input
@@ -225,7 +225,7 @@ const AdminAllEnquires = () => {
                             value={searchQuery}
                             onChange={handleSearchChange}
                             placeholder="Search by name or desc..."
-                            className="border p-1"
+                            className="border p-1 text-sm md:text-base"
                         />
                     </div>
                     <div className="text-sm text-gray-600">

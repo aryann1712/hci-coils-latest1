@@ -70,10 +70,10 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="max-w-[75%] mx-auto py-10 mb-10">
+    <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
       <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
         <h1 className="text-blue-800 text-3xl font-semibold italic">Profile</h1>
-        <div className="grid grid-cols-2 gap-x-5 gap-y-10 text-xl text-gray-400 font-semibold text-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-10 text-xl text-gray-400 font-semibold text-end">
           <div className="flex justify-between">
             <h3>Name:</h3> <h3 className="max-w-lg">{user?.name || ""}</h3>
           </div>

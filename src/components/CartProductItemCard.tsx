@@ -31,7 +31,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
 
 
   return (
-    <div className="grid grid-cols-4 items-center py-5 px-5 border-b">
+    <div className="grid grid-cols-4 items-center py-5 md:px-5 border-b">
       {/* Image */}
       <div>
         <Image
@@ -39,21 +39,21 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
           alt={cardData.name}
           width={1000}
           height={1000}
-          className="h-[200px] w-[350px] rounded-md object-cover cursor-pointer"
+          className="h-[70px] w-[100px] md:h-[200px] md:w-[350px] rounded-md object-cover cursor-pointer"
           onClick={() => router.push(`/products/${cardData._id}`)}
         />
       </div>
 
       {/* Name and Description */}
-      <div className="col-span-2 flex flex-col px-4 cursor-pointer h-full gap-y-5 justify-center" onClick={() => router.push(`/products/${cardData._id}`)}>
-        <h1 className="text-lg font-semibold">{cardData.name}</h1>
-        <p className="text-sm text-gray-600 line-clamp-3">{cardData.description}</p>
+      <div className="col-span-2 flex flex-col px-4 cursor-pointer h-full  md:gap-y-5 justify-center" onClick={() => router.push(`/products/${cardData._id}`)}>
+        <h1 className="text-sm md:text-lg font-semibold">{cardData.name}</h1>
+        <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3">{cardData.description}</p>
       </div>
 
       {/* Quantity Controls */}
-      <div className="flex gap-8 items-end">
+      <div className="flex flex-col md:flex-row items-center gap-2 md:gap-8 md:items-end">
         <div className="flex flex-col space-y-2 items-center justify-center">
-          <h3 className="text-sm font-semibold text-gray-500">Qty.</h3>
+          <h3 className="text-xs md:text-sm font-semibold text-gray-500">Qty.</h3>
           <div className="flex items-center justify-end gap-2">
             {/* Decrement Button */}
             <button
@@ -62,7 +62,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
                 return addToCart(cardData);
               }}
               disabled={cardData.quantity <= 1}
-              className={`w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:bg-gray-100 transition`}
+              className={`w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:bg-gray-100 transition`}
             >
               –
             </button>
@@ -70,7 +70,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
             {/* Editable Quantity Input */}
             <input
               type="text"
-              className="w-12 text-center border border-gray-300 rounded appearance-none outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-6 md:w-12 text-xs md:text-base text-center border border-gray-300 rounded appearance-none outline-none focus:ring-2 focus:ring-blue-500"
               value={cardData.quantity}
               onChange={handleChange}
             />
@@ -81,7 +81,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
                 cardData.quantity++;
                 return addToCart(cardData);
               }}
-              className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+              className="w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
             >
               +
             </button>

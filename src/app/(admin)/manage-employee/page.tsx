@@ -102,11 +102,11 @@ const ManageEmployeePage = () => {
   }
 
   return (
-    <div className="max-w-[75%] mx-auto py-10 mb-10">
-      <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
-        <h1 className="text-blue-800 text-3xl font-semibold italic">Manage Employee</h1>
+    <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
+      <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
+        <h1 className="text-blue-800 text-2xl md:text-3xl font-semibold italic">Manage Employee</h1>
         <div>
-          <label htmlFor="search" className="mr-2">
+          <label htmlFor="search" className="mr-2 text-sm md:text-base">
             Search:
           </label>
           <input
@@ -115,7 +115,7 @@ const ManageEmployeePage = () => {
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder="Search by name or desc..."
-            className="border p-1"
+            className="border p-1 text-sm md:text-base"
           />
         </div>
 
@@ -153,8 +153,8 @@ const ManageEmployeePage = () => {
         </div>
 
         <div className='mt-5 p-4 bg-gray-100 rounded-md'>
-          <h3 className='font-semibold text-lg'>User Role Permissions:</h3>
-          <ul className='list-disc list-inside text-gray-700'>
+          <h3 className='font-semibold text-sm md:text-lg'>User Role Permissions:</h3>
+          <ul className='list-disc list-inside text-gray-700 text-xs md:text-base'>
             <li>Only Admin and Manager can upload and manage products.</li>
             <li>Admin can manage employee roles and change them.</li>
             <li>Users can only access the front end and have no access to manager roles or any administrative privileges.</li>

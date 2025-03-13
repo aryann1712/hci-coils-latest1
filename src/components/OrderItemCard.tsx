@@ -16,9 +16,9 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
   });
 
   return (
-    <div className='shadow-md rounded-md my-5 py-5 px-5 border-dashed border flex flex-row gap-5 items-center justify-center'>
+    <div className='shadow-md rounded-md my-5 py-5  px-1 md:px-5 border-dashed border flex flex-row gap-5 items-center justify-center'>
       <div className=''>
-        <div className='text-sm text-gray-400'>
+        <div className='text-xs md:text-sm text-gray-400'>
           <h1>Order Id: {orderItem.orderId}</h1>
           <h1>Purchase Date: {orderItem.createdAt}</h1>
           <h1>GST No: {orderItem.user.gstNumber}</h1>
@@ -26,7 +26,7 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
         </div>
         {orderItem.items.map((item, index) =>
         (
-          <div key={index} className='grid grid-cols-4 items-center py-5 px-5 border-b'>
+          <div key={index} className='grid grid-cols-4 items-center py-5 px-2 md:px-5 border-b'>
             {/* Image */}
             <div>
               <Image
@@ -34,14 +34,15 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
                 alt={item.product.name}
                 width={1000}
                 height={1000}
-                className="h-[100px] w-[150px] rounded-md object-cover"
+                className="w-[100px] h-[70px] md:h-[100px] md:w-[150px] rounded-md object-cover"
               />
             </div>
 
+
             {/* Name and Description */}
-            <div className="col-span-2 flex flex-col px-4">
-              <h1 className="text-lg font-semibold">{item.product.name}</h1>
-              <p className="text-sm text-gray-600 line-clamp-3">{item.product.description}</p>
+            <div className="col-span-2 flex flex-col px-2 md:px-4">
+              <h1 className="text-sm md:text-lg font-semibold">{item.product.name}</h1>
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3">{item.product.description}</p>
             </div>
 
             {/* Quantity */}
@@ -54,8 +55,8 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
         ))}
       </div>
       <div className='group' >
-        <div className='min-w-[200px] flex flex-col justify-center items-center cursor-pointer gap-y-2' onClick={() => addItemsToCart()}>
-          <FaReply className='text-4xl text-gray-400 group-hover:text-red-500' />
+        <div className='min-w-[70px] md:min-w-[200px] flex flex-col justify-center items-center cursor-pointer gap-y-2' onClick={() => addItemsToCart()}>
+          <FaReply className='text-2xl md:text-4xl text-gray-400 group-hover:text-red-500' />
           <h1 className='font-semibold group-hover:text-red-500'>Add to cart</h1>
         </div>
       </div>
