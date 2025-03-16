@@ -10,6 +10,13 @@ type ImagePreview = {
   previewUrl: string;
 };
 
+export const predefinedCategories = [
+  "Open Type Old Model",
+  "Custom coils",
+  "Open Type Rg Model",
+  "Open Type Rgs Model"
+];
+
 export default function AdminAddProduct() {
   const { user } = useUser();
   const router = useRouter();
@@ -24,6 +31,21 @@ export default function AdminAddProduct() {
   const [images, setImages] = useState<ImagePreview[]>([]);
   const [categoryInput, setCategoryInput] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleCategory = (category: string) => {
+    if (categories.includes(category)) {
+      setCategories(categories.filter(c => c !== category));
+    } else {
+      setCategories([...categories, category]);
+    }
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+ 
 
   useEffect(() => {
     setMounted(true);
@@ -93,7 +115,7 @@ export default function AdminAddProduct() {
     setLoading(true);
 
 
-    if(!sku || !name || !description || !price || !categories.length || !images.length) {
+    if (!sku || !name || !description || !price || !images.length) {
       alert("Please fill in all fields");
       setLoading(false);
       return;
@@ -108,7 +130,12 @@ export default function AdminAddProduct() {
     formData.append("price", price.toString());
 
     // categories as JSON or repeated key
-    formData.append("category", categories.join(","));
+    // formData.append("categories", categories.join(","));
+    // formData.append("categories", categories);
+
+    categories.forEach((item) => {
+      formData.append("categories", item);
+    });
 
     images.forEach((img) => {
       formData.append("image", img.file);
@@ -116,17 +143,17 @@ export default function AdminAddProduct() {
 
     // Send to your backend route, e.g. /api/admin/products
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
-          method: "POST",
-          body: formData,
-        });
-        console.log("res",res);
-        if (!res.ok) {
-          const data = await res.json();
-          alert(data.error || "Failed to create product");
-          setLoading(false);
-          return;
-        }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+        method: "POST",
+        body: formData,
+      });
+      console.log("res", res);
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "Failed to create product");
+        setLoading(false);
+        return;
+      }
       // success
       alert("Product added successfully!");
       setLoading(false);
@@ -221,32 +248,55 @@ export default function AdminAddProduct() {
           </div>
 
           {/* Categories */}
-          <div>
+          <div className="w-full max-w-md">
             <label className="block font-medium mb-1">Categories (tags)</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className="border px-3 py-2 rounded-sm w-full"
-                value={categoryInput}
-                onChange={(e) => setCategoryInput(e.target.value)}
-                placeholder="Type a category and click add"
-              />
+            <div className="relative">
+              {/* Dropdown button */}
               <button
                 type="button"
-                onClick={addCategory}
-                className="bg-blue-700 text-white px-4 py-2 rounded-sm"
+                onClick={toggleDropdown}
+                className="w-full flex justify-between items-center border px-3 py-2 rounded-sm bg-white"
               >
-                Add
+                <span className="truncate">
+                  {categories.length > 0
+                    ? `${categories.length} selected`
+                    : "Select categories"}
+                </span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
               </button>
+
+              {/* Dropdown menu */}
+              {isOpen && (
+                <div className="absolute mt-1 w-full bg-white border rounded-sm shadow-lg z-10 max-h-60 overflow-y-auto">
+                  {predefinedCategories.map((category) => (
+                    <div
+                      key={category}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                      onClick={() => toggleCategory(category)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={categories.includes(category)}
+                        onChange={() => { }}
+                        className="mr-2"
+                      />
+                      <span>{category}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            {/* Display added categories */}
+
+            {/* Display selected categories */}
             <div className="mt-2 flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <div key={cat} className="bg-gray-200 px-2 py-1 rounded-lg flex items-center gap-2">
                   <span>{cat}</span>
                   <button
                     type="button"
-                    onClick={() => removeCategory(cat)}
+                    onClick={() => toggleCategory(cat)}
                     className="text-red-600 font-bold"
                   >
                     x
@@ -285,11 +335,11 @@ export default function AdminAddProduct() {
           </div>
 
           <button
-          disabled={loading}
+            disabled={loading}
             type="submit"
             className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4"
           >
-           {loading ? "Submitting": "Submit"}
+            {loading ? "Submitting" : "Submit"}
           </button>
         </form>
       </div>

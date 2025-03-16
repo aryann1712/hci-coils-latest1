@@ -9,6 +9,10 @@ import { useEffect, useMemo, useState } from "react";
 export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<ProductAllTypeInterfact[]>([]);
+  const [openTypeOldModel, setOpenTypeOldModel] = useState<ProductAllTypeInterfact[]>([]);
+  const [customCoils, setCustomCoils] = useState<ProductAllTypeInterfact[]>([]);
+  const [openTypeRGModel, setOpenTypeRGModel] = useState<ProductAllTypeInterfact[]>([]);
+  const [openTypeRGSModel, setOpenTypeRGSModel] = useState<ProductAllTypeInterfact[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 12;
@@ -16,24 +20,25 @@ export default function ProductsPage() {
   // Fetch data (simulate API call)
   useEffect(() => {
     async function fetchData() {
-      const data = await getProductsFromAPI();
+      const data = await getAllProductsFromAPI();
+      const data2 = await getOpenTypeOldModelFromAPI();
+      const data3 = await customCoilsFromAPI();
+      const data4 = await getOpenTypeRGModelFromAPI();
+      const data5 = await getOpenTypeRGSModelFromAPI();
       setProducts(data);
+      setOpenTypeOldModel(data2);
+      setCustomCoils(data3);
+      setOpenTypeRGModel(data4);
+      setOpenTypeRGSModel(data5);
     }
     fetchData();
   }, []);
 
-  // Distinct categories
-  // const categories = useMemo(() => {
-  //   const allCats = products.map((p) => p.category).filter(Boolean);
-  //   return ["All", ...Array.from(new Set(allCats))];
-  // }, [products]);
+
 
   // Filter the products by category AND search query
   const filteredProducts = useMemo(() => {
-    // 1) Category filter
     let filtered = products;
-
-    // 2) Search filter (case-insensitive match on product name OR description)
     if (searchQuery.trim() !== "") {
       const lowerQuery = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -42,9 +47,10 @@ export default function ProductsPage() {
           p.description.toLowerCase().includes(lowerQuery)
       );
     }
-
     return filtered;
   }, [products, searchQuery]);
+
+
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / pageSize);
@@ -69,7 +75,7 @@ export default function ProductsPage() {
   };
 
   // Example placeholder fetch
-  async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
+  async function getAllProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
     try {
       setLoading(true);
 
@@ -93,7 +99,112 @@ export default function ProductsPage() {
       console.error(error);
       return [];
     }
+  }
 
+  async function getOpenTypeOldModelFromAPI(): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Open Type Old Model`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      setLoading(false);
+
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+        return [];
+      }
+
+      return data.data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      return [];
+    }
+  }
+
+
+  async function customCoilsFromAPI(): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Custom coils`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      setLoading(false);
+
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+        return [];
+      }
+
+      return data.data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      return [];
+    }
+  }
+
+  async function getOpenTypeRGModelFromAPI(): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Open Type Rg Model`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      setLoading(false);
+
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+        return [];
+      }
+
+      return data.data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      return [];
+    }
+  }
+
+
+  async function getOpenTypeRGSModelFromAPI(): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Open Type Rgs Model`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+
+      setLoading(false);
+
+      if (!response.ok) {
+        alert(data.error || "Sign in failed");
+        return [];
+      }
+
+      return data.data;
+    } catch (error) {
+      setLoading(false);
+      console.error(error);
+      return [];
+    }
   }
 
 
@@ -117,6 +228,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
+
       {/* Loading State */}
       {loading && (
         <div className="grid grid-col-1 gap-8 gap-y-10 md:grid-cols-3">
@@ -126,15 +238,77 @@ export default function ProductsPage() {
         </div>
       )}
 
+
+      {openTypeOldModel.length > 0 && <div className="mb-20">
+        <h2 className=" mb-4 text-xl font-bold text-gray-600">Open Type Old Model</h2>
+        <div className=" flex flex-row overflow-x-scroll gap-x-20">
+          {openTypeOldModel.map((product) => (
+            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
+              <ProductCard key={product._id} product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+      }
+
+      {customCoils.length > 0 && <div className="mb-20">
+        <h2 className=" mb-4 text-xl font-bold text-gray-600">Custom Coils</h2>
+        <div className=" flex flex-row overflow-x-scroll gap-x-20">
+          {customCoils.map((product) => (
+            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
+              <ProductCard key={product._id} product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+      }
+
+      {openTypeRGModel.length > 0 && <div className="mb-20">
+        <h2 className=" mb-4 text-xl font-bold text-gray-600">Open Type RG Model</h2>
+        <div className=" flex flex-row overflow-x-scroll gap-x-20">
+          {openTypeRGModel.map((product) => (
+            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
+              <ProductCard key={product._id} product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+      }
+
+      {openTypeRGSModel.length > 0 && <div className="mb-20">
+        <h2 className=" mb-4 text-xl font-bold text-gray-600">Open Type RGS Model</h2>
+        <div className=" flex flex-row overflow-x-scroll gap-x-20">
+          {openTypeRGSModel.map((product) => (
+            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
+              <ProductCard key={product._id} product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+      }
+
+
+
+
+      <h2 className=" mb-4 text-xl font-bold text-gray-600">All Products</h2>
+      <div className=" flex flex-row overflow-x-scroll gap-x-20">
+          {filteredProducts.map((product) => (
+            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
+              <ProductCard key={product._id} product={product} />
+            </div>
+          ))}
+        </div>
+
+
       {/* Product Grid */}
-      <div className="grid grid-cols-2  gap-8 gap-y-10 md:grid-cols-3">
+      {/* <div className="grid grid-cols-2  gap-8 gap-y-10 md:grid-cols-3">
         {currentPageProducts.map((product) => (
           <ProductCard key={product._id} product={product} />
         ))}
-      </div>
+      </div> */}
 
       {/* Pagination Controls */}
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && (
         <div className="flex items-center justify-center space-x-4 mt-6">
           <button
             onClick={handlePrevPage}
@@ -154,7 +328,7 @@ export default function ProductsPage() {
             Next
           </button>
         </div>
-      )}
+      )} */}
     </section>
   );
 }

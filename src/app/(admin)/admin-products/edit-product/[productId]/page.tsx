@@ -2,7 +2,8 @@
 
 import { useUser } from "@/context/UserContext";
 import { useParams, useRouter } from "next/navigation";
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { predefinedCategories } from "../../add-product/page";
 
 
 
@@ -20,6 +21,7 @@ export default function EditProductPage() {
 
   const [categoryInput, setCategoryInput] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
 
   const { user } = useUser();
   const router = useRouter();
@@ -30,6 +32,20 @@ export default function EditProductPage() {
   const productIds = params?.productId; // string | string[]
 
   const productId = Array.isArray(productIds) ? productIds[0] : productIds;
+
+
+  const toggleCategory = (category: string) => {
+    if (categories.includes(category)) {
+      setCategories(categories.filter(c => c !== category));
+    } else {
+      setCategories([...categories, category]);
+    }
+  };
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
   // Now singleProductId is guaranteed to be a string
 
 
@@ -75,7 +91,7 @@ export default function EditProductPage() {
       setName(data.name || "");
       setDescription(data.description || "");
       setPrice(data.price || 0);
-      setCategories(data.category.split(",") || []);
+      setCategories(data.categories || []);
 
     } catch (error) {
       setLoading(false);
@@ -106,7 +122,7 @@ export default function EditProductPage() {
     setLoading(true);
 
 
-    if (!name || !description || !price || !categories.length) {
+    if (!name || !description || !price) {
       alert("Please fill in all fields");
       setLoading(false);
       return;
@@ -117,7 +133,9 @@ export default function EditProductPage() {
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price.toString());
-    formData.append("category", categories.join(","));
+    categories.forEach((item) => {
+      formData.append("categories", item);
+    });
 
 
 
@@ -183,42 +201,63 @@ export default function EditProductPage() {
 
 
           {/* Categories */}
-          <div>
-            <label className="block font-medium mb-1">Categories (tags)</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className="border px-3 py-2 rounded-sm w-full"
-                value={categoryInput}
-                onChange={(e) => setCategoryInput(e.target.value)}
-                placeholder="Type a category and click add"
-              />
-              <button
-                type="button"
-                onClick={() => addCategory()}
-                className="bg-blue-700 text-white px-4 py-2 rounded-sm"
-              >
-                Add
-              </button>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <div
-                  key={cat}
-                  className="bg-gray-200 px-2 py-1 rounded-lg flex items-center gap-2"
-                >
-                  <span>{cat}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeCategory(cat)}
-                    className="text-red-600 font-bold"
-                  >
-                    x
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          <div className="w-full max-w-md">
+                      <label className="block font-medium mb-1">Categories (tags)</label>
+                      <div className="relative">
+                        {/* Dropdown button */}
+                        <button
+                          type="button"
+                          onClick={toggleDropdown}
+                          className="w-full flex justify-between items-center border px-3 py-2 rounded-sm bg-white"
+                        >
+                          <span className="truncate">
+                            {categories.length > 0
+                              ? `${categories.length} selected`
+                              : "Select categories"}
+                          </span>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                          </svg>
+                        </button>
+          
+                        {/* Dropdown menu */}
+                        {isOpen && (
+                          <div className="absolute mt-1 w-full bg-white border rounded-sm shadow-lg z-10 max-h-60 overflow-y-auto">
+                            {predefinedCategories.map((category) => (
+                              <div
+                                key={category}
+                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                                onClick={() => toggleCategory(category)}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={categories.includes(category)}
+                                  onChange={() => { }}
+                                  className="mr-2"
+                                />
+                                <span>{category}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+          
+                      {/* Display selected categories */}
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {categories.map((cat) => (
+                          <div key={cat} className="bg-gray-200 px-2 py-1 rounded-lg flex items-center gap-2">
+                            <span>{cat}</span>
+                            <button
+                              type="button"
+                              onClick={() => toggleCategory(cat)}
+                              className="text-red-600 font-bold"
+                            >
+                              x
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
           {/* Price & GST */}
           <div className="flex gap-4">
@@ -237,7 +276,7 @@ export default function EditProductPage() {
           </div>
 
           <button
-          disabled={loading}
+            disabled={loading}
             type="submit"
             className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4"
           >
