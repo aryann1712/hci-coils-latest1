@@ -11,9 +11,22 @@ const AdminAllOrders = () => {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [userOrders, setUserOrders] = useState<OrderItemType[]>([]);
-    const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 9;
+    
+    // Separate search states for each field
+    const [searchFilters, setSearchFilters] = useState({
+        productName: "",
+        orderId: "",
+        customerName: "",
+        companyName: "",
+        email: "",
+        gstNumber: "",
+        orderDate: ""
+    });
+    
+    // Active filter to show which search field is currently displayed
+    const [activeFilter, setActiveFilter] = useState<string | null>("productName");
 
     useEffect(() => {
         setMounted(true);
@@ -38,56 +51,96 @@ const AdminAllOrders = () => {
         // Start with the full array
         let filtered = userOrders;
 
-        // If there's a search query, filter
-        const lowerQuery = searchQuery.trim().toLowerCase();
-        if (lowerQuery) {
-            filtered = filtered.filter((order) => {
-                // Match on order fields
-                const matchOrderName = order.items.some((item) => {
-                    const matchProductName = item.product.name.toLowerCase().includes(lowerQuery);
-                    const matchProductDesc = item.product.description.toLowerCase().includes(lowerQuery);
-                    const matchProductCategory = item.product.category.toLowerCase().includes(lowerQuery);
-                    const matchProductId = item.product._id.toLowerCase().includes(lowerQuery);
-                    return matchProductName || matchProductDesc || matchProductCategory || matchProductId;
-                });
+        // Apply each filter that has a value
+        if (searchFilters.productName.trim()) {
+            const query = searchFilters.productName.trim().toLowerCase();
+            filtered = filtered.filter(order => 
+                order.items.some(item => 
+                    item.product.name.toLowerCase().includes(query) ||
+                    item.product.description.toLowerCase().includes(query) ||
+                    item.product.category.toLowerCase().includes(query) ||
+                    item.product._id.toLowerCase().includes(query)
+                )
+            );
+        }
 
-                const matchGst = order.user.gstNumber?.toLowerCase().includes(lowerQuery) || false;
-                const matchOrderDate = order.createdAt?.toLowerCase().includes(lowerQuery) || false;
-                const matchOrderId = order.orderId?.toLowerCase().includes(lowerQuery) || false;
-                const matchName = order.user.name?.toLowerCase().includes(lowerQuery) || false;
-                const matchCompanyName = order.user.companyName?.toLowerCase().includes(lowerQuery) || false;
-                const matchEmail = order.user.email?.toLowerCase().includes(lowerQuery) || false;
-                const matchAddress = order.user.address?.toLowerCase().includes(lowerQuery) || false;
+        if (searchFilters.orderId.trim()) {
+            const query = searchFilters.orderId.trim().toLowerCase();
+            filtered = filtered.filter(order => 
+                (order.orderId?.toLowerCase().includes(query) || false)
+            );
+        }
 
-                // Return true if any of these conditions pass
-                return (
-                    matchOrderName ||
-                    matchGst ||
-                    matchOrderDate ||
-                    matchOrderId ||
-                    matchName ||
-                    matchCompanyName ||
-                    matchEmail ||
-                    matchAddress
-                );
-            });
+        if (searchFilters.customerName.trim()) {
+            const query = searchFilters.customerName.trim().toLowerCase();
+            filtered = filtered.filter(order => 
+                (order.user.name?.toLowerCase().includes(query) || false)
+            );
+        }
+
+        if (searchFilters.companyName.trim()) {
+            const query = searchFilters.companyName.trim().toLowerCase();
+            filtered = filtered.filter(order => 
+                (order.user.companyName?.toLowerCase().includes(query) || false)
+            );
+        }
+
+        if (searchFilters.email.trim()) {
+            const query = searchFilters.email.trim().toLowerCase();
+            filtered = filtered.filter(order => 
+                (order.user.email?.toLowerCase().includes(query) || false)
+            );
+        }
+
+        if (searchFilters.gstNumber.trim()) {
+            const query = searchFilters.gstNumber.trim().toLowerCase();
+            filtered = filtered.filter(order => 
+                (order.user.gstNumber?.toLowerCase().includes(query) || false)
+            );
+        }
+
+        if (searchFilters.orderDate.trim()) {
+            const query = searchFilters.orderDate.trim().toLowerCase();
+            filtered = filtered.filter(order => 
+                (order.createdAt?.toLowerCase().includes(query) || false)
+            );
         }
 
         return filtered;
-    }, [userOrders, searchQuery]);
+    }, [userOrders, searchFilters]);
 
     // Pagination
     const totalPages = Math.ceil(filteredOrders.length / pageSize);
     const currentPageProducts = useMemo(() => {
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
-        console.log("refiltered page");
         return filteredOrders.slice(startIndex, endIndex);
     }, [filteredOrders, currentPage]);
 
     // Handlers
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
+        const { name, value } = e.target;
+        setSearchFilters(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        setCurrentPage(1);
+    };
+
+    const handleFilterSelect = (filterName: string) => {
+        setActiveFilter(activeFilter === filterName ? null : filterName);
+    };
+
+    const clearFilters = () => {
+        setSearchFilters({
+            productName: "",
+            orderId: "",
+            customerName: "",
+            companyName: "",
+            email: "",
+            gstNumber: "",
+            orderDate: ""
+        });
         setCurrentPage(1);
     };
 
@@ -111,24 +164,12 @@ const AdminAllOrders = () => {
             "GST Number": string;
             "Address": string;
             "Order Date": string;
-            // "Order Status": string;
             "Total Items": number;
-            // "Order Total": string;
             "Products": string;
         };
 
         // Format data for export
         const exportData: ExportRowType[] = filteredOrders.map((order, index) => {
-            // Calculate order total - ensure price property exists
-            const orderTotal = order.items.reduce(
-                (sum, item) => {
-                    // Check if product has price property, if not default to 0
-                    const price = 'price' in item.product ? (item.product as any).price : 0;
-                    return sum + item.quantity * price;
-                }, 
-                0
-            );
-            
             return {
                 "S.No": index + 1,
                 "Order ID": order.orderId || "N/A",
@@ -138,9 +179,7 @@ const AdminAllOrders = () => {
                 "GST Number": order.user.gstNumber || "N/A",
                 "Address": order.user.address || "N/A",
                 "Order Date": order.createdAt || "N/A",
-                // "Order Status": order.status || "N/A",
                 "Total Items": order.items.length,
-                // "Order Total": `₹${orderTotal.toFixed(2)}`,
                 "Products": order.items.map(item => {
                     return `${item.product.name}  x (${item.quantity})`;
                 }).join(",\n")
@@ -210,8 +249,11 @@ const AdminAllOrders = () => {
         }
     }
 
+    // Calculate how many filters are currently active
+    const activeFiltersCount = Object.values(searchFilters).filter(value => value.trim() !== "").length;
+
     return (
-        <div className=" w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
+        <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
             <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
                 <div className="flex justify-between items-center">
                     <h1 className="text-blue-800 text-2xl md:text-3xl font-semibold italic">All Orders</h1>
@@ -226,28 +268,124 @@ const AdminAllOrders = () => {
                     </button>
                 </div>
 
-                <div className="flex justify-between items-center">
-                    <div>
-                        <label htmlFor="search" className="mr-2 text-sm md:text-base">
-                            Search:
-                        </label>
-                        <input
-                            id="search"
-                            type="text"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            placeholder="Search by name or desc..."
-                            className="border p-1 text-sm md:text-base"
-                        />
+                {/* Search Filters UI */}
+                <div className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                        <button 
+                            onClick={() => handleFilterSelect("productName")}
+                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "productName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
+                        >
+                            Product
+                        </button>
+                        <button 
+                            onClick={() => handleFilterSelect("orderId")}
+                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "orderId" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
+                        >
+                            Order ID
+                        </button>
+                        <button 
+                            onClick={() => handleFilterSelect("customerName")}
+                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "customerName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
+                        >
+                            Customer
+                        </button>
+                        <button 
+                            onClick={() => handleFilterSelect("companyName")}
+                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "companyName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
+                        >
+                            Company
+                        </button>
+                        <button 
+                            onClick={() => handleFilterSelect("email")}
+                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "email" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
+                        >
+                            Email
+                        </button>
+                        <button 
+                            onClick={() => handleFilterSelect("gstNumber")}
+                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "gstNumber" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
+                        >
+                            GST
+                        </button>
+                        <button 
+                            onClick={() => handleFilterSelect("orderDate")}
+                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "orderDate" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
+                        >
+                            Date
+                        </button>
+                        
+                        {activeFiltersCount > 0 && (
+                            <button 
+                                onClick={clearFilters}
+                                className="px-3 py-1 text-sm md:text-base rounded-md bg-red-500 text-white ml-auto"
+                            >
+                                Clear All ({activeFiltersCount})
+                            </button>
+                        )}
                     </div>
-                    <div className="text-sm text-gray-600">
-                        {filteredOrders.length} orders found
+                    
+                    {activeFilter && (
+                        <div className="flex items-center gap-2">
+                            <label htmlFor={activeFilter} className="text-sm md:text-base font-medium">
+                                {activeFilter === "productName" && "Search by product:"}
+                                {activeFilter === "orderId" && "Search by order ID:"}
+                                {activeFilter === "customerName" && "Search by customer name:"}
+                                {activeFilter === "companyName" && "Search by company:"}
+                                {activeFilter === "email" && "Search by email:"}
+                                {activeFilter === "gstNumber" && "Search by GST number:"}
+                                {activeFilter === "orderDate" && "Search by order date:"}
+                            </label>
+                            <input
+                                id={activeFilter}
+                                name={activeFilter}
+                                type="text"
+                                value={searchFilters[activeFilter as keyof typeof searchFilters]}
+                                onChange={handleSearchChange}
+                                placeholder={`Enter ${activeFilter}...`}
+                                className="border p-1 text-sm md:text-base flex-grow"
+                            />
+                            {searchFilters[activeFilter as keyof typeof searchFilters] && (
+                                <button 
+                                    onClick={() => {
+                                        setSearchFilters(prev => ({
+                                            ...prev,
+                                            [activeFilter]: ""
+                                        }));
+                                    }}
+                                    className="p-1 bg-gray-200 rounded-full"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
+                    )}
+                    
+                    <div className="text-sm text-gray-600 flex justify-between">
+                        <span>{filteredOrders.length} orders found</span>
+                        {activeFiltersCount > 0 && (
+                            <span className="text-blue-600">{activeFiltersCount} filter{activeFiltersCount > 1 ? 's' : ''} applied</span>
+                        )}
                     </div>
                 </div>
 
-                <div>
-                    <div className=''>
-                        {currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} orderItem={orderData} />)}
+                <div className=''>
+                        {currentPageProducts.length > 0 ? (
+                            currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} orderItem={orderData} />)
+                        ) : (
+                            <div className="text-center py-10 bg-gray-50 rounded-md">
+                                <p className="text-gray-500 text-lg">No orders match your search criteria</p>
+                                {activeFiltersCount > 0 && (
+                                    <button 
+                                        onClick={clearFilters}
+                                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                    >
+                                        Clear All Filters
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Pagination Controls */}
@@ -274,7 +412,6 @@ const AdminAllOrders = () => {
                     )}
                 </div>
             </div>
-        </div>
     )
 }
 
