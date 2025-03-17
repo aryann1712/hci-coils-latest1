@@ -3,9 +3,11 @@
 
 import {
     NavigationMenu,
+    NavigationMenuContent,
     NavigationMenuItem,
     NavigationMenuLink,
-    NavigationMenuList
+    NavigationMenuList,
+    NavigationMenuTrigger
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -41,12 +43,38 @@ const Navbar2 = () => {
                                 </NavigationMenuLink>
                             </Link>
                         </NavigationMenuItem>
-                        <NavigationMenuItem className=" hover:text-blue-700">
-                            <Link href="/products" legacyBehavior passHref>
-                                <NavigationMenuLink>
-                                    PRODUCTS
-                                </NavigationMenuLink>
-                            </Link>
+                        <NavigationMenuItem className="">
+                            <NavigationMenuTrigger className="hover:text-blue-700 font-extrabold text-sm ">PRODUCTS</NavigationMenuTrigger>
+                            <NavigationMenuContent>
+                                <ul className="grid w-[200px] gap-3 p-4">
+                                    <li>
+                                        <NavigationMenuLink asChild>
+                                            <Link
+                                                href="/products"
+                                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                            >
+                                                <div className="text-sm font-medium">All Products</div>
+                                                <p className="line-clamp-2 text-sm leading-snug text-gray-500">
+                                                    Browse our complete product catalog
+                                                </p>
+                                            </Link>
+                                        </NavigationMenuLink>
+                                    </li>
+                                    <li>
+                                        <NavigationMenuLink asChild>
+                                            <Link
+                                                href="/custom-products"
+                                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                            >
+                                                <div className="text-sm font-medium">Custom Coils</div>
+                                                <p className="line-clamp-2 text-sm leading-snug text-gray-500">
+                                                    Design your custom coil configuration
+                                                </p>
+                                            </Link>
+                                        </NavigationMenuLink>
+                                    </li>
+                                </ul>
+                            </NavigationMenuContent>
                         </NavigationMenuItem>
                         <NavigationMenuItem className=" hover:text-blue-700">
                             <Link href="/contact" legacyBehavior passHref>
