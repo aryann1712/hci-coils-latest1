@@ -19,7 +19,7 @@ const CartPage: React.FC = () => {
   const handlePurchase = () => {
     
     async function placeOrders() {
-      if (user && cartItems.length > 0) {
+      if (user && (cartItems.items.length + cartItems.customCoil.length) > 0) {
         console.log("cartItems --> ", cartItems);
 
         const tempItems: {

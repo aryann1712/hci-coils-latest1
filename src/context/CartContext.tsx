@@ -1,13 +1,15 @@
 // src/context/CartContext.tsx
 "use client";
-import { CartItemType } from "@/lib/interfaces/CartInterface";
+import { CartItemType, CustomCoilItemType, FinalCartItem } from "@/lib/interfaces/CartInterface";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "./UserContext";
 
 interface CartContextType {
-  cartItems: CartItemType[];
-  setAllToCart: (items: CartItemType[]) => void;
+  cartItems: FinalCartItem[];
+  setAllToCart: (items: FinalCartItem[]) => void;
   addToCart: (item: CartItemType) => void;
+  addCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
+  updateCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
   decrementToCart: (id: string) => void;
   removeFromCart: (id: string) => void;
   updateProductToCart: (item: CartItemType) => void;
@@ -15,19 +17,18 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType>({
   cartItems: [],
-  setAllToCart: () => { },
-  addToCart: () => { },
-  decrementToCart: () => { },
-  removeFromCart: () => { },
-  updateProductToCart: () => { },
+  setAllToCart: () => {},
+  addToCart: () => {},
+  addCustomCoilToCart: () => {},
+  updateCustomCoilToCart: () => {},
+  decrementToCart: () => {},
+  removeFromCart: () => {},
+  updateProductToCart: () => {},
 });
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  // Initialize cart state from localStorage (if available)
-
   const { user } = useUser();
-
-  const [cartItems, setCartItems] = useState<CartItemType[]>(() => {
+  const [cartItems, setCartItems] = useState<FinalCartItem[]>(() => {
     if (typeof window !== "undefined") {
       const storedCart = localStorage.getItem("cartItems");
       return storedCart ? JSON.parse(storedCart) : [];
@@ -35,109 +36,111 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return [];
   });
 
-  // Update localStorage whenever the cartItems state changes
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const setAllToCart = (items: CartItemType[]) => {
+  const setAllToCart = (items: FinalCartItem[]) => {
     setCartItems(items);
   };
 
   const addToCart = async (item: CartItemType) => {
     console.log("adding/removing to cart", item);
-
     if (user?.userId) {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           user: user.userId,
           productId: item._id,
-          quantity: item.quantity
-        })
+          quantity: item.quantity,
+        }),
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         alert(data.error || "Adding To Cart Failed");
         console.log(data.error || "Adding To Cart Failed");
       } else {
-        console.log("Product added successfully")
+        console.log("Product added successfully");
       }
     }
+  };
 
-
-
-    setCartItems((prev) => {
-      const existingItem = prev.find(c => c._id === item._id);
-      if (existingItem) {
-        return prev.map(c =>
-          c._id === item._id ? { ...c, quantity: c.quantity } : c
-        );
+  const addCustomCoilToCart = async (item: CustomCoilItemType) => {
+    console.log("adding/removing to cart", item);
+    if (user?.userId) {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/addCustomCoil`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "Adding To Cart Failed");
+        console.log(data.error || "Adding To Cart Failed");
+      } else {
+        console.log("Product added successfully");
       }
-      return [...prev, item];
-    });
+    }
   };
 
   const updateProductToCart = (item: CartItemType) => {
     console.log("updating to cart");
-    setCartItems((prev) => {
-      const existingItem = prev.find(c => c._id === item._id);
-      if (existingItem) {
-        return prev.map(c =>
-          c._id === item._id ? { ...c, quantity: item.quantity } : c
-        );
-      }
-      return [...prev, item];
-    });
+    setCartItems((prev) =>
+      prev.map((c) => (c.items.some((i) => i._id === item._id) ? { ...c, items: c.items.map((i) => (i._id === item._id ? { ...i, quantity: item.quantity } : i)) } : c))
+    );
+  };
+
+  const updateCustomCoilToCart = (item: CustomCoilItemType) => {
+    console.log("updating custom coil in cart");
+    setCartItems((prev) =>
+      prev.map((c) => ({
+        ...c,
+        customCoils: c.customCoils.map((coil) =>
+          coil.coilType === item.coilType ? { ...coil, quantity: item.quantity } : coil
+        ),
+      }))
+    );
   };
 
   const decrementToCart = (id: string) => {
     console.log("decrement to cart");
-    
-    setCartItems((prev) => {
-      const existingItem = prev.find(c => c._id === id);
-      if (existingItem) {
-        if (existingItem.quantity <= 1) {
-          return prev.filter((c) => c._id !== id);
-        }
-        return prev.map(c =>
-          c._id === id ? { ...c, quantity: c.quantity - 1 } : c
-        );
-      }
-      return prev;
-    });
+    setCartItems((prev) =>
+      prev.map((c) =>
+        c.items.some((i) => i._id === id)
+          ? {
+              ...c,
+              items: c.items
+                .map((i) => (i._id === id ? { ...i, quantity: i.quantity - 1 } : i))
+                .filter((i) => i.quantity > 0),
+            }
+          : c
+      )
+    );
   };
 
   const removeFromCart = async (id: string) => {
-    console.log("removing from the cart with productId", id );
+    console.log("removing from the cart with productId", id);
     if (user?.userId) {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({  // Convert the object to a JSON string
-          userId: user.userId,
-        })
+        body: JSON.stringify({ userId: user.userId }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
-        alert(data.error || "Deleting To Cart Failed");
-        console.log(data.error || "Deleting To Cart Failed");
+        alert(data.error || "Deleting From Cart Failed");
+        console.log(data.error || "Deleting From Cart Failed");
       } else {
-        console.log("Product Deleted successfully")
+        console.log("Product Deleted successfully");
       }
     }
-
-
-    setCartItems((prev) => prev.filter((c) => c._id !== id));
+    setCartItems((prev) => prev.map((c) => ({ ...c, items: c.items.filter((i) => i._id !== id) })));
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, setAllToCart, addToCart, removeFromCart, decrementToCart, updateProductToCart }}>
+    <CartContext.Provider value={{ cartItems, setAllToCart, addToCart, addCustomCoilToCart, updateCustomCoilToCart, decrementToCart, removeFromCart, updateProductToCart }}>
       {children}
     </CartContext.Provider>
   );
