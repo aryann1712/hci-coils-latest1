@@ -10,9 +10,10 @@ import {
   CarouselItem
 } from "@/components/ui/carousel";
 import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from 'react-toastify';
 
 
-const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInterfact, showHover? : boolean }) => {
+const ProductCard = ({ product, showHover = true }: { product: ProductAllTypeInterfact, showHover?: boolean }) => {
   const { addToCart } = useCart();
   const router = useRouter();
 
@@ -20,6 +21,7 @@ const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInter
 
   return (
     <div className='w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 '>
+      <ToastContainer />
       {/* Image */}
       <div className="relative overflow-hidden group">
         <Carousel className="w-full">
@@ -27,7 +29,7 @@ const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInter
             {product.images.map((item, index) => (
               <CarouselItem key={index}>
                 <Image
-                key={index}
+                  key={index}
                   src={item}
                   alt={product.name}
                   height={800}
@@ -56,15 +58,30 @@ const ProductCard = ({ product, showHover=true }: { product: ProductAllTypeInter
           </button> */}
           <button
             className='bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md'
-            onClick={() => addToCart({
-              _id: product._id,
-              name: product.name,
-              description: product.description,
-              images: product.images,
-              category: product.category || '',
-              sku: product.sku,
-              quantity: 1
-            })}>
+            onClick={() => {
+
+              toast.success('Product Added Successfully!', {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+              });
+
+
+              return addToCart({
+                _id: product._id,
+                name: product.name,
+                description: product.description,
+                images: product.images,
+                category: product.category || '',
+                sku: product.sku,
+                quantity: 1
+              });
+            }}>
             Add to Cart
           </button>
         </div>
