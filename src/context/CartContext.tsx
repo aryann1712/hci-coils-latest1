@@ -8,6 +8,7 @@ interface CartContextType {
   setAllToCart: (items: FinalCartItem) => void;
   addToCart: (item: CartItemType) => void;
   addCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
+  removeCustomCoilFromCart: (customCoil: CustomCoilItemType) => void;
   updateCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
   decrementToCart: (id: string) => void;
   removeFromCart: (id: string) => void;
@@ -19,6 +20,7 @@ const CartContext = createContext<CartContextType>({
   setAllToCart: () => {},
   addToCart: () => {},
   addCustomCoilToCart: () => {},
+  removeCustomCoilFromCart: () => {},
   updateCustomCoilToCart: () => {},
   decrementToCart: () => {},
   removeFromCart: () => {},
@@ -198,6 +200,54 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+
+
+  const removeCustomCoilFromCart = async (item: CustomCoilItemType) => {
+    console.log("removing custom coil from cart", item);
+    
+    // Update local state first
+    setCartItems((prev) => {
+      // Ensure customCoils array exists
+      const currentCustomCoils = Array.isArray(prev.customCoils) ? prev.customCoils : [];
+      
+      // Find and remove the coil that matches all specifications
+      const updatedCoils = currentCustomCoils.filter(c => !areCustomCoilsEqual(c, item));
+      
+      return { 
+        ...prev, 
+        items: Array.isArray(prev.items) ? prev.items : [],
+        customCoils: updatedCoils 
+      };
+    });
+  
+    // Then update the server if user is logged in
+    if (user?.userId) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/deleteCustomCoil`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...item,
+            userId: user.userId
+          }),
+        });
+        
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.error || "Removing Custom Coil From Cart Failed");
+          console.log(data.error || "Removing Custom Coil From Cart Failed");
+        } else {
+          console.log("Custom coil removed successfully");
+        }
+      } catch (error) {
+        console.error("Error removing custom coil from cart:", error);
+      }
+    }
+  };
+
+
+
+
   const updateProductToCart = (item: CartItemType) => {
     console.log("updating product in cart", item);
     setCartItems((prev) => {
@@ -283,7 +333,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, setAllToCart, addToCart, addCustomCoilToCart, updateCustomCoilToCart, decrementToCart, removeFromCart, updateProductToCart }}>
+    <CartContext.Provider value={{ cartItems, setAllToCart, addToCart, addCustomCoilToCart, updateCustomCoilToCart, decrementToCart, removeFromCart, updateProductToCart, removeCustomCoilFromCart }}>
       {children}
     </CartContext.Provider>
   );

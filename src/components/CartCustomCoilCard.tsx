@@ -14,7 +14,7 @@ const CartProductCustomCoilCard: React.FC<CartProductItemCardProps> = ({
     cardData,
 
 }) => {
-    const { addCustomCoilToCart, removeFromCart } = useCart();
+    const { addCustomCoilToCart, removeCustomCoilFromCart } = useCart();
     const router = useRouter();
 
     /**
@@ -106,7 +106,7 @@ const CartProductCustomCoilCard: React.FC<CartProductItemCardProps> = ({
                         </button>
                     </div>
                 </div>
-                {/* <MdDelete className="text-2xl mb-1 text-gray-500 hover:text-black" onClick={() => removeFromCart(cardData._id)} /> */}
+                <MdDelete className="text-2xl mb-1 text-gray-500 hover:text-black" onClick={() => removeCustomCoilFromCart(cardData)} />
             </div>
         </div>
     );
