@@ -16,6 +16,7 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
     for(const customItem of orderItem.customItems) {
       addCustomCoilToCart(customItem);
     }
+    alert("Item added to card");
   });
 
   return (

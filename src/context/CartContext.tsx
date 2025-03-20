@@ -78,7 +78,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const updatedItems = [...currentItems];
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
-          quantity: updatedItems[existingItemIndex].quantity + item.quantity
+          quantity: item.quantity
         };
         
         return { 
@@ -157,7 +157,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const updatedCoils = [...currentCustomCoils];
         updatedCoils[existingCoilIndex] = {
           ...updatedCoils[existingCoilIndex],
-          quantity: updatedCoils[existingCoilIndex].quantity + item.quantity
+          quantity: item.quantity
         };
         
         return { 

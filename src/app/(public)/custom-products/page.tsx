@@ -679,7 +679,8 @@ export default function CustomCoilForm() {
                 <button
                   onClick={() => {
                     addCustomCoilToCart(formData);
-                    return router.push('/');
+                    alert("Item added successfully");
+                    return router.push('/cart');
                   }}
                   className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                 >
