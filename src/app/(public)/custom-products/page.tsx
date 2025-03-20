@@ -4,11 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Head from 'next/head';
+import { useCart } from '@/context/CartContext';
+import { CustomCoilItemType } from '@/lib/interfaces/CartInterface';
 
 export default function CustomCoilForm() {
+    const { addCustomCoilToCart } = useCart();
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CustomCoilItemType>({
     coilType: '',
     height: '',
     length: '',
@@ -24,6 +27,7 @@ export default function CustomCoilForm() {
     distributorHolesDontKnow: false,
     inletConnection: '',
     inletConnectionDontKnow: false,
+    quantity: 1
   });
 
   // Dropdown states
@@ -673,7 +677,10 @@ export default function CustomCoilForm() {
                   Edit Configuration
                 </button>
                 <button
-                  onClick={() => router.push('/')}
+                  onClick={() => {
+                    addCustomCoilToCart(formData);
+                    return router.push('/');
+                  }}
                   className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Finish

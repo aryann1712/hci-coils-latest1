@@ -1,4 +1,4 @@
-import { CartItemType } from "./CartInterface";
+import { CartItemType, CustomCoilItemType } from "./CartInterface";
 
 export interface OrderItemType {
     _id: string;
@@ -18,6 +18,7 @@ export interface OrderItemType {
       product: CartItemType;
       quantity: number;
     }[];
+    customItems: CustomCoilItemType[],
     createdAt: string;
     updatedAt: string;
   }
@@ -41,6 +42,7 @@ export interface EnquireItemType {
       product: CartItemType;
       quantity: number;
     }[];
+    customItems: CustomCoilItemType[],
     createdAt: string;
     updatedAt: string;
   }

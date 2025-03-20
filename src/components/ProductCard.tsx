@@ -17,6 +17,31 @@ const ProductCard = ({ product, showHover = true }: { product: ProductAllTypeInt
   const { addToCart } = useCart();
   const router = useRouter();
 
+  const cartAddMethod = () => {
+    // toast.success('Product Added Successfully!', {
+    //   position: "top-right",
+    //   // autoClose: 5000,
+    //   // hideProgressBar: false,
+    //   closeOnClick: true,
+    //   pauseOnHover: false,
+    //   // draggable: true,
+    //   // progress: undefined,
+    //   theme: "light",
+    // });
+    alert("Product Added successfully");
+
+
+    addToCart({
+      _id: product._id,
+      name: product.name,
+      description: product.description,
+      images: product.images,
+      category: product.category || '',
+      sku: product.sku,
+      quantity: 1
+    });
+  }
+
   console.log("productCard", product)
 
   return (
@@ -58,30 +83,10 @@ const ProductCard = ({ product, showHover = true }: { product: ProductAllTypeInt
           </button> */}
           <button
             className='bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md'
-            onClick={() => {
+            onClick={() => 
 
-              toast.success('Product Added Successfully!', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-              });
-
-
-              return addToCart({
-                _id: product._id,
-                name: product.name,
-                description: product.description,
-                images: product.images,
-                category: product.category || '',
-                sku: product.sku,
-                quantity: 1
-              });
-            }}>
+              cartAddMethod()
+            }>
             Add to Cart
           </button>
         </div>

@@ -1,12 +1,11 @@
-// src/context/CartContext.tsx
 "use client";
 import { CartItemType, CustomCoilItemType, FinalCartItem } from "@/lib/interfaces/CartInterface";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "./UserContext";
 
 interface CartContextType {
-  cartItems: FinalCartItem[];
-  setAllToCart: (items: FinalCartItem[]) => void;
+  cartItems: FinalCartItem;
+  setAllToCart: (items: FinalCartItem) => void;
   addToCart: (item: CartItemType) => void;
   addCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
   updateCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
@@ -16,7 +15,7 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType>({
-  cartItems: [],
+  cartItems: { items: [], customCoils: [] },
   setAllToCart: () => {},
   addToCart: () => {},
   addCustomCoilToCart: () => {},
@@ -28,115 +27,259 @@ const CartContext = createContext<CartContextType>({
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { user } = useUser();
-  const [cartItems, setCartItems] = useState<FinalCartItem[]>(() => {
+  const [cartItems, setCartItems] = useState<FinalCartItem>(() => {
     if (typeof window !== "undefined") {
       const storedCart = localStorage.getItem("cartItems");
-      return storedCart ? JSON.parse(storedCart) : [];
+      try {
+        const parsedCart = storedCart ? JSON.parse(storedCart) : { items: [], customCoils: [] };
+        // Ensure both items and customCoils exist
+        return {
+          items: Array.isArray(parsedCart.items) ? parsedCart.items : [],
+          customCoils: Array.isArray(parsedCart.customCoils) ? parsedCart.customCoils : []
+        };
+      } catch (error) {
+        console.error("Error parsing cart from localStorage:", error);
+        return { items: [], customCoils: [] };
+      }
     }
-    return [];
+    return { items: [], customCoils: [] };
   });
 
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const setAllToCart = (items: FinalCartItem[]) => {
-    setCartItems(items);
+  const setAllToCart = (items: FinalCartItem) => {
+    // Ensure both items and customCoils exist in the input
+    console.log("items", items);
+    console.log("setAllTOcart items", items.items);
+    console.log("setAllTOcart customCOil", items.customCoils);
+    const safeItems = {
+      items: Array.isArray(items.items) ? items.items : [],
+      customCoils: Array.isArray(items.customCoils) ? items.customCoils : []
+    };
+    setCartItems(safeItems);
   };
 
   const addToCart = async (item: CartItemType) => {
-    console.log("adding/removing to cart", item);
-    if (user?.userId) {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user: user.userId,
-          productId: item._id,
-          quantity: item.quantity,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        alert(data.error || "Adding To Cart Failed");
-        console.log(data.error || "Adding To Cart Failed");
+    console.log("adding to cart", item);
+    
+    // Update local state first
+    setCartItems((prev) => {
+      // Ensure items array exists
+      const currentItems = Array.isArray(prev.items) ? prev.items : [];
+      // Check if an item with the same ID already exists
+      const existingItemIndex = currentItems.findIndex(i => i._id === item._id);
+      
+      if (existingItemIndex >= 0) {
+        // If item exists, update its quantity
+        const updatedItems = [...currentItems];
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          quantity: updatedItems[existingItemIndex].quantity + item.quantity
+        };
+        
+        return { 
+          ...prev, 
+          items: updatedItems,
+          customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
+        };
       } else {
-        console.log("Product added successfully");
+        // If item doesn't exist, add it to the array
+        return { 
+          ...prev, 
+          items: [...currentItems, item],
+          customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
+        };
+      }
+    });
+
+    // Then update the server if user is logged in
+    if (user?.userId) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/add`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user: user.userId,
+            productId: item._id,
+            quantity: item.quantity,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.error || "Adding To Cart Failed");
+          console.log(data.error || "Adding To Cart Failed");
+        } else {
+          console.log("Product added successfully");
+        }
+      } catch (error) {
+        console.error("Error adding to cart:", error);
       }
     }
   };
 
+  // Helper function to check if two custom coils are the same (except for quantity)
+  const areCustomCoilsEqual = (coil1: CustomCoilItemType, coil2: CustomCoilItemType): boolean => {
+    return coil1.coilType === coil2.coilType &&
+           coil1.height === coil2.height &&
+           coil1.length === coil2.length &&
+           coil1.rows === coil2.rows &&
+           coil1.fpi === coil2.fpi &&
+           coil1.endplateType === coil2.endplateType &&
+           coil1.circuitType === coil2.circuitType &&
+           coil1.numberOfCircuits === coil2.numberOfCircuits &&
+           coil1.headerSize === coil2.headerSize &&
+           coil1.tubeType === coil2.tubeType &&
+           coil1.finType === coil2.finType &&
+           coil1.distributorHoles === coil2.distributorHoles &&
+           coil1.distributorHolesDontKnow === coil2.distributorHolesDontKnow &&
+           coil1.inletConnection === coil2.inletConnection &&
+           coil1.inletConnectionDontKnow === coil2.inletConnectionDontKnow;
+  };
+
   const addCustomCoilToCart = async (item: CustomCoilItemType) => {
-    console.log("adding/removing to cart", item);
-    if (user?.userId) {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/addCustomCoil`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        alert(data.error || "Adding To Cart Failed");
-        console.log(data.error || "Adding To Cart Failed");
+    console.log("adding custom coil to cart", item);
+    
+    // Update local state first
+    setCartItems((prev) => {
+      // Ensure customCoils array exists
+      const currentCustomCoils = Array.isArray(prev.customCoils) ? prev.customCoils : [];
+      
+      // Check if a custom coil with the same specifications already exists
+      const existingCoilIndex = currentCustomCoils.findIndex(c => areCustomCoilsEqual(c, item));
+      
+      if (existingCoilIndex >= 0) {
+        // If coil exists, update its quantity
+        const updatedCoils = [...currentCustomCoils];
+        updatedCoils[existingCoilIndex] = {
+          ...updatedCoils[existingCoilIndex],
+          quantity: updatedCoils[existingCoilIndex].quantity + item.quantity
+        };
+        
+        return { 
+          ...prev, 
+          items: Array.isArray(prev.items) ? prev.items : [],
+          customCoils: updatedCoils 
+        };
       } else {
-        console.log("Product added successfully");
+        // If coil doesn't exist, add it to the array
+        return { 
+          ...prev, 
+          items: Array.isArray(prev.items) ? prev.items : [],
+          customCoils: [...currentCustomCoils, item] 
+        };
+      }
+    });
+
+    // Then update the server if user is logged in
+    if (user?.userId) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/addCustomCoil`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...item,
+            user: user.userId
+          }),
+        });
+        
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.error || "Adding Custom Coil To Cart Failed");
+          console.log(data.error || "Adding Custom Coil To Cart Failed");
+        } else {
+          console.log("Custom coil added successfully");
+        }
+      } catch (error) {
+        console.error("Error adding custom coil to cart:", error);
       }
     }
   };
 
   const updateProductToCart = (item: CartItemType) => {
-    console.log("updating to cart");
-    setCartItems((prev) =>
-      prev.map((c) => (c.items.some((i) => i._id === item._id) ? { ...c, items: c.items.map((i) => (i._id === item._id ? { ...i, quantity: item.quantity } : i)) } : c))
-    );
+    console.log("updating product in cart", item);
+    setCartItems((prev) => {
+      const currentItems = Array.isArray(prev.items) ? prev.items : [];
+      const updatedItems = currentItems.map(i => 
+        i._id === item._id ? { ...i, quantity: item.quantity } : i
+      );
+      
+      return { 
+        ...prev, 
+        items: updatedItems,
+        customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
+      };
+    });
   };
 
   const updateCustomCoilToCart = (item: CustomCoilItemType) => {
-    console.log("updating custom coil in cart");
-    setCartItems((prev) =>
-      prev.map((c) => ({
-        ...c,
-        customCoils: c.customCoils.map((coil) =>
-          coil.coilType === item.coilType ? { ...coil, quantity: item.quantity } : coil
-        ),
-      }))
-    );
+    console.log("updating custom coil in cart", item);
+    setCartItems((prev) => {
+      const currentCustomCoils = Array.isArray(prev.customCoils) ? prev.customCoils : [];
+      const updatedCoils = currentCustomCoils.map(coil => 
+        areCustomCoilsEqual(coil, item) ? { ...coil, quantity: item.quantity } : coil
+      );
+      
+      return { 
+        ...prev, 
+        items: Array.isArray(prev.items) ? prev.items : [],
+        customCoils: updatedCoils 
+      };
+    });
   };
 
   const decrementToCart = (id: string) => {
-    console.log("decrement to cart");
-    setCartItems((prev) =>
-      prev.map((c) =>
-        c.items.some((i) => i._id === id)
-          ? {
-              ...c,
-              items: c.items
-                .map((i) => (i._id === id ? { ...i, quantity: i.quantity - 1 } : i))
-                .filter((i) => i.quantity > 0),
-            }
-          : c
-      )
-    );
+    console.log("decrement item in cart", id);
+    setCartItems((prev) => {
+      const currentItems = Array.isArray(prev.items) ? prev.items : [];
+      const updatedItems = currentItems.map(i => 
+        i._id === id ? { ...i, quantity: i.quantity - 1 } : i
+      ).filter(i => i.quantity > 0);
+      
+      return { 
+        ...prev, 
+        items: updatedItems,
+        customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
+      };
+    });
   };
 
   const removeFromCart = async (id: string) => {
     console.log("removing from the cart with productId", id);
+    
+    // Update local state first
+    setCartItems((prev) => {
+      const currentItems = Array.isArray(prev.items) ? prev.items : [];
+      const updatedItems = currentItems.filter(i => i._id !== id);
+      return { 
+        ...prev, 
+        items: updatedItems,
+        customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
+      };
+    });
+
+    // Then update the server if user is logged in
     if (user?.userId) {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.userId }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        alert(data.error || "Deleting From Cart Failed");
-        console.log(data.error || "Deleting From Cart Failed");
-      } else {
-        console.log("Product Deleted successfully");
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.userId }),
+        });
+        
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.error || "Deleting From Cart Failed");
+          console.log(data.error || "Deleting From Cart Failed");
+        } else {
+          console.log("Product Deleted successfully");
+        }
+      } catch (error) {
+        console.error("Error removing from cart:", error);
       }
     }
-    setCartItems((prev) => prev.map((c) => ({ ...c, items: c.items.filter((i) => i._id !== id) })));
   };
 
   return (

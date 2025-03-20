@@ -176,6 +176,7 @@ const AdminAllEnquires = () => {
             "Status": string;
             "Total Items": number;
             "Products": string;
+            "Custom Items": string;
         };
 
         // Format data for export
@@ -193,7 +194,25 @@ const AdminAllEnquires = () => {
                 "Total Items": enquiry.items.length,
                 "Products": enquiry.items.map(item =>
                     `${item.product.name} (Qty: ${item.quantity})`
-                ).join(", ")
+                ).join(", "),
+                "Custom Items": enquiry.customItems ? enquiry.customItems.map(item => {
+                    return `Custom Coil Details:
+                        Coil Type: ${item.coilType || "N/A"}
+                        Height: ${item.height || "N/A"}
+                        Length: ${item.length || "N/A"}
+                        Rows: ${item.rows || "N/A"}
+                        FPI: ${item.fpi || "N/A"}
+                        Endplate Type: ${item.endplateType || "N/A"}
+                        Circuit Type: ${item.circuitType || "N/A"}
+                        Number of Circuits: ${item.numberOfCircuits || "N/A"}
+                        Header Size: ${item.headerSize || "N/A"}
+                        Tube Type: ${item.tubeType || "N/A"}
+                        Fin Type: ${item.finType || "N/A"}
+                        Distributor Holes: ${item.distributorHoles || (item.distributorHolesDontKnow ? "Don't Know" : "N/A")}
+                        Inlet Connection: ${item.inletConnection || (item.inletConnectionDontKnow ? "Don't Know" : "N/A")}
+                        Quantity: ${item.quantity || "N/A"}
+                        `;
+                }).join("\n\n") : "No custom items"
             };
         });
 

@@ -13,7 +13,7 @@ const AdminAllOrders = () => {
     const [userOrders, setUserOrders] = useState<OrderItemType[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 9;
-    
+
     // Separate search states for each field
     const [searchFilters, setSearchFilters] = useState({
         productName: "",
@@ -24,7 +24,7 @@ const AdminAllOrders = () => {
         gstNumber: "",
         orderDate: ""
     });
-    
+
     // Active filter to show which search field is currently displayed
     const [activeFilter, setActiveFilter] = useState<string | null>("productName");
 
@@ -54,8 +54,8 @@ const AdminAllOrders = () => {
         // Apply each filter that has a value
         if (searchFilters.productName.trim()) {
             const query = searchFilters.productName.trim().toLowerCase();
-            filtered = filtered.filter(order => 
-                order.items.some(item => 
+            filtered = filtered.filter(order =>
+                order.items.some(item =>
                     item.product.name.toLowerCase().includes(query) ||
                     item.product.description.toLowerCase().includes(query) ||
                     item.product.category.toLowerCase().includes(query) ||
@@ -66,42 +66,42 @@ const AdminAllOrders = () => {
 
         if (searchFilters.orderId.trim()) {
             const query = searchFilters.orderId.trim().toLowerCase();
-            filtered = filtered.filter(order => 
+            filtered = filtered.filter(order =>
                 (order.orderId?.toLowerCase().includes(query) || false)
             );
         }
 
         if (searchFilters.customerName.trim()) {
             const query = searchFilters.customerName.trim().toLowerCase();
-            filtered = filtered.filter(order => 
+            filtered = filtered.filter(order =>
                 (order.user.name?.toLowerCase().includes(query) || false)
             );
         }
 
         if (searchFilters.companyName.trim()) {
             const query = searchFilters.companyName.trim().toLowerCase();
-            filtered = filtered.filter(order => 
+            filtered = filtered.filter(order =>
                 (order.user.companyName?.toLowerCase().includes(query) || false)
             );
         }
 
         if (searchFilters.email.trim()) {
             const query = searchFilters.email.trim().toLowerCase();
-            filtered = filtered.filter(order => 
+            filtered = filtered.filter(order =>
                 (order.user.email?.toLowerCase().includes(query) || false)
             );
         }
 
         if (searchFilters.gstNumber.trim()) {
             const query = searchFilters.gstNumber.trim().toLowerCase();
-            filtered = filtered.filter(order => 
+            filtered = filtered.filter(order =>
                 (order.user.gstNumber?.toLowerCase().includes(query) || false)
             );
         }
 
         if (searchFilters.orderDate.trim()) {
             const query = searchFilters.orderDate.trim().toLowerCase();
-            filtered = filtered.filter(order => 
+            filtered = filtered.filter(order =>
                 (order.createdAt?.toLowerCase().includes(query) || false)
             );
         }
@@ -166,6 +166,7 @@ const AdminAllOrders = () => {
             "Order Date": string;
             "Total Items": number;
             "Products": string;
+            "Custom Items": string;
         };
 
         // Format data for export
@@ -181,8 +182,26 @@ const AdminAllOrders = () => {
                 "Order Date": order.createdAt || "N/A",
                 "Total Items": order.items.length,
                 "Products": order.items.map(item => {
-                    return `${item.product.name}  x (${item.quantity})`;
-                }).join(",\n")
+                    return `${item.product.name} x (${item.quantity})`;
+                }).join(",\n"),
+                "Custom Items": order.customItems ? order.customItems.map(item => {
+                return `Custom Coil Details:
+                    Coil Type: ${item.coilType || "N/A"}
+                    Height: ${item.height || "N/A"}
+                    Length: ${item.length || "N/A"}
+                    Rows: ${item.rows || "N/A"}
+                    FPI: ${item.fpi || "N/A"}
+                    Endplate Type: ${item.endplateType || "N/A"}
+                    Circuit Type: ${item.circuitType || "N/A"}
+                    Number of Circuits: ${item.numberOfCircuits || "N/A"}
+                    Header Size: ${item.headerSize || "N/A"}
+                    Tube Type: ${item.tubeType || "N/A"}
+                    Fin Type: ${item.finType || "N/A"}
+                    Distributor Holes: ${item.distributorHoles || (item.distributorHolesDontKnow ? "Don't Know" : "N/A")}
+                    Inlet Connection: ${item.inletConnection || (item.inletConnectionDontKnow ? "Don't Know" : "N/A")}
+                    Quantity: ${item.quantity || "N/A"}
+                    `;
+                }).join("\n\n") : "No custom items"
             };
         });
 
@@ -194,10 +213,10 @@ const AdminAllOrders = () => {
 
         const headers = Object.keys(exportData[0]);
         const csvRows = [];
-        
+
         // Add headers
         csvRows.push(headers.join(','));
-        
+
         // Add data rows
         for (const row of exportData) {
             const values = headers.map(header => {
@@ -207,17 +226,17 @@ const AdminAllOrders = () => {
             });
             csvRows.push(values.join(','));
         }
-        
+
         const csvString = csvRows.join('\n');
         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
-        
+
         // Create a link to download
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
         link.setAttribute('download', `Orders_Export_${new Date().toLocaleDateString()}.csv`);
         link.style.visibility = 'hidden';
-        
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -257,7 +276,7 @@ const AdminAllOrders = () => {
             <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
                 <div className="flex justify-between items-center">
                     <h1 className="text-blue-800 text-2xl md:text-3xl font-semibold italic">All Orders</h1>
-                    <button 
+                    <button
                         onClick={exportToExcel}
                         className="px-2 md:px-4 text-sm md:text-base py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
                     >
@@ -271,51 +290,51 @@ const AdminAllOrders = () => {
                 {/* Search Filters UI */}
                 <div className="space-y-4">
                     <div className="flex flex-wrap gap-2">
-                        <button 
+                        <button
                             onClick={() => handleFilterSelect("productName")}
                             className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "productName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
                         >
                             Product
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleFilterSelect("orderId")}
                             className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "orderId" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
                         >
                             Order ID
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleFilterSelect("customerName")}
                             className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "customerName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
                         >
                             Customer
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleFilterSelect("companyName")}
                             className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "companyName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
                         >
                             Company
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleFilterSelect("email")}
                             className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "email" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
                         >
                             Email
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleFilterSelect("gstNumber")}
                             className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "gstNumber" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
                         >
                             GST
                         </button>
-                        <button 
+                        <button
                             onClick={() => handleFilterSelect("orderDate")}
                             className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "orderDate" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
                         >
                             Date
                         </button>
-                        
+
                         {activeFiltersCount > 0 && (
-                            <button 
+                            <button
                                 onClick={clearFilters}
                                 className="px-3 py-1 text-sm md:text-base rounded-md bg-red-500 text-white ml-auto"
                             >
@@ -323,7 +342,7 @@ const AdminAllOrders = () => {
                             </button>
                         )}
                     </div>
-                    
+
                     {activeFilter && (
                         <div className="flex items-center gap-2">
                             <label htmlFor={activeFilter} className="text-sm md:text-base font-medium">
@@ -345,7 +364,7 @@ const AdminAllOrders = () => {
                                 className="border p-1 text-sm md:text-base flex-grow"
                             />
                             {searchFilters[activeFilter as keyof typeof searchFilters] && (
-                                <button 
+                                <button
                                     onClick={() => {
                                         setSearchFilters(prev => ({
                                             ...prev,
@@ -361,7 +380,7 @@ const AdminAllOrders = () => {
                             )}
                         </div>
                     )}
-                    
+
                     <div className="text-sm text-gray-600 flex justify-between">
                         <span>{filteredOrders.length} orders found</span>
                         {activeFiltersCount > 0 && (
@@ -371,47 +390,47 @@ const AdminAllOrders = () => {
                 </div>
 
                 <div className=''>
-                        {currentPageProducts.length > 0 ? (
-                            currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} orderItem={orderData} />)
-                        ) : (
-                            <div className="text-center py-10 bg-gray-50 rounded-md">
-                                <p className="text-gray-500 text-lg">No orders match your search criteria</p>
-                                {activeFiltersCount > 0 && (
-                                    <button 
-                                        onClick={clearFilters}
-                                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                    >
-                                        Clear All Filters
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-center space-x-4 mt-6">
-                            <button
-                                onClick={handlePrevPage}
-                                disabled={currentPage === 1}
-                                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                            >
-                                Prev
-                            </button>
-                            <span className="font-medium">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <button
-                                onClick={handleNextPage}
-                                disabled={currentPage === totalPages}
-                                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                            >
-                                Next
-                            </button>
+                    {currentPageProducts.length > 0 ? (
+                        currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} orderItem={orderData} />)
+                    ) : (
+                        <div className="text-center py-10 bg-gray-50 rounded-md">
+                            <p className="text-gray-500 text-lg">No orders match your search criteria</p>
+                            {activeFiltersCount > 0 && (
+                                <button
+                                    onClick={clearFilters}
+                                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Clear All Filters
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="flex items-center justify-center space-x-4 mt-6">
+                        <button
+                            onClick={handlePrevPage}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                        >
+                            Prev
+                        </button>
+                        <span className="font-medium">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={handleNextPage}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
+        </div>
     )
 }
 

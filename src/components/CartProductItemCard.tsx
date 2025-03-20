@@ -78,7 +78,9 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
             {/* Increment Button */}
             <button
               onClick={() => {
+                console.log("before quantity =>" , cardData.quantity);
                 cardData.quantity++;
+                console.log("after quantity =>" , cardData.quantity);
                 return addToCart(cardData);
               }}
               className="w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
