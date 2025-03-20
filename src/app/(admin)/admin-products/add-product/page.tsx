@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@/context/UserContext";
+import { predefinedCategories } from "@/data/allProducts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, ChangeEvent } from "react";
@@ -10,12 +11,7 @@ type ImagePreview = {
   previewUrl: string;
 };
 
-export const predefinedCategories = [
-  "Open Type Old Model",
-  "Custom coils",
-  "Open Type Rg Model",
-  "Open Type Rgs Model"
-];
+
 
 export default function AdminAddProduct() {
   const { user } = useUser();

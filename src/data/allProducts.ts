@@ -7,3 +7,11 @@ export interface ProductAllTypeInterfact {
     description: string;
     images: string[]
 }
+
+
+export const predefinedCategories = [
+    "Open Type Old Model",
+    "Custom coils",
+    "Open Type Rg Model",
+    "Open Type Rgs Model"
+  ];

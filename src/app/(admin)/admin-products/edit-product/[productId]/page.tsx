@@ -1,9 +1,9 @@
 "use client";
 
 import { useUser } from "@/context/UserContext";
+import { predefinedCategories } from "@/data/allProducts";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { predefinedCategories } from "../../add-product/page";
 
 
 
