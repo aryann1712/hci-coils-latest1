@@ -38,26 +38,26 @@ export default function CustomCoilForm() {
 
   // Endplate options with images
   const endplateOptions = [
-    { value: "box-type", label: "Box Type Plate with 4 Side Bending", image: "/custom-coil-info1.png" },
-    { value: "u-type", label: "U Type Plate with 2 Side Bending", image: "/custom-coil-info1.png" },
-    { value: "open-type", label: "Open Type Plate RG Model", image: "/custom-coil-info1.png" },
-    { value: "open-type-top", label: "Open Type Plate with Top/RG Model", image: "/custom-coil-info1.png" },
-    { value: "open-type-r", label: "Open Type Plate R Model", image: "/custom-coil-info1.png" },
-    { value: "open-type-r-top", label: "Open Type Plate with Top/R Model", image: "/custom-coil-info1.png" },
-    { value: "open-type-fan", label: "Open Type Plate with Fan Shroud/RGS", image: "/custom-coil-info1.png" },
-    { value: "2-side-bending", label: "2 Side Bending Plate with Angle", image: "/custom-coil-info1.png" },
-    { value: "old-model", label: "Old Model", image: "/custom-coil-info1.png" },
-    { value: "open-type-top-angle", label: "Open Type Plate with Top & Angle/OM", image: "/custom-coil-info1.png" },
-    { value: "4-side-bending", label: "4 Side Bending Plate with Top & Bottom", image: "/custom-coil-info1.png" },
-    { value: "box-type-top-bottom", label: "Box Type Plate with Box Type Top & Bottom Plate", image: "/custom-coil-info1.png" },
+    { value: "box-type", label: "Box Type Plate with 4 Side Bending", image: "/customCoilimages/endPlate1.png" },
+    { value: "u-type", label: "U Type Plate with 2 Side Bending", image: "/customCoilimages/endPlate2.png" },
+    { value: "open-type", label: "Open Type Plate RG Model", image: "/customCoilimages/endPlate3.png" },
+    { value: "open-type-top", label: "Open Type Plate with Top/RG Model", image: "/customCoilimages/endPlate4.png" },
+    { value: "open-type-r", label: "Open Type Plate R Model", image: "/customCoilimages/endPlate5.png" },
+    { value: "open-type-r-top", label: "Open Type Plate with Top/R Model", image: "/customCoilimages/endPlate6.png" },
+    { value: "open-type-fan", label: "Open Type Plate with Fan Shroud/RGS", image: "/customCoilimages/endPlate7.png" },
+    { value: "2-side-bending", label: "2 Side Bending Plate with Angle", image: "/customCoilimages/endPlate8.png" },
+    { value: "old-model", label: "Old Model", image: "/customCoilimages/endPlate9.png" },
+    { value: "open-type-top-angle", label: "Open Type Plate with Top & Angle/OM", image: "/customCoilimages/endPlate10.png" },
+    { value: "4-side-bending", label: "4 Side Bending Plate with Top & Bottom", image: "/customCoilimages/endPlate11.png" },
+    { value: "box-type-top-bottom", label: "Box Type Plate with Box Type Top & Bottom Plate", image: "/customCoilimages/endPlate12.png" },
   ];
 
   // Circuit options with images
   const circuitOptions = [
-    { value: "1-in-1-out", label: "1 in 1 out", image: "/custom-coil-info1.png" },
-    { value: "2-in-2-out", label: "2 in 2 out", image: "/custom-coil-info1.png" },
-    { value: "4-in-4-out", label: "4 in 4 out", image: "/custom-coil-info1.png" },
-    { value: "1-50-in-out", label: "1-50 in out", image: "/custom-coil-info1.png" },
+    { value: "1-in-1-out", label: "1 in 1 out", image: "/customCoilimages/circuitType1.png" },
+    { value: "2-in-2-out", label: "2 in 2 out", image: "/customCoilimages/circuitType2.png" },
+    { value: "4-in-4-out", label: "4 in 4 out", image: "/customCoilimages/circuitType3.png" },
+    { value: "1-50-in-out", label: "1-50 in out", image: "/customCoilimages/circuitType4.png" },
   ];
 
   // Update the useEffect to properly close dropdowns with proper TypeScript event type
