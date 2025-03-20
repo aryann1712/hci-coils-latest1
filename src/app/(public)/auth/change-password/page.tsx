@@ -39,7 +39,7 @@ export default function ChangePasswordPage() {
     // For demonstration: mock data
     // const data = {
     //   userId: "1",
-    //   phone: "9315045029",
+    //   phone: "9310741664",
     //   role: "admin",
     //   token: "abcd", // pretend JWT
     //   name: "Rounak",

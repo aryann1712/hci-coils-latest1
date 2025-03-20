@@ -27,19 +27,19 @@ export default function ContactPage() {
           {/* Address */}
           <div>
             <h3 className="text-base text-black font-normal">Head Office</h3>
-            <h3 className="text-lg text-blue-800 font-extrabold">335, sector-5, vasundhara, Ghaziabad, Uttar Pradesh, 201012</h3>
+            <h3 className="text-lg text-blue-800 font-extrabold">Plot No. 3/26 Ajanta Complex Industrial Area Site 2 Loni Road Mohan Nagar Ghaziabad 201007 U.P.</h3>
           </div>
 
           {/* Phone Number */}
           <div>
             <h3 className="text-base text-black font-normal">Phone</h3>
-            <h3 className="text-lg text-blue-800 font-extrabold">931-504-5029</h3>
+            <h3 className="text-lg text-blue-800 font-extrabold">931-074-1664</h3>
           </div>
 
           {/* Email */}
           <div>
             <h3 className="text-base text-black font-normal">Email</h3>
-            <h3 className="text-lg text-blue-800 font-extrabold">rounakraj0309@gmail.com</h3>
+            <h3 className="text-lg text-blue-800 font-extrabold">hcicoils@gmail.com</h3>
           </div>
 
         </div>

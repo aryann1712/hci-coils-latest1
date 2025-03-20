@@ -20,10 +20,10 @@ const DashboardLowerBottom = () => {
           <div className='text-sm font-semibold text-white'>
             <h3>Call Us Now</h3>
             <a
-              href="tel:9315045029"
+              href="tel:9310741664"
               className="block text-lg font-bold  cursor-pointer"
             >
-              931-504-5029
+              931-074-1664
             </a>
           </div>
         </div>

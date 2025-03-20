@@ -49,10 +49,10 @@ const Footer = () => {
           <div className="flex items-center gap-3 text-black text-sm font-semibold cursor-pointer" onClick={() => console.log("hi")}>
             <IoCallOutline className="h-5 w-5" />
             <a
-              href="tel:9315045029"
+              href="tel:9310741664"
               className="block hover:text-blue-700 text-lg font-bold  cursor-pointer"
             >
-              931-504-5029
+              931-074-1664
             </a>            </div >
           <div className="mt-3 flex gap-3 text-gray-500 items-center">
            <a
