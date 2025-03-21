@@ -4,77 +4,83 @@ import ProductCard from "@/components/ProductCard";
 import { ProductAllTypeInterfact } from "@/data/allProducts";
 import { useEffect, useMemo, useState } from "react";
 
-
-
 export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState<ProductAllTypeInterfact[]>([]);
-  const [openTypeOldModel, setOpenTypeOldModel] = useState<ProductAllTypeInterfact[]>([]);
-  const [customCoils, setCustomCoils] = useState<ProductAllTypeInterfact[]>([]);
-  const [openTypeRGModel, setOpenTypeRGModel] = useState<ProductAllTypeInterfact[]>([]);
-  const [openTypeRGSModel, setOpenTypeRGSModel] = useState<ProductAllTypeInterfact[]>([]);
+  const [allProducts, setAllProducts] = useState<ProductAllTypeInterfact[]>([]);
+  const [categoryProducts, setCategoryProducts] = useState<{
+    [key: string]: ProductAllTypeInterfact[];
+  }>({
+    "Open Type Old Model": [],
+    "Custom Coils": [],
+    "Open Type Rg Model": [],
+    "Open Type Rgs Model": [],
+  });
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 12;
 
   // Fetch data (simulate API call)
   useEffect(() => {
     async function fetchData() {
-      const data = await getAllProductsFromAPI();
-      const data2 = await getOpenTypeOldModelFromAPI();
-      const data3 = await customCoilsFromAPI();
-      const data4 = await getOpenTypeRGModelFromAPI();
-      const data5 = await getOpenTypeRGSModelFromAPI();
-      setProducts(data);
-      setOpenTypeOldModel(data2);
-      setCustomCoils(data3);
-      setOpenTypeRGModel(data4);
-      setOpenTypeRGSModel(data5);
+      // Fetch all products
+      const allProductsData = await getAllProductsFromAPI();
+      setAllProducts(allProductsData);
+      
+      // Fetch category-specific products
+      const categories = [
+        "Open Type Old Model",
+        "Custom Coils",
+        "Open Type Rg Model",
+        "Open Type Rgs Model"
+      ];
+      
+      const categoryData: { [key: string]: ProductAllTypeInterfact[] } = {};
+      
+      for (const category of categories) {
+        const data = await getCategoryProductsFromAPI(category);
+        categoryData[category] = data;
+      }
+      
+      setCategoryProducts(categoryData);
     }
+    
     fetchData();
   }, []);
 
+  // Filter the products by search query across all categories
+  const filteredAllProducts = useMemo(() => {
+    if (searchQuery.trim() === "") return allProducts;
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    return allProducts.filter(
+      (p) =>
+        p.name.toLowerCase().includes(lowerQuery) ||
+        p.description.toLowerCase().includes(lowerQuery)
+    );
+  }, [allProducts, searchQuery]);
 
-
-  // Filter the products by category AND search query
-  const filteredProducts = useMemo(() => {
-    let filtered = products;
-    if (searchQuery.trim() !== "") {
-      const lowerQuery = searchQuery.toLowerCase();
-      filtered = filtered.filter(
+  // Filter each category by search query
+  const filteredCategoryProducts = useMemo(() => {
+    if (searchQuery.trim() === "") return categoryProducts;
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    const filtered: { [key: string]: ProductAllTypeInterfact[] } = {};
+    
+    for (const [category, products] of Object.entries(categoryProducts)) {
+      filtered[category] = products.filter(
         (p) =>
           p.name.toLowerCase().includes(lowerQuery) ||
           p.description.toLowerCase().includes(lowerQuery)
       );
     }
+    
     return filtered;
-  }, [products, searchQuery]);
-
-
-
-  // Pagination
-  const totalPages = Math.ceil(filteredProducts.length / pageSize);
-  const currentPageProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    return filteredProducts.slice(startIndex, endIndex);
-  }, [filteredProducts, currentPage]);
+  }, [categoryProducts, searchQuery]);
 
   // Handlers
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1);
   };
 
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
-  // Example placeholder fetch
+  // API Calls
   async function getAllProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
     try {
       setLoading(true);
@@ -89,7 +95,7 @@ export default function ProductsPage() {
       setLoading(false);
 
       if (!response.ok) {
-        alert(data.error || "Sign in failed");
+        alert(data.error || "Failed to fetch products");
         return [];
       }
 
@@ -101,21 +107,24 @@ export default function ProductsPage() {
     }
   }
 
-  async function getOpenTypeOldModelFromAPI(): Promise<ProductAllTypeInterfact[]> {
+  async function getCategoryProductsFromAPI(category: string): Promise<ProductAllTypeInterfact[]> {
     try {
       setLoading(true);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Open Type Old Model`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=${encodeURIComponent(category)}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       const data = await response.json();
 
       setLoading(false);
 
       if (!response.ok) {
-        alert(data.error || "Sign in failed");
+        alert(data.error || "Failed to fetch category products");
         return [];
       }
 
@@ -127,92 +136,28 @@ export default function ProductsPage() {
     }
   }
 
-
-  async function customCoilsFromAPI(): Promise<ProductAllTypeInterfact[]> {
-    try {
-      setLoading(true);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Custom coils`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const data = await response.json();
-
-      setLoading(false);
-
-      if (!response.ok) {
-        alert(data.error || "Sign in failed");
-        return [];
-      }
-
-      return data.data;
-    } catch (error) {
-      setLoading(false);
-      console.error(error);
-      return [];
-    }
-  }
-
-  async function getOpenTypeRGModelFromAPI(): Promise<ProductAllTypeInterfact[]> {
-    try {
-      setLoading(true);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Open Type Rg Model`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const data = await response.json();
-
-      setLoading(false);
-
-      if (!response.ok) {
-        alert(data.error || "Sign in failed");
-        return [];
-      }
-
-      return data.data;
-    } catch (error) {
-      setLoading(false);
-      console.error(error);
-      return [];
-    }
-  }
-
-
-  async function getOpenTypeRGSModelFromAPI(): Promise<ProductAllTypeInterfact[]> {
-    try {
-      setLoading(true);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=Open Type Rgs Model`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const data = await response.json();
-
-      setLoading(false);
-
-      if (!response.ok) {
-        alert(data.error || "Sign in failed");
-        return [];
-      }
-
-      return data.data;
-    } catch (error) {
-      setLoading(false);
-      console.error(error);
-      return [];
-    }
-  }
-
+  // Render product category section
+  const renderCategorySection = (category: string, products: ProductAllTypeInterfact[]) => {
+    if (products.length === 0) return null;
+    
+    return (
+      <div className="mb-20">
+        <h2 className="mb-4 text-xl font-bold text-gray-600">{category}</h2>
+        <div className="flex flex-row overflow-x-scroll gap-x-20">
+          {products.map((product) => (
+            <div key={product._id} className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5">
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <section className="p-4 lg:px-16 mb-10 min-h-[60vh]">
       {/* Search Bar */}
       <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        {/* Search Input */}
         <div>
           <label htmlFor="search" className="mr-2">
             Search:
@@ -228,7 +173,6 @@ export default function ProductsPage() {
         </div>
       </div>
 
-
       {/* Loading State */}
       {loading && (
         <div className="grid grid-col-1 gap-8 gap-y-10 md:grid-cols-3">
@@ -238,98 +182,13 @@ export default function ProductsPage() {
         </div>
       )}
 
+      {/* Category Sections */}
+      {Object.entries(filteredCategoryProducts).map(([category, products]) => 
+        renderCategorySection(category, products)
+      )}
 
-      {openTypeOldModel.length > 0 && <div className="mb-20">
-        <h2 className=" mb-4 text-xl font-bold text-gray-600">Open Type Old Model</h2>
-        <div className=" flex flex-row overflow-x-scroll gap-x-20">
-          {openTypeOldModel.map((product) => (
-            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
-              <ProductCard key={product._id} product={product} />
-            </div>
-          ))}
-        </div>
-      </div>
-      }
-
-      {customCoils.length > 0 && <div className="mb-20">
-        <h2 className=" mb-4 text-xl font-bold text-gray-600">Custom Coils</h2>
-        <div className=" flex flex-row overflow-x-scroll gap-x-20">
-          {customCoils.map((product) => (
-            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
-              <ProductCard key={product._id} product={product} />
-            </div>
-          ))}
-        </div>
-      </div>
-      }
-
-      {openTypeRGModel.length > 0 && <div className="mb-20">
-        <h2 className=" mb-4 text-xl font-bold text-gray-600">Open Type RG Model</h2>
-        <div className=" flex flex-row overflow-x-scroll gap-x-20">
-          {openTypeRGModel.map((product) => (
-            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
-              <ProductCard key={product._id} product={product} />
-            </div>
-          ))}
-        </div>
-      </div>
-      }
-
-      {openTypeRGSModel.length > 0 && <div className="mb-20">
-        <h2 className=" mb-4 text-xl font-bold text-gray-600">Open Type RGS Model</h2>
-        <div className=" flex flex-row overflow-x-scroll gap-x-20">
-          {openTypeRGSModel.map((product) => (
-            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
-              <ProductCard key={product._id} product={product} />
-            </div>
-          ))}
-        </div>
-      </div>
-      }
-
-
-
-
-      <h2 className=" mb-4 text-xl font-bold text-gray-600">All Products</h2>
-      <div className=" flex flex-row overflow-x-scroll gap-x-20">
-          {filteredProducts.map((product) => (
-            <div className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 ">
-              <ProductCard key={product._id} product={product} />
-            </div>
-          ))}
-        </div>
-
-
-      {/* Product Grid */}
-      {/* <div className="grid grid-cols-2  gap-8 gap-y-10 md:grid-cols-3">
-        {currentPageProducts.map((product) => (
-          <ProductCard key={product._id} product={product} />
-        ))}
-      </div> */}
-
-      {/* Pagination Controls */}
-      {/* {totalPages > 1 && (
-        <div className="flex items-center justify-center space-x-4 mt-6">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span className="font-medium">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      )} */}
+      {/* All Products Section */}
+      {renderCategorySection("All Products", filteredAllProducts)}
     </section>
   );
 }
-

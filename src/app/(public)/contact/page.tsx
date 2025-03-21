@@ -7,14 +7,46 @@ export default function ContactPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // handle POST to your API route: /api/contact
-    console.log(formData);
-    if (formData.name || formData.phone || formData.message) {
-      alert(`name: ${formData.name}, phone: ${formData.phone}, message: ${formData.message}`);
-    } else {
+    
+    if (!formData.name || !formData.phone || !formData.message) {
       alert('Please fill all fields.');
+      return;
+    }
+  
+    if (formData.phone.length !== 10) {
+      alert('Please enter a valid phone number.');
+      return;
+    }
+
+    const bodyData = {
+      name: formData.name,
+      phone: formData.phone,
+      desctiption: formData.message
+    }
+  
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/sendRequestToAdmin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bodyData),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        alert("Submitted Successfully!");
+        setFormData({ name: "", phone: "", message: "" }); // Reset form
+      } else {
+        alert("Failed to submit. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred. Please try again later.");
     }
   };
+  
 
   return (
     <section className="py-4 w-full px-3 lg:px-0 lg:max-w-[75%] mx-auto">
