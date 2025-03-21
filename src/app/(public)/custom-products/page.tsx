@@ -8,9 +8,10 @@ import { useCart } from '@/context/CartContext';
 import { CustomCoilItemType } from '@/lib/interfaces/CartInterface';
 
 export default function CustomCoilForm() {
-    const { addCustomCoilToCart } = useCart();
+  const { addCustomCoilToCart } = useCart();
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const formContainerRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<CustomCoilItemType>({
     coilType: '',
     height: '',
@@ -75,6 +76,15 @@ export default function CustomCoilForm() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Effect to scroll to top when step changes
+  useEffect(() => {
+    if (formContainerRef.current) {
+      formContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [step]);
 
   const handleCoilTypeSelection = (type: string) => {
     setFormData({ ...formData, coilType: type });
@@ -165,7 +175,7 @@ export default function CustomCoilForm() {
         <title>Custom Coil Configuration</title>
       </Head>
 
-      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+      <div ref={formContainerRef} className="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-6 bg-blue-600 text-white">
           <h1 className="text-2xl font-bold">Custom Coil Configuration</h1>
           {renderProgressBar()}
@@ -215,8 +225,8 @@ export default function CustomCoilForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                 <div className="relative h-48 flex items-center justify-center">
-                  <div className="w-full h-48 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
-                    <Image src="/custom-coil-info1.png" alt="Coil dimensions diagram" fill className="object-contain p-2" />
+                  <div className="w-full h-72 mt-28 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
+                    <Image src="/custom-coil-info1.png" alt="Coil dimensions diagram" fill className="object-cover p-2" />
                   </div>
                 </div>
 
@@ -274,15 +284,17 @@ export default function CustomCoilForm() {
               <div className="mt-8 flex justify-between">
                 <button
                   type="button"
+                  disabled={!(formData.endplateType == "" || formData.endplateType == undefined)}
                   onClick={goBack}
-                  className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+                  className="bg-gray-200 disabled:bg-gray-50 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
                 >
                   Back
                 </button>
                 <button
                   type="button"
+                  disabled={(formData.height && formData.length && formData.rows && formData.fpi) ? false : true}
                   onClick={nextStep}
-                  className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                  className="bg-blue-600 disabled:bg-blue-200 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Next
                 </button>
@@ -290,149 +302,134 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-         {/* Step 3: Endplate Type - Fix height and display with proper TypeScript */}
-{step === 3 && (
-  <form>
-    <h2 className="text-xl font-semibold mb-6">Step 3: Select Endplate Type</h2>
-
-    <div className="grid grid-cols-1 gap-y-4">
-      <div className="mb-4">
-        <div className="w-full h-64 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
-          <Image src="/custom-coil-info1.png" alt="Endplate types" fill className="object-contain p-2" />
-        </div>
-        <p className="text-sm text-gray-500 text-center">Select the appropriate endplate type for your coil</p>
-      </div>
-
-      <div className="relative min-h-[300px]" ref={endplateRef}>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Endplate Type</label>
-        <button
-          type="button"
-          className="w-full text-left border border-gray-300 rounded-md shadow-sm p-2 bg-white flex justify-between items-center"
-          onClick={() => setEndplateDropdownOpen(!endplateDropdownOpen)}
-        >
-          {formData.endplateType 
-            ? endplateOptions.find(opt => opt.value === formData.endplateType)?.label || "Select Endplate Type"
-            : "Select Endplate Type"}
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-
-        {endplateDropdownOpen && (
-          <div className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-            {endplateOptions.map(option => (
-              <div
-                key={option.value}
-                className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"
-                onClick={() => handleOptionSelect('endplateType', option.value)}
-              >
-                <div className="w-16 h-16 bg-gray-200 rounded-md mr-3 relative">
-                  <Image src={option.image} alt={option.label} fill className="object-contain p-1" />
+          {/* Step 3: Endplate Type - Fix height and display with proper TypeScript */}
+          {step === 3 && (
+            <form>
+              <h2 className="text-xl font-semibold mb-6">Step 3: Select Endplate Type</h2>
+              <div className="grid grid-cols-1 gap-y-4">
+                <div className="min-h-[300px]">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Endplate Type</label>
+                  <div className="space-y-4">
+                    {endplateOptions.map(option => (
+                      <div
+                        key={option.value}
+                        className="border border-gray-300 rounded-md p-3 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => handleOptionSelect('endplateType', option.value)}
+                      >
+                        <div className="flex items-center">
+                          <input
+                            type="radio"
+                            id={`endplate-${option.value}`}
+                            name="endplateType"
+                            value={option.value}
+                            checked={formData.endplateType === option.value}
+                            onChange={() => handleOptionSelect('endplateType', option.value)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="w-16 h-16 bg-gray-200 rounded-md mx-3 relative">
+                            <Image src={option.image} alt={option.label} fill className="object-contain p-1" />
+                          </div>
+                          <label
+                            htmlFor={`endplate-${option.value}`}
+                            className="ml-2 cursor-pointer flex-1"
+                          >
+                            {option.label}
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <span>{option.label}</span>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+              <div className="mt-8 flex justify-between">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={!formData.endplateType}
+                  onClick={nextStep}
+                  className="bg-blue-600 disabled:bg-blue-300 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </form>
+          )}
 
-    <div className="mt-8 flex justify-between">
-      <button
-        type="button"
-        onClick={goBack}
-        className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
-      >
-        Back
-      </button>
-      <button
-        type="button"
-        onClick={nextStep}
-        className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
-      >
-        Next
-      </button>
-    </div>
-  </form>
-)}
-
-{/* Step 4: Circuit Type - Fix height and display with proper TypeScript */}
-{step === 4 && (
-  <form>
-    <h2 className="text-xl font-semibold mb-6">Step 4: Select Circuit Type</h2>
-
-    <div className="grid grid-cols-1 gap-y-4">
-      <div className="mb-4">
-        <div className="w-full h-64 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
-          <Image src="/custom-coil-info1.png" alt="Circuit type diagram" fill className="object-contain p-2" />
-        </div>
-        <p className="text-sm text-gray-500 text-center">Select the appropriate circuit configuration</p>
-      </div>
-
-      <div className="relative min-h-[300px]" ref={circuitRef}>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Circuit Type</label>
-        <button
-          type="button"
-          className="w-full text-left border border-gray-300 rounded-md shadow-sm p-2 bg-white flex justify-between items-center"
-          onClick={() => setCircuitDropdownOpen(!circuitDropdownOpen)}
-        >
-          {formData.circuitType 
-            ? circuitOptions.find(opt => opt.value === formData.circuitType)?.label || "Select Circuit Type"
-            : "Select Circuit Type"}
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-
-        {circuitDropdownOpen && (
-          <div className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-            {circuitOptions.map(option => (
-              <div
-                key={option.value}
-                className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"
-                onClick={() => handleOptionSelect('circuitType', option.value)}
-              >
-                <div className="w-16 h-16 bg-gray-200 rounded-md mr-3 relative">
-                  <Image src={option.image} alt={option.label} fill className="object-contain p-1" />
+          {/* Step 4: Circuit Type - Fix height and display with proper TypeScript */}
+          {step === 4 && (
+            <form>
+              <h2 className="text-xl font-semibold mb-6">Step 4: Select Circuit Type</h2>
+              <div className="grid grid-cols-1 gap-y-4">
+                <div className="min-h-[300px]">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Circuit Type</label>
+                  <div className="space-y-4">
+                    {circuitOptions.map(option => (
+                      <div
+                        key={option.value}
+                        className="border border-gray-300 rounded-md p-3 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => handleOptionSelect('circuitType', option.value)}
+                      >
+                        <div className="flex items-center">
+                          <input
+                            type="radio"
+                            id={`circuit-${option.value}`}
+                            name="circuitType"
+                            value={option.value}
+                            checked={formData.circuitType === option.value}
+                            onChange={() => handleOptionSelect('circuitType', option.value)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="w-16 h-16 bg-gray-200 rounded-md mx-3 relative">
+                            <Image src={option.image} alt={option.label} fill className="object-contain p-1" />
+                          </div>
+                          <label
+                            htmlFor={`circuit-${option.value}`}
+                            className="ml-2 cursor-pointer flex-1"
+                          >
+                            {option.label}
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <span>{option.label}</span>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Number of Circuits</label>
+                  <input
+                    type="number"
+                    name="numberOfCircuits"
+                    value={formData.numberOfCircuits}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    required
+                  />
+                </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Number of Circuits</label>
-        <input
-          type="number"
-          name="numberOfCircuits"
-          value={formData.numberOfCircuits}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          required
-        />
-      </div>
-    </div>
-
-    <div className="mt-8 flex justify-between">
-      <button
-        type="button"
-        onClick={goBack}
-        className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
-      >
-        Back
-      </button>
-      <button
-        type="button"
-        onClick={nextStep}
-        className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
-      >
-        Next
-      </button>
-    </div>
-  </form>
-)}
+              <div className="mt-8 flex justify-between">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={!(formData.circuitType && formData.numberOfCircuits)}
+                  onClick={nextStep}
+                  className="bg-blue-600 disabled:bg-blue-300 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* Step 5: Header Size and Materials */}
           {step === 5 && (
@@ -440,13 +437,6 @@ export default function CustomCoilForm() {
               <h2 className="text-xl font-semibold mb-6">Step 5: Header Size and Materials</h2>
 
               <div className="grid grid-cols-1 gap-y-4">
-                <div className="mb-4">
-                  <div className="w-full h-64 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
-                    <Image src="/custom-coil-info1.png" alt="Header and materials diagram" fill className="object-contain p-2" />
-                  </div>
-                  <p className="text-sm text-gray-500 text-center">Select the appropriate header size and materials</p>
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Header Size</label>
                   <select
@@ -507,16 +497,18 @@ export default function CustomCoilForm() {
                 {formData.coilType === 'cooling' ? (
                   <button
                     type="button"
+                    disabled={!(formData.headerSize && formData.tubeType && formData.finType)}
                     onClick={nextStep}
-                    className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 disabled:bg-blue-100 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                   >
                     Next
                   </button>
                 ) : (
                   <button
                     type="button"
+                    disabled={!(formData.headerSize && formData.tubeType && formData.finType)}
                     onClick={handleSubmit}
-                    className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600  disabled:bg-blue-100 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                   >
                     Submit
                   </button>
@@ -533,7 +525,7 @@ export default function CustomCoilForm() {
               <div className="grid grid-cols-1 gap-y-4">
                 <div className="mb-4">
                   <div className="w-full h-64 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
-                    <Image src="/custom-coil-info1.png" alt="Distributor type diagram" fill className="object-contain p-2" />
+                    <Image src="/customCoilimages/distributionType1.png" alt="Distributor type diagram" fill className="object-contain p-2" />
                   </div>
                   <p className="text-sm text-gray-500 text-center">Specify the distributor configuration for your cooling coil</p>
                 </div>
@@ -569,7 +561,7 @@ export default function CustomCoilForm() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Inlet Connection</label>
                   <div className="flex items-center mt-1">
-                  <input
+                    <input
                       type="number"
                       name="inletConnection"
                       value={formData.inletConnectionDontKnow ? "" : formData.inletConnection}
@@ -604,14 +596,16 @@ export default function CustomCoilForm() {
                   Back
                 </button>
                 <button
+                  disabled={!((formData.distributorHolesDontKnow || formData.distributorHoles) && (formData.inletConnection || formData.inletConnectionDontKnow))}
                   type="submit"
-                  className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                  className="bg-blue-600 disabled:bg-blue-100 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Submit
                 </button>
               </div>
             </form>
           )}
+
 
           {/* Step 7: Confirmation */}
           {step === 7 && (
@@ -671,7 +665,7 @@ export default function CustomCoilForm() {
 
               <div className="flex justify-between">
                 <button
-                  onClick={goBack}
+                  onClick={() => setStep(2)}
                   className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
                 >
                   Edit Configuration
