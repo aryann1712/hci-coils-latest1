@@ -22,7 +22,7 @@ const Navbar2 = () => {
         <div className="sticky top-0 w-full bg-white pt-1 z-50 ">
             <div className="w-full h-[1px] bg-gray-200"></div>
             {/* second row */}
-            <div className=" md:max-w-[75%] px-4 md:px-0  mx-auto py-5 space-y-5  flex justify-between items-center">
+            <div className=" md:max-w-[75%] px-2 md:px-0  mx-auto py-5 space-y-5  flex justify-between items-center">
                 {/* logo */}
                 <Link href="/" className="hidden md:block">
                     <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" /> </Link>
@@ -44,7 +44,7 @@ const Navbar2 = () => {
                             </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem className="">
-                            <NavigationMenuTrigger className="hover:text-blue-700 font-extrabold text-sm ">PRODUCTS</NavigationMenuTrigger>
+                            <NavigationMenuTrigger className="hover:text-blue-700 font-extrabold text-sm px-0">PRODUCTS</NavigationMenuTrigger>
                             <NavigationMenuContent>
                                 <ul className="grid w-[200px] gap-3 p-4">
                                     <li>

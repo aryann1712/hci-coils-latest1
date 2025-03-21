@@ -111,6 +111,12 @@ export default function CustomCoilForm() {
       } else {
         setFormData({ ...formData, [name]: checked });
       }
+    } else if (type === 'number') {
+      // For number inputs, prevent negative values
+      const numValue = parseFloat(value);
+      if (value === '' || (numValue >= 0 && !isNaN(numValue))) {
+        setFormData({ ...formData, [name]: value });
+      }
     } else {
       // Handle regular input changes
       setFormData({ ...formData, [name]: value });
@@ -224,8 +230,8 @@ export default function CustomCoilForm() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                <div className="relative h-48 flex items-center justify-center">
-                  <div className="w-full h-72 mt-28 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
+                <div className="relative h-72 md:h-48 flex items-center justify-center">
+                  <div className="w-full h-72 md:h-72 mt-0 md:mt-28 bg-gray-200 rounded-md mb-4 flex items-center justify-center relative">
                     <Image src="/custom-coil-info1.png" alt="Coil dimensions diagram" fill className="object-cover p-2" />
                   </div>
                 </div>
@@ -236,6 +242,7 @@ export default function CustomCoilForm() {
                     <input
                       type="number"
                       name="height"
+                      min="0"
                       value={formData.height}
                       onChange={handleChange}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -248,6 +255,7 @@ export default function CustomCoilForm() {
                     <input
                       type="number"
                       name="length"
+                      min="0"
                       value={formData.length}
                       onChange={handleChange}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -260,6 +268,7 @@ export default function CustomCoilForm() {
                     <input
                       type="number"
                       name="rows"
+                      min="0"
                       value={formData.rows}
                       onChange={handleChange}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -272,6 +281,7 @@ export default function CustomCoilForm() {
                     <input
                       type="number"
                       name="fpi"
+                      min="0"
                       value={formData.fpi}
                       onChange={handleChange}
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -404,6 +414,7 @@ export default function CustomCoilForm() {
                   <input
                     type="number"
                     name="numberOfCircuits"
+                    min="0"
                     value={formData.numberOfCircuits}
                     onChange={handleChange}
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -564,6 +575,7 @@ export default function CustomCoilForm() {
                     <input
                       type="number"
                       name="inletConnection"
+                      min="0"
                       value={formData.inletConnectionDontKnow ? "" : formData.inletConnection}
                       onChange={handleChange}
                       className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
