@@ -78,7 +78,7 @@ export default function SignUpPage() {
     e.preventDefault();
 
     if (gstStatus != "Active") {
-      alert("Sign Up failed. GST is not active.");
+      alert("Sign Up failed. GST is either not active or verified properly.");
       return;
     }
 
