@@ -17,14 +17,16 @@ export default function SignUpPage() {
     email: ""
   });
 
+  const [gstStatus, setGstStatus] = useState("Active");
+
   // Function to fetch GST information
   const fetchGstInfo = async (gstNumber: string) => {
     if (!gstNumber || gstNumber.length !== 15) return;
-    
+
     console.log("Verifying GST:", gstNumber); // Debug log
     setGstVerifying(true);
     setLoading(true);
-    
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/users/getGSTinfo/${gstNumber}`,
@@ -33,20 +35,21 @@ export default function SignUpPage() {
           headers: { "Content-Type": "application/json" },
         }
       );
-      
+
       const data = await response.json();
       console.log("GST API Response:", data); // Debug log
       setLoading(false);
       setGstVerifying(false);
 
-      
+
       if (!response.ok) {
         setGstVerifying(false);
         console.error("GST verification failed:", data.error);
         alert(data.error || "GST verification failed");
+        setGstStatus("GST verification failed");
         return;
       }
-      
+
       // If successful, auto-fill form fields with the GST data
       if (data.success && data.data) {
         setFormData(prev => ({
@@ -55,6 +58,10 @@ export default function SignUpPage() {
           companyName: data.data.tradeNam || prev.companyName,
           address: data.data.address || prev.address
         }));
+
+        if (data.data.sts) {
+          setGstStatus(data.data.sts);
+        }
       }
     } catch (error) {
       setLoading(false);
@@ -69,8 +76,15 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (gstStatus != "Active") {
+      alert("Sign Up failed. GST is not active.");
+      return;
+    }
+
+
     setLoading(true);
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/signup`, {
         method: "POST",
@@ -84,15 +98,15 @@ export default function SignUpPage() {
           address: formData.address
         }),
       });
-      
+
       const data = await response.json();
       setLoading(false);
-      
+
       if (!response.ok) {
         alert(data.error || "Sign up failed");
         return;
       }
-      
+
       router.push("/auth/signin");
     } catch (error) {
       setLoading(false);
@@ -106,7 +120,7 @@ export default function SignUpPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Check for GST number length and trigger verification
     if (name === "gstNumber" && value.length === 15) {
       console.log("GST number reached 15 chars, triggering verification");
@@ -120,7 +134,7 @@ export default function SignUpPage() {
       <h1 className="text-blue-800 text-3xl font-semibold italic">Sign Up</h1>
       <div className="mx-auto py-16 px-0 lg:px-10 rounded-sm shadow-xl max-w-2xl">
         <form onSubmit={handleSignUp} className="flex flex-col gap-y-12  px-4 lg:px-10">
-        <div className="relative">
+          <div className="relative">
             <div className="flex gap-2">
               <input
                 className="border px-3 py-3 rounded-sm flex-grow"
@@ -171,7 +185,7 @@ export default function SignUpPage() {
             value={formData.email}
             onChange={handleInputChange}
           />
-          
+
           <input
             className="border px-3 py-3 rounded-sm"
             type="text"
