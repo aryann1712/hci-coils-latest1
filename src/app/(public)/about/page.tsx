@@ -1,35 +1,31 @@
 "use client";
-// Updated CompanyPage component with certificates section
+
 import { useState } from "react";
 import { TiTick } from "react-icons/ti";
 import { motion } from 'framer-motion';
-import { IoMdClose } from "react-icons/io";
+import { FaFilePdf } from "react-icons/fa";
 
 export default function CompanyPage() {
-  const [selectedCertificate, setSelectedCertificate] = useState<string | null>(null);
-
-  // Sample certificate data - replace with your actual certificates
+  // Update certificates with your actual PDF files
   const certificates = [
-    { id: "cert1", src: "/certificates/certificate1.jpg", alt: "ISO 9001 Certification" },
-    { id: "cert2", src: "/certificates/certificate2.jpg", alt: "Industry Excellence Award" },
-    { id: "cert3", src: "/certificates/certificate3.jpg", alt: "Quality Assurance Certificate" },
-    { id: "cert4", src: "/certificates/certificate4.jpg", alt: "Environmental Compliance" },
+    { id: "cert1", src: "/certificates/HEAT CRAFT INDUSTRIES  9001 final.pdf", alt: "ISO 9001 Certification", type: "pdf" },
+    { id: "cert2", src: "/certificates/heatCraftIndustries14001Final.pdf", alt: "ISO 14001 Certification", type: "pdf" },
+    { id: "cert3", src: "/certificates/HEAT CRAFT INDUSTRIES 45001 final.pdf", alt: "ISO 45001 Certification", type: "pdf" },
+    { id: "cert4", src: "/certificates/HEAT CRAFT INDUSTRIES CE MARK 504.pdf", alt: "CE Mark Certification", type: "pdf" },
+    { id: "cert5", src: "/certificates/HEAT CRAFT INDUSTRIES ROHS 503.pdf", alt: "ROHS Certification", type: "pdf" },
+    { id: "cert6", src: "/certificates/bis certificate.pdf", alt: "BIS Certificate", type: "pdf" },
+    { id: "cert7", src: "/certificates/FACTORY LICENSE.pdf", alt: "Factory License", type: "pdf" },
+    { id: "cert8", src: "/certificates/FIRE NOC.pdf", alt: "Fire NOC", type: "pdf" },
+    { id: "cert9", src: "/certificates/GST REGISTRATION CERTIFICATE.pdf", alt: "GST Registration", type: "pdf" },
+    { id: "cert10", src: "/certificates/MSME Udyam Registration Certificate LATEST.pdf", alt: "MSME Registration", type: "pdf" },
+    { id: "cert11", src: "/certificates/2025030412 - heat craft industries - reach.pdf", alt: "REACH Certification", type: "pdf" },
+    { id: "cert12", src: "/certificates/2025030414 - heat craft industries - iso 13585-2021.pdf", alt: "ISO 13585 Certification", type: "pdf" },
   ];
 
   // Handle certificate click
-  const handleCertificateClick = (certId: string) => {
-    setSelectedCertificate(certId);
-  };
-
-  // Close modal
-  const closeModal = () => {
-    setSelectedCertificate(null);
-  };
-
-  // Prevent default behavior for context menu (right-click)
-  const preventDownload = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    return false;
+  const handleCertificateClick = (certSrc: string) => {
+    // Open the PDF in a new tab
+    window.open(certSrc, '_blank');
   };
 
   return (
@@ -125,7 +121,7 @@ export default function CompanyPage() {
         <p>Heat Craft Industries maintains the highest standards of quality and compliance in the industry</p>
         
         {/* Certificate Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {certificates.map((cert) => (
             <motion.div
               key={cert.id}
@@ -133,58 +129,20 @@ export default function CompanyPage() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true, amount: 0.2 }}
-              className="cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
-              onClick={() => handleCertificateClick(cert.id)}
-              onContextMenu={preventDownload}
-              onTouchStart={preventDownload}
+              className="cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 bg-white"
+              onClick={() => handleCertificateClick(cert.src)}
             >
-              <div className="relative h-64 w-full">
-                <img 
-                  src={cert.src} 
-                  alt={cert.alt}
-                  className="w-full h-full object-cover" 
-                  draggable="false"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <p className="text-white font-medium text-center px-4">{cert.alt}</p>
+              <div className="relative h-64 w-full bg-gray-100 flex flex-col items-center justify-center p-4">
+                <FaFilePdf className="text-red-600 text-5xl mb-4" />
+                <h3 className="text-center font-medium text-gray-800">{cert.alt}</h3>
+                <div className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-md text-sm flex items-center">
+                  <FaFilePdf className="mr-2" /> Open PDF
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
       </motion.div>
-
-      {/* Certificate Modal */}
-      {selectedCertificate && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
-          onClick={closeModal}
-          onContextMenu={preventDownload}
-          onTouchStart={preventDownload}
-        >
-          <div className="relative max-w-4xl w-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-            <button 
-              className="absolute top-4 right-4 bg-white rounded-full p-1 shadow-lg z-10"
-              onClick={closeModal}
-            >
-              <IoMdClose className="text-2xl" />
-            </button>
-            
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-lg overflow-hidden shadow-2xl"
-            >
-              <img 
-                src={certificates.find(c => c.id === selectedCertificate)?.src} 
-                alt={certificates.find(c => c.id === selectedCertificate)?.alt}
-                className="w-full h-auto" 
-                draggable="false"
-              />
-            </motion.div>
-          </div>
-        </div>
-      )}
 
       <div></div>
     </section>
