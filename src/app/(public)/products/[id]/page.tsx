@@ -5,13 +5,13 @@ import { useParams } from "next/navigation";
 import { ProductAllTypeInterfact } from "@/data/allProducts";
 import { useCart } from '@/context/CartContext';
 
-
 const ProductPage = () => {
     const { addToCart } = useCart();
     const [products, setProducts] = useState<ProductAllTypeInterfact | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const params = useParams();
 
+    // Fetch product data when component mounts
     useEffect(() => {
         async function fetchData() {
             const data = await getProductFromAPI();
@@ -22,7 +22,7 @@ const ProductPage = () => {
             }
         }
         fetchData();
-    }, [getProductFromAPI]);
+    }, [params.id]); // Only depend on the product ID
 
     async function getProductFromAPI() {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${params.id}`, {
@@ -43,54 +43,54 @@ const ProductPage = () => {
     };
 
     return (
-        <div className="max-w-[75%] mx-auto py-10">
-            <div className="mx-auto py-16 px-10 rounded-sm shadow-xl">
-                <div className="grid grid-cols-2 gap-8">
+        <div className="w-full max-w-6xl mx-auto py-5 px-4 sm:px-6 md:py-10">
+            <div className="mx-auto py-8 sm:py-12 md:py-16 px-4 sm:px-6 md:px-10 rounded-sm shadow-xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                    {/* Product Images Section */}
                     <div className="flex flex-col">
                         {/* Main Image with Next.js Image */}
                         {selectedImage && (
-                            <div className="relative h-[400px] w-full">
+                            <div className="relative h-[250px] sm:h-[300px] md:h-[400px] w-full">
                                 <Image
                                     src={selectedImage}
                                     alt={products?.name || "Product Image"}
                                     fill
-                                    className="object-cover"
+                                    className="object-cover rounded-md"
                                     priority
                                 />
                             </div>
                         )}
 
                         {/* List of images */}
-                        <div className="flex gap-x-6 mt-5">
-                            {products?.images.map((image, index) => (
+                        <div className="flex flex-wrap gap-2 sm:gap-4 md:gap-6 mt-4 md:mt-5 justify-center sm:justify-start">
+                            {products?.images && products.images.map((image, index) => (
                                 <div
                                     key={index}
-                                    className="relative h-[100px] w-[100px]"
+                                    className="relative h-[70px] w-[70px] sm:h-[80px] sm:w-[80px] md:h-[100px] md:w-[100px]"
                                     onClick={() => handleImageSelect(image)}
                                 >
                                     <Image
                                         src={image}
                                         alt={`${products?.name} - Image ${index + 1}`}
                                         fill
-                                        className={`object-cover rounded-md hover:cursor-pointer border 
-                      ${selectedImage === image ? 'border-red-500' : 'border-gray-400'}
-                    `}
+                                        className={`object-cover rounded-md hover:cursor-pointer border-2
+                                            ${selectedImage === image ? 'border-red-500' : 'border-gray-400'}
+                                        `}
                                     />
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="space-y-5">
-                        <h1 className="text-3xl font-semibold italic">{products?.name}</h1>
-                        <p className="text-gray-400">{products?.description}</p>
-                        <p className="text-gray-400">Category: {products?.category}</p>
-                        <p className="text-gray-400">SKU: {products?.sku}</p>
-                        <div></div>
-                        <div></div>
-                        <div></div>
+
+                    {/* Product Details Section */}
+                    <div className="space-y-1 md:space-y-5 mt-6 md:mt-0">
+                        <h1 className="text-2xl md:text-3xl font-semibold italic">{products?.name}</h1>
+                        <p className="text-gray-400 pb-10 md:pb-30">{products?.description}</p>
+                        {/* <p className="text-gray-400">Category: {products?.category}</p> */}
+                        {/* <p className="text-gray-400">SKU: {products?.sku}</p> */}
+                        
                         <button
-                            className="mt-32 bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md "
-                            // onClick={() => console.log("Add to cart")}
+                            className="mt-6 sm:mt-16 md:mt-12 w-full md:w-auto bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md"
                             onClick={() => addToCart({
                                 _id: products?._id!,
                                 name: products?.name!,
@@ -99,7 +99,7 @@ const ProductPage = () => {
                                 category: products?.category || '',
                                 sku: products?.sku!,
                                 quantity: 1
-                              })}
+                            })}
                         >
                             Add to Cart
                         </button>
