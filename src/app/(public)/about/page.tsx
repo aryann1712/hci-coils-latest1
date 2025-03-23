@@ -3,29 +3,74 @@
 import { useState } from "react";
 import { TiTick } from "react-icons/ti";
 import { motion } from 'framer-motion';
-import { FaFilePdf } from "react-icons/fa";
+import { FaImage } from "react-icons/fa";
+import { IoMdClose } from "react-icons/io";
 
 export default function CompanyPage() {
-  // Update certificates with your actual PDF files
+  // State for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCertificate, setSelectedCertificate] = useState<any>(null);
+
   const certificates = [
-    { id: "cert1", src: "/certificates/HEAT CRAFT INDUSTRIES  9001 final.pdf", alt: "ISO 9001 Certification", type: "pdf" },
-    { id: "cert2", src: "/certificates/heatCraftIndustries14001Final.pdf", alt: "ISO 14001 Certification", type: "pdf" },
-    { id: "cert3", src: "/certificates/HEAT CRAFT INDUSTRIES 45001 final.pdf", alt: "ISO 45001 Certification", type: "pdf" },
-    { id: "cert4", src: "/certificates/HEAT CRAFT INDUSTRIES CE MARK 504.pdf", alt: "CE Mark Certification", type: "pdf" },
-    { id: "cert5", src: "/certificates/HEAT CRAFT INDUSTRIES ROHS 503.pdf", alt: "ROHS Certification", type: "pdf" },
-    { id: "cert6", src: "/certificates/bis certificate.pdf", alt: "BIS Certificate", type: "pdf" },
-    { id: "cert7", src: "/certificates/FACTORY LICENSE.pdf", alt: "Factory License", type: "pdf" },
-    { id: "cert8", src: "/certificates/FIRE NOC.pdf", alt: "Fire NOC", type: "pdf" },
-    { id: "cert9", src: "/certificates/GST REGISTRATION CERTIFICATE.pdf", alt: "GST Registration", type: "pdf" },
-    { id: "cert10", src: "/certificates/MSME Udyam Registration Certificate LATEST.pdf", alt: "MSME Registration", type: "pdf" },
-    { id: "cert11", src: "/certificates/2025030412 - heat craft industries - reach.pdf", alt: "REACH Certification", type: "pdf" },
-    { id: "cert12", src: "/certificates/2025030414 - heat craft industries - iso 13585-2021.pdf", alt: "ISO 13585 Certification", type: "pdf" },
+    { id: "cert1", src: "/certificates/2025030412 - heat craft industries - reach.png", alt: "REACH Compliance Certificate", pages: 1 },
+    { id: "cert2", src: "/certificates/2025030414 - heat craft industries - iso 13585-2021.png", alt: "ISO 13585-2021 Certificate", pages: 1 },
+    { id: "cert3", src: "/certificates/FACTORY LICENSE.png", alt: "Factory License", pages: 1 },
+    { id: "cert4", src: "/certificates/FIRE NOC.png", alt: "Fire NOC Certificate", pages: 1 },
+    { id: "cert5", src: "/certificates/HEAT CRAFT INDUSTRIES  9001 final.png", alt: "ISO 9001 Certificate", pages: 1 },
+    { id: "cert6", src: "/certificates/HEAT CRAFT INDUSTRIES 45001 final.png", alt: "ISO 45001 Certificate", pages: 1 },
+    { id: "cert7", src: "/certificates/HEAT CRAFT INDUSTRIES CE MARK 504.png", alt: "CE Mark Certificate", pages: 1 },
+    { id: "cert8", src: "/certificates/HEAT CRAFT INDUSTRIES ROHS 503.png", alt: "RoHS Compliance Certificate", pages: 1 },
+    { id: "cert9", src: "/certificates/heatCraftIndustries14001Final.png", alt: "ISO 14001 Certificate", pages: 1 },
+    { id: "cert10", src: "/certificates/UQ - 2025030413 - HEAT CRAFT INDUSTRIES -  EN 13134-2000 UKCERT.png", alt: "EN 13134-2000 UK Certificate", pages: 1 },
+    { id: "cert11", src: "/certificates/bis/bis certificate_1.png", alt: "BIS Certificate", pages: 4, multiplePages: true, pagePattern: "/certificates/bis/bis certificate_{page}.png" },
+    { id: "cert12", src: "/certificates/gst/GST REGISTRATION CERTIFICATE_1.png", alt: "GST Registration Certificate", pages: 3, multiplePages: true, pagePattern: "/certificates/gst/GST REGISTRATION CERTIFICATE_{page}.png" },
+    { id: "cert13", src: "/certificates/udyam/MSME Udyam Registration Certificate LATEST_1.png", alt: "MSME Udyam Registration Certificate", pages: 2, multiplePages: true, pagePattern: "/certificates/udyam/MSME Udyam Registration Certificate LATEST_{page}.png" },
   ];
 
   // Handle certificate click
-  const handleCertificateClick = (certSrc: string) => {
-    // Open the PDF in a new tab
-    window.open(certSrc, '_blank');
+  const handleCertificateClick = (certificate: any) => {
+    setSelectedCertificate(certificate);
+    setIsModalOpen(true);
+  };
+
+  // Handle closing the modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedCertificate(null);
+  };
+
+  // Handle click outside modal to close
+  const handleModalBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
+  };
+
+  // Prevent context menu (right-click)
+  const preventContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    return false;
+  };
+
+  // For multi-page certificates, generate array of page sources
+  const getPageSources = (certificate: any) => {
+    if (!certificate) return [];
+    
+    if (certificate.pages === 1) {
+      return [certificate.src];
+    }
+    
+    if (certificate.multiplePages && certificate.pagePattern) {
+      return Array.from({ length: certificate.pages }, (_, i) => 
+        certificate.pagePattern.replace('{page}', i + 1)
+      );
+    }
+    
+    // Fallback for older format
+    const baseSrc = certificate.src.replace('.png', '');
+    return Array.from({ length: certificate.pages }, (_, i) => 
+      `${baseSrc}_${i + 1}.png`
+    );
   };
 
   return (
@@ -130,19 +175,72 @@ export default function CompanyPage() {
               transition={{ duration: 0.5 }}
               viewport={{ once: true, amount: 0.2 }}
               className="cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 bg-white"
-              onClick={() => handleCertificateClick(cert.src)}
+              onClick={() => handleCertificateClick(cert)}
             >
-              <div className="relative h-64 w-full bg-gray-100 flex flex-col items-center justify-center p-4">
-                <FaFilePdf className="text-red-600 text-5xl mb-4" />
+              <div className="relative h-64 w-full flex flex-col items-center justify-center p-4">
+                <div 
+                  className="h-40 w-full bg-gray-100 mb-4 overflow-hidden flex items-center justify-center"
+                  onContextMenu={preventContextMenu}
+                >
+                  <img 
+                    src={cert.src} 
+                    alt={cert.alt} 
+                    className="object-contain h-full w-full select-none" 
+                    draggable="false"
+                  />
+                </div>
                 <h3 className="text-center font-medium text-gray-800">{cert.alt}</h3>
                 <div className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-md text-sm flex items-center">
-                  <FaFilePdf className="mr-2" /> Open PDF
+                  <FaImage className="mr-2" /> View Certificate
                 </div>
               </div>
             </motion.div>
           ))}
         </div>
       </motion.div>
+
+      {/* Modal for full-size certificate viewing */}
+      {isModalOpen && selectedCertificate && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+          onClick={handleModalBackdropClick}
+          onContextMenu={preventContextMenu}
+        >
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="text-xl font-semibold">{selectedCertificate.alt}</h3>
+              <button 
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                <IoMdClose className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div 
+              className="overflow-y-auto p-4 flex-grow" 
+              style={{ userSelect: 'none' }}
+            >
+              {getPageSources(selectedCertificate).map((pageSrc, index) => (
+                <div key={index} className="mb-4 last:mb-0">
+                  <img 
+                    src={pageSrc} 
+                    alt={`${selectedCertificate.alt} - Page ${index + 1}`} 
+                    className="mx-auto max-w-full pointer-events-none select-none" 
+                    draggable="false"
+                    onDragStart={() => false}
+                  />
+                  {selectedCertificate.pages > 1 && (
+                    <p className="text-center text-sm text-gray-500 mt-2">
+                      Page {index + 1} of {selectedCertificate.pages}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div></div>
     </section>
