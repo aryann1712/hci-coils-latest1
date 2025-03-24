@@ -8,7 +8,7 @@ const DashboardLowerBottom = () => {
       {/* item 1 */}
       <div className='col-span-2 text-white space-y-5 px-3 lg:px-10 max-w-2xl'>
         <h2 className='text-2xl lg:text-3xl font-extrabold'>Heat Craft Industries</h2>
-        <p className='text-sm lg:text-base font-thin '>In today&apos;s fast-paced world, the demand for efficient heating solutions is more critical than ever. The heat craft industry has emerged as a vital sector, providing innovative heating technologies that cater to various needs </p>
+        <p className='text-sm lg:text-base font-thin '>In today&apos;s fast-paced world, the demand for efficient heating solutions is more critical than ever. The Heat Craft Industries has emerged as a vital sector, providing innovative heating technologies that cater to various needs </p>
       </div>
 
       {/* item 2 */}
@@ -23,7 +23,7 @@ const DashboardLowerBottom = () => {
               href="tel:9310741664"
               className="block text-lg font-bold  cursor-pointer"
             >
-              931-074-1664
+              +91-9310741664
             </a>
           </div>
         </div>

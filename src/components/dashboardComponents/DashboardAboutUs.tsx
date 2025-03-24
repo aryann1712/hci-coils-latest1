@@ -54,7 +54,7 @@ const DashboardAboutUs = () => {
                     className='lg:col-span-2 space-y-4 text-center lg:text-left px-4'
                 >
                     <p className='text-base font-light text-gray-500'>
-                        At Heat Craft Industry, we specialize in providing cutting-edge heating solutions designed to meet the diverse needs of residential, commercial, and industrial applications. With a commitment to energy efficiency, reliability, and customer satisfaction, we are dedicated to helping you create comfortable and sustainable environments.
+                        At Heat Craft Industries, we specialize in providing cutting-edge heating solutions designed to meet the diverse needs of residential, commercial, and industrial applications. With a commitment to energy efficiency, reliability, and customer satisfaction, we are dedicated to helping you create comfortable and sustainable environments.
                     </p>
                 </motion.div>
                 <motion.div

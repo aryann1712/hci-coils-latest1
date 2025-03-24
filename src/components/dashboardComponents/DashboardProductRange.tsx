@@ -36,9 +36,9 @@ const DashboardProductRange = () => {
         {/* Item 4 */}
         <div className='flex flex-col items-center justify-center gap-2'>
           <div className='p-2 bg-gray-100 rounded-full'>
-            <Image src={"/icons/seo-grey.png"} alt='Condensors Icon' height={300} width={300} className='h-16 w-16' />
+            <Image src={"/icons/seo-grey.png"} alt='Condensers Icon' height={300} width={300} className='h-16 w-16' />
           </div>
-          <h3 className='text-2xl font-bold text-center'>Condensors</h3>
+          <h3 className='text-2xl font-bold text-center'>Condensers</h3>
           <p className='text-base font-light text-gray-500 text-center'>Built to withstand the rigors of commercial use, our condensers are designed for maximum efficiency and longevity.</p>
         </div>
       </div>

@@ -65,7 +65,7 @@ export default function ContactPage() {
           {/* Phone Number */}
           <div>
             <h3 className="text-base text-black font-normal">Phone</h3>
-            <h3 className="text-lg text-blue-800 font-extrabold">931-074-1664</h3>
+            <h3 className="text-lg text-blue-800 font-extrabold">+91-9310741664</h3>
           </div>
 
           {/* Email */}

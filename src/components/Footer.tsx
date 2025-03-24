@@ -52,7 +52,7 @@ const Footer = () => {
               href="tel:9310741664"
               className="block hover:text-blue-700 text-lg font-bold  cursor-pointer"
             >
-              931-074-1664
+              +91-9310741664
             </a>            </div >
           <div className="mt-3 flex gap-3 text-gray-500 items-center">
            <a
@@ -93,7 +93,7 @@ const Footer = () => {
 
 
 
-      <p className="text-xs text-gray-400">All Right Reserved | Copyright@2025</p>
+      <p className="text-xs text-gray-400">All Rights Reserved | Copyright@2025</p>
     </div>
   )
 }
