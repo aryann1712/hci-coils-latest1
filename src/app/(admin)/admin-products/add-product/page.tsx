@@ -11,8 +11,6 @@ type ImagePreview = {
   previewUrl: string;
 };
 
-
-
 export default function AdminAddProduct() {
   const { user } = useUser();
   const router = useRouter();
@@ -28,6 +26,9 @@ export default function AdminAddProduct() {
   const [categoryInput, setCategoryInput] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  // Track total upload size
+  const [totalSize, setTotalSize] = useState(0);
+  const MAX_TOTAL_SIZE = 7 * 1024 * 1024; // 7MB in bytes
 
   const toggleCategory = (category: string) => {
     if (categories.includes(category)) {
@@ -41,8 +42,6 @@ export default function AdminAddProduct() {
     setIsOpen(!isOpen);
   };
 
- 
-
   useEffect(() => {
     setMounted(true);
     if (!user) {
@@ -54,24 +53,36 @@ export default function AdminAddProduct() {
     }
   }, [user, router]);
 
-  // Handle file selection
+  // Handle file selection with size limit
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
+    
+    // Calculate size of new files
+    const newFilesSize = selectedFiles.reduce((sum, file) => sum + file.size, 0);
+    
+    // Check if adding these new files would exceed the limit
+    if (totalSize + newFilesSize > MAX_TOTAL_SIZE) {
+      alert(`Total image size cannot exceed 7MB. Current: ${(totalSize/1024/1024).toFixed(2)}MB, Trying to add: ${(newFilesSize/1024/1024).toFixed(2)}MB`);
+      return;
+    }
 
     const newPreviews: ImagePreview[] = selectedFiles.map((file) => ({
       file,
       previewUrl: URL.createObjectURL(file),
     }));
 
-    // append new files to existing images
+    // append new files to existing images and update total size
     setImages((prev) => [...prev, ...newPreviews]);
+    setTotalSize(prevSize => prevSize + newFilesSize);
   };
 
   // Remove an image by index
   const removeImage = (index: number) => {
     setImages((prev) => {
       const newArr = [...prev];
+      // Update total size by subtracting the removed file's size
+      setTotalSize(prevSize => prevSize - newArr[index].file.size);
       newArr.splice(index, 1);
       return newArr;
     });
@@ -110,7 +121,6 @@ export default function AdminAddProduct() {
 
     setLoading(true);
 
-
     if (!sku || !name || !description || !price || !images.length) {
       alert("Please fill in all fields");
       setLoading(false);
@@ -124,10 +134,6 @@ export default function AdminAddProduct() {
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price.toString());
-
-    // categories as JSON or repeated key
-    // formData.append("categories", categories.join(","));
-    // formData.append("categories", categories);
 
     categories.forEach((item) => {
       formData.append("categories", item);
@@ -197,6 +203,17 @@ export default function AdminAddProduct() {
           {/* Images */}
           <div>
             <label className="block font-medium mb-1">Images</label>
+            <div className="mb-2 flex justify-between items-center">
+              <div className={`text-sm ${totalSize > MAX_TOTAL_SIZE ? "text-red-500" : "text-gray-500"}`}>
+                Total size: {(totalSize / (1024 * 1024)).toFixed(2)}MB / 7MB
+              </div>
+              <div className="h-2 bg-gray-200 rounded-full w-40">
+                <div 
+                  className={`h-2 rounded-full ${totalSize > MAX_TOTAL_SIZE ? "bg-red-500" : "bg-green-500"}`}
+                  style={{ width: `${Math.min(100, (totalSize / MAX_TOTAL_SIZE) * 100)}%` }}
+                ></div>
+              </div>
+            </div>
             <input
               type="file"
               multiple
@@ -214,6 +231,9 @@ export default function AdminAddProduct() {
                     width={1000}
                     className="w-32 h-32 object-cover"
                   />
+                  <span className="absolute bottom-10 left-2 bg-black bg-opacity-50 text-white text-xs p-1 rounded">
+                    {(img.file.size / 1024 / 1024).toFixed(2)}MB
+                  </span>
                   <button
                     type="button"
                     className="absolute top-1 right-1 text-white bg-red-500 rounded-full px-2"

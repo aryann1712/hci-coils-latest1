@@ -52,8 +52,43 @@ const AdminCustomerCard = ({ userAllInfoTypes, currentUserId }: { userAllInfoTyp
   };
 
   return (
-    <div className='shadow-md rounded-md gap-x-5 my-5 py-5 px-5 border-dashed border flex flex-col'>
-        <div className='grid grid-cols-2 md:grid-cols-4 my-5 text-base md:text-2xl font-semibold text-gray-500 font-serif'>
+    <div>
+      <div className='hidden lg:flex shadow-md rounded-md gap-x-5 my-5 py-5 px-5 border-dashed border flex-col'>
+        <div className='grid grid-cols-2 lg:grid-cols-5 my-5 text-base md:text-2xl font-semibold text-gray-500 font-serif'>
+          <h2>Name</h2>
+          <h2>Email</h2>
+          <h2></h2>
+          <h2>Phone</h2>
+          <h2>Status</h2>
+        </div>
+
+        {users.map((data, index) => (
+          <div key={index} className='grid grid-cols-2 lg:grid-cols-5 mt-10 md:mt-0 my-2 text-xs md:text-base font-semibold text-black font-serif'>
+            <h2>{data.name}</h2>
+            <h2 className='mr-8'>{data.email}</h2>
+            <h2>{ }</h2>
+            <h2>{data.phone}</h2>
+            {data.role === "admin" ? (
+              <h2>{data.status}</h2>
+            ) : (
+              <select
+                value={data.role}
+                onChange={(e) => handleStatusChange(data._id, e.target.value)}
+                className='border p-1 rounded'
+              >
+                <option value="true">Active</option>
+                <option value="false">Not Active</option>
+              </select>
+            )}
+          </div>
+        ))}
+      </div>
+
+
+
+
+      <div className='flex  lg:hidden shadow-md rounded-md gap-x-5 my-5 py-5 px-5 border-dashed border  flex-col'>
+        <div className='grid grid-cols-2 lg:grid-cols-5 my-5 text-base md:text-2xl font-semibold text-gray-500 font-serif'>
           <h2>Name</h2>
           <h2>Email</h2>
           <h2>Phone</h2>
@@ -61,7 +96,7 @@ const AdminCustomerCard = ({ userAllInfoTypes, currentUserId }: { userAllInfoTyp
         </div>
 
         {users.map((data, index) => (
-          <div key={index} className='grid grid-cols-2 md:grid-cols-4 mt-10 md:mt-0 my-2 text-xs md:text-base font-semibold text-black font-serif'>
+          <div key={index} className='grid grid-cols-2 lg:grid-cols-5 mt-10 md:mt-0 my-2 text-xs md:text-base font-semibold text-black font-serif'>
             <h2>{data.name}</h2>
             <h2>{data.email}</h2>
             <h2>{data.phone}</h2>
@@ -79,7 +114,9 @@ const AdminCustomerCard = ({ userAllInfoTypes, currentUserId }: { userAllInfoTyp
             )}
           </div>
         ))}
+      </div>
     </div>
+
   );
 };
 
