@@ -1,9 +1,10 @@
 "use client";
 
 
+import EnquiryItemCard from '@/components/EnquiryItemCard';
 import OrderItemCard from '@/components/OrderItemCard';
 import { useUser } from '@/context/UserContext';
-import { OrderItemType } from '@/lib/interfaces/OrderInterface';
+import { EnquiryItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,7 +15,7 @@ const EnquirePage = () => {
     const { user } = useUser();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
-    const [userOrders, setUserOrders] = useState<OrderItemType[]>([]);
+    const [userOrders, setUserOrders] = useState<EnquiryItemType[]>([]);
 
     useEffect(() => {
         setMounted(true);
@@ -38,7 +39,7 @@ const EnquirePage = () => {
 
 
 
-    async function getUserOrder(): Promise<OrderItemType[]> {
+    async function getUserOrder(): Promise<EnquiryItemType[]> {
         if(user) {
             const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/userid/${user.userId}`, {
                 method: "GET",
@@ -75,7 +76,7 @@ const EnquirePage = () => {
                             </div>
                         ) : (
                             <div className=''>
-                                {userOrders.map((orderData, index) => <OrderItemCard key={index} orderItem={orderData} />)}
+                                {userOrders.map((orderData, index) => <EnquiryItemCard key={index} orderItem={orderData} />)}
                             </div>
                         )}
                 </div>

@@ -1,10 +1,10 @@
 "use client";
 import { useCart } from '@/context/CartContext';
-import { OrderItemType } from '@/lib/interfaces/OrderInterface';
+import { EnquiryItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
 import Image from 'next/image';
 import { FaReply } from "react-icons/fa";
 
-const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
+const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
   const { addToCart, addCustomCoilToCart } = useCart();
 
 
@@ -23,7 +23,7 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
     <div className='shadow-md rounded-md my-5 py-5  px-1 md:px-5 border-dashed border flex flex-row gap-5 items-center justify-center'>
       <div className=''>
         <div className='text-xs md:text-sm text-gray-400'>
-          <h1>Order Id: {orderItem.orderId}</h1>
+          <h1>Order Id: {orderItem.enquiryId}</h1>
           <h1>Purchase Date: {orderItem.createdAt}</h1>
           <h1>GST No: {orderItem.user.gstNumber}</h1>
 
@@ -77,7 +77,7 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
               <h1 className="text-sm md:text-lg font-semibold mb-3">{item.coilType} coil</h1>
               <div className="text-xs md:text-sm text-gray-600 grid grid-cols-1">
                 <div className="grid grid-cols-2 gap-x-10 gap-y-3 md:gap-y-3">
-
+                  
                   <span className="font-semibold">Height:</span>
                   <span>{item.height}</span>
 
@@ -145,4 +145,4 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
   )
 }
 
-export default OrderItemCard
+export default EnquiryItemCard
