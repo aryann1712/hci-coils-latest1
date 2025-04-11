@@ -134,6 +134,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
            coil1.numberOfCircuits === coil2.numberOfCircuits &&
            coil1.headerSize === coil2.headerSize &&
            coil1.tubeType === coil2.tubeType &&
+           coil1.pipeType === coil2.pipeType &&
            coil1.finType === coil2.finType &&
            coil1.distributorHoles === coil2.distributorHoles &&
            coil1.distributorHolesDontKnow === coil2.distributorHolesDontKnow &&

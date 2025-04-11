@@ -23,6 +23,7 @@ export default function CustomCoilForm() {
     numberOfCircuits: '',
     headerSize: '',
     tubeType: '',
+    pipeType: '', // Added new field for pipe type
     finType: '',
     distributorHoles: '',
     distributorHolesDontKnow: false,
@@ -86,6 +87,22 @@ export default function CustomCoilForm() {
     }
   }, [step]);
 
+  // Effect to set default pipe type based on tube type selection
+  useEffect(() => {
+    if (formData.tubeType === 'copper-7mm') {
+      setFormData(prevState => ({
+        ...prevState,
+        pipeType: 'igt'
+      }));
+    } else if (formData.tubeType === 'copper-3/8' && !formData.pipeType) {
+      // Only set default if no pipe type is selected yet
+      setFormData(prevState => ({
+        ...prevState,
+        pipeType: 'plain-lwc'
+      }));
+    }
+  }, [formData.tubeType]);
+
   const handleCoilTypeSelection = (type: string) => {
     setFormData({ ...formData, coilType: type });
     setStep(2);
@@ -118,8 +135,17 @@ export default function CustomCoilForm() {
         setFormData({ ...formData, [name]: value });
       }
     } else {
-      // Handle regular input changes
-      setFormData({ ...formData, [name]: value });
+      // Handle tube type change - reset pipe type when tube type changes
+      if (name === 'tubeType') {
+        setFormData({
+          ...formData,
+          [name]: value,
+          pipeType: value === 'copper-7mm' ? 'igt' : '' // Reset pipe type when tube type changes
+        });
+      } else {
+        // Handle regular input changes
+        setFormData({ ...formData, [name]: value });
+      }
     }
   };
 
@@ -132,7 +158,6 @@ export default function CustomCoilForm() {
       setCircuitDropdownOpen(false);
     }
   };
-
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -294,9 +319,8 @@ export default function CustomCoilForm() {
               <div className="mt-8 flex justify-between">
                 <button
                   type="button"
-                  disabled={!(formData.endplateType == "" || formData.endplateType == undefined)}
                   onClick={goBack}
-                  className="bg-gray-200 disabled:bg-gray-50 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+                  className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
                 >
                   Back
                 </button>
@@ -312,7 +336,7 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-          {/* Step 3: Endplate Type - Fix height and display with proper TypeScript */}
+          {/* Step 3: Endplate Type */}
           {step === 3 && (
             <form>
               <h2 className="text-xl font-semibold mb-6">Step 3: Select Endplate Type</h2>
@@ -323,10 +347,10 @@ export default function CustomCoilForm() {
                     {endplateOptions.map(option => (
                       <div
                         key={option.value}
-                        className="border border-gray-300 rounded-md p-3 hover:bg-gray-50 cursor-pointer"
+                        className="relative border border-gray-300 rounded-md p-3 hover:bg-gray-50 cursor-pointer"
                         onClick={() => handleOptionSelect('endplateType', option.value)}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center relative group">
                           <input
                             type="radio"
                             id={`endplate-${option.value}`}
@@ -336,9 +360,27 @@ export default function CustomCoilForm() {
                             onChange={() => handleOptionSelect('endplateType', option.value)}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                           />
-                          <div className="w-16 h-16 bg-gray-200 rounded-md mx-3 relative">
-                            <Image src={option.image} alt={option.label} fill className="object-contain p-1" />
+                          <div className="w-16 h-16 bg-gray-200 rounded-md mx-3 relative overflow-hidden">
+                            <Image
+                              src={option.image}
+                              alt={option.label}
+                              fill
+                              className="object-contain p-1"
+                            />
                           </div>
+
+                          {/* Hover Preview */}
+                          <div className="absolute z-50 top-0 left-20 hidden group-hover:block">
+                            <div className="w-64 h-64 border bg-white shadow-lg rounded-md overflow-hidden">
+                              <Image
+                                src={option.image}
+                                alt={`Preview of ${option.label}`}
+                                fill
+                                className="object-contain p-2"
+                              />
+                            </div>
+                          </div>
+
                           <label
                             htmlFor={`endplate-${option.value}`}
                             className="ml-2 cursor-pointer flex-1"
@@ -347,6 +389,7 @@ export default function CustomCoilForm() {
                           </label>
                         </div>
                       </div>
+
                     ))}
                   </div>
                 </div>
@@ -371,7 +414,7 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-          {/* Step 4: Circuit Type - Fix height and display with proper TypeScript */}
+          {/* Step 4: Circuit Type */}
           {step === 4 && (
             <form>
               <h2 className="text-xl font-semibold mb-6">Step 4: Select Circuit Type</h2>
@@ -382,10 +425,10 @@ export default function CustomCoilForm() {
                     {circuitOptions.map(option => (
                       <div
                         key={option.value}
-                        className="border border-gray-300 rounded-md p-3 hover:bg-gray-50 cursor-pointer"
+                        className="relative border border-gray-300 rounded-md p-3 hover:bg-gray-50 cursor-pointer"
                         onClick={() => handleOptionSelect('circuitType', option.value)}
                       >
-                        <div className="flex items-center">
+                        <div className="flex items-center group relative">
                           <input
                             type="radio"
                             id={`circuit-${option.value}`}
@@ -395,9 +438,22 @@ export default function CustomCoilForm() {
                             onChange={() => handleOptionSelect('circuitType', option.value)}
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                           />
-                          <div className="w-16 h-16 bg-gray-200 rounded-md mx-3 relative">
+                          <div className="w-16 h-16 bg-gray-200 rounded-md mx-3 relative overflow-hidden">
                             <Image src={option.image} alt={option.label} fill className="object-contain p-1" />
                           </div>
+
+                          {/* Hover Preview Image */}
+                          <div className="absolute z-50 top-0 left-20 hidden group-hover:block">
+                            <div className="w-64 h-64 border bg-white shadow-xl rounded-md overflow-hidden">
+                              <Image
+                                src={option.image}
+                                alt={`Preview of ${option.label}`}
+                                fill
+                                className="object-contain p-2"
+                              />
+                            </div>
+                          </div>
+
                           <label
                             htmlFor={`circuit-${option.value}`}
                             className="ml-2 cursor-pointer flex-1"
@@ -407,6 +463,8 @@ export default function CustomCoilForm() {
                         </div>
                       </div>
                     ))}
+
+
                   </div>
                 </div>
                 <div>
@@ -442,7 +500,7 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-          {/* Step 5: Header Size and Materials */}
+          {/* Step 5: Header Size and Materials - Updated to handle tube type selection */}
           {step === 5 && (
             <form>
               <h2 className="text-xl font-semibold mb-6">Step 5: Header Size and Materials</h2>
@@ -475,11 +533,35 @@ export default function CustomCoilForm() {
                     required
                   >
                     <option value="">Select Tube Type</option>
-                    <option value="copper-3/8">Copper Tube 3/8"</option>
-                    <option value="copper-7mm">Copper Tube 7mm</option>
-                    <option value="copper-plain">Copper Pipe Plain LWC</option>
+                    <option value="copper-3/8">COPPER TUBE 3/8"</option>
+                    <option value="copper-7mm">COPPER TUBE 7MM</option>
                   </select>
                 </div>
+
+                {/* Conditional Pipe Type field based on tube type selection */}
+                {formData.tubeType && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Pipe Type</label>
+                    <select
+                      name="pipeType"
+                      value={formData.pipeType}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                      required
+                      disabled={formData.tubeType === 'copper-7mm'} // Disable if 7mm is selected
+                    >
+                      {formData.tubeType === 'copper-3/8' ? (
+                        <>
+                          <option value="">Select Pipe Type</option>
+                          <option value="plain-lwc">PLAIN LWC</option>
+                          <option value="igt">IGT</option>
+                        </>
+                      ) : (
+                        <option value="igt">IGT</option> // Default for 7mm
+                      )}
+                    </select>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Fin Type</label>
@@ -491,8 +573,8 @@ export default function CustomCoilForm() {
                     required
                   >
                     <option value="">Select Fin Type</option>
-                    <option value="aluminum-bare">Aluminium Fin Bare</option>
-                    <option value="hydrophilic-blue">Hydrophilic Blue Coated</option>
+                    <option value="aluminum-bare">ALUMINIUM FIN BARE</option>
+                    <option value="hydrophilic-blue">HYDROPHILIC BLUE COATED</option>
                   </select>
                 </div>
               </div>
@@ -508,7 +590,7 @@ export default function CustomCoilForm() {
                 {formData.coilType === 'cooling' ? (
                   <button
                     type="button"
-                    disabled={!(formData.headerSize && formData.tubeType && formData.finType)}
+                    disabled={!(formData.headerSize && formData.tubeType && formData.pipeType && formData.finType)}
                     onClick={nextStep}
                     className="bg-blue-600 disabled:bg-blue-100 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                   >
@@ -517,7 +599,7 @@ export default function CustomCoilForm() {
                 ) : (
                   <button
                     type="button"
-                    disabled={!(formData.headerSize && formData.tubeType && formData.finType)}
+                    disabled={!(formData.headerSize && formData.tubeType && formData.pipeType && formData.finType)}
                     onClick={handleSubmit}
                     className="bg-blue-600  disabled:bg-blue-100 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                   >
@@ -628,7 +710,7 @@ export default function CustomCoilForm() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold mb-2">Configuration Complete!</h2>
-              <p className="text-gray-600 mb-6">Your custom coil configuration has been submitted successfully.</p>
+              <p className="text-gray-600 mb-6">Your custom coil configuration data is below.</p>
 
               <div className="bg-gray-50 rounded-lg p-6 text-left mb-6">
                 <h3 className="font-medium mb-3">Configuration Summary</h3>
@@ -659,6 +741,9 @@ export default function CustomCoilForm() {
 
                   <div className="font-medium">Tube Type:</div>
                   <div>{formData.tubeType}</div>
+
+                  <div className="font-medium">Pipe Type:</div>
+                  <div>{formData.pipeType}</div>
 
                   <div className="font-medium">Fin Type:</div>
                   <div>{formData.finType}</div>

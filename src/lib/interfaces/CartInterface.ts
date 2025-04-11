@@ -21,6 +21,7 @@ export interface CustomCoilItemType {
   numberOfCircuits: string;
   headerSize: string;
   tubeType: string;
+  pipeType: string;
   finType: string;
   distributorHoles: string;
   distributorHolesDontKnow: boolean;

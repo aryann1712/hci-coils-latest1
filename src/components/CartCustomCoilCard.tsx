@@ -60,6 +60,7 @@ const CartProductCustomCoilCard: React.FC<CartProductItemCardProps> = ({
                     <p><span className="font-semibold mr-2">numberOfCircuits:</span> {cardData.numberOfCircuits}</p>
                     <p><span className="font-semibold mr-2">headerSize:</span> {cardData.headerSize}</p>
                     <p><span className="font-semibold mr-2">tubeType:</span> {cardData.tubeType}</p>
+                    <p><span className="font-semibold mr-2">pipeType:</span> {cardData.pipeType}</p>
                     <p><span className="font-semibold mr-2">finType:</span> {cardData.finType}</p>
                     <p><span className="font-semibold mr-2">distributorHoles:</span> {cardData.distributorHoles}</p>
                     <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {cardData.distributorHolesDontKnow ? 'Yes' : 'No'}</p>

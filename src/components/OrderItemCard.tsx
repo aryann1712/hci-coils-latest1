@@ -105,6 +105,9 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
                   <span className="font-semibold">Tube Type:</span>
                   <span>{item.tubeType}</span>
 
+                  <span className="font-semibold">Pipe Type:</span>
+                  <span>{item.pipeType}</span>
+
                   <span className="font-semibold">Fin Type:</span>
                   <span>{item.finType}</span>
 

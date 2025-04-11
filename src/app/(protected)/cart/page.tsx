@@ -12,6 +12,7 @@ import { CgSmile } from "react-icons/cg";
 
 const CartPage: React.FC = () => {
   const { cartItems, setAllToCart } = useCart();
+  const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { user } = useUser();
@@ -19,165 +20,171 @@ const CartPage: React.FC = () => {
 
 
   const handlePurchase = () => {
-
+    if (!user) {
+      console.log("No user found... try to sign in");
+      router.push("/auth/signin");
+      return;
+    }
+  
+    setLoading(true); // Show spinner
+  
     async function placeOrders() {
-      if (user && (cartItems.items.length + cartItems.customCoils.length) > 0) {
-        console.log("cartItems --> ", cartItems);
-
-        const tempItems: {
-          product: string;
-          quantity: number;
-        }[] = [];
-
-
-        const customItems: CustomCoilItemType[] = [];
-
-        cartItems.items.map((item) => {
-          const temp = {
+      try {
+        if ((cartItems.items.length + cartItems.customCoils.length) > 0) {
+          console.log("cartItems --> ", cartItems);
+  
+          const tempItems = cartItems.items.map((item) => ({
             product: item._id,
-            quantity: item.quantity
+            quantity: item.quantity,
+          }));
+  
+          const customItems: CustomCoilItemType[] = [...cartItems.customCoils];
+  
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${user?.token}`,
+            },
+            body: JSON.stringify({
+              user: user?.userId,
+              items: tempItems,
+              customItems: customItems,
+            }),
+          });
+  
+          const data = await response.json();
+  
+          if (!response.ok) {
+            alert(data.error || "Order failed");
+            return;
           }
-          tempItems.push(temp);
-        })
-
-        cartItems.customCoils.map((item) => {
-          customItems.push(item);
-        })
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${user.token}`
-          },
-          body: JSON.stringify({
-            user: user.userId,
-            items: tempItems,
-            customItems: customItems
-          }),
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          alert(data.error || "Order failed");
-          return;
+  
+          console.log("Order placed successfully");
+          setAllToCart({ items: [], customCoils: [] });
+          router.push("/orders");
         }
-        console.log("Order placed successfully");
-        setAllToCart({
-          items: [],
-          customCoils: []
-        });
-        router.push("/orders");
+      } catch (error) {
+        console.error("Order error:", error);
+        alert("Something went wrong while placing the order.");
+      } finally {
+        setLoading(false); // Hide spinner
       }
     }
-
-    if (!user) {
-      console.log("no user found...try to sign in");
-      // router.push("/auth/signin?redirect=/cart");
-      router.push("/auth/signin");
-    } else {
-      placeOrders();
-
-    }
-  }
-
+  
+    placeOrders();
+  };
+  
 
 
   const handleEnquire = () => {
-
+    if (!user) {
+      console.log("No user found... try to sign in");
+      router.push("/auth/signin");
+      return;
+    }
+  
+    setLoading(true); // Show spinner
+  
     async function placeEnquires() {
-      if (user && (cartItems.items.length + cartItems.customCoils.length) > 0) {
-        console.log("cartItems --> ", cartItems);
-
-        const tempItems: {
-          product: string;
-          quantity: number;
-        }[] = [];
-
-
-        const customItems: CustomCoilItemType[] = [];
-
-
-        cartItems.items.map((item) => {
-          const temp = {
+      try {
+        if ((cartItems.items.length + cartItems.customCoils.length) > 0) {
+          console.log("cartItems --> ", cartItems);
+  
+          const tempItems = cartItems.items.map((item) => ({
             product: item._id,
-            quantity: item.quantity
+            quantity: item.quantity,
+          }));
+  
+          const customItems: CustomCoilItemType[] = [...cartItems.customCoils];
+  
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user: user?.userId,
+              items: tempItems,
+              customItems: customItems,
+            }),
+          });
+  
+          const data = await response.json();
+  
+          if (!response.ok) {
+            alert(data.error || "Enquiry failed");
+            return;
           }
-          tempItems.push(temp);
-        })
-
-
-        cartItems.customCoils.map((item) => {
-          customItems.push(item);
-        });
-
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user: user.userId,
-            items: tempItems,
-            customItems: customItems
-          }),
-        });
-        const data = await response.json();
-
-        console.log("data ----", data);
-        if (!response.ok) {
-          alert(data.error || "Order failed");
-          return;
+  
+          console.log("Enquiry placed successfully");
+          setAllToCart({ items: [], customCoils: [] });
+          router.push("/enquire");
         }
-        console.log("Order placed successfully");
-        setAllToCart({
-          items: [],
-          customCoils: []
-        });
-        router.push("/enquire");
+      } catch (error) {
+        console.error("Enquiry error:", error);
+        alert("Something went wrong while sending the enquiry.");
+      } finally {
+        setLoading(false); // Hide spinner
       }
     }
-
-    if (!user) {
-      console.log("no user found...try to sign in");
-      // router.push("/auth/signin?redirect=/cart");
-      router.push("/auth/signin");
-    } else {
-      placeEnquires();
-
-    }
-  }
-
-
+  
+    placeEnquires();
+  };
+  
 
   useEffect(() => {
     setMounted(true);
 
-    async function fetchData() {
+    async function fetchAndMergeCart() {
       if (user && user.userId) {
         try {
-          const data = await getCartFromAPI(user.userId);
-          if (data) {
-            console.log("data from the cart", data);
-            const tempData = {
-              items: data["items"],
-              customCoils: data["customItems"]
+          const serverCart = await getCartFromAPI(user.userId);
+
+          // Get local cart from localStorage
+          const localCartStr = localStorage.getItem("cartItems");
+          const localCart = localCartStr ? JSON.parse(localCartStr) : { items: [], customCoils: [] };
+
+          // Merge logic (simple version: combine arrays, remove duplicates based on _id)
+          const mergedItems = [...serverCart.items];
+
+          localCart.items.forEach((localItem: any) => {
+            const index = mergedItems.findIndex((item: any) => item._id === localItem._id);
+            if (index === -1) {
+              mergedItems.push(localItem);
             }
-            setAllToCart(tempData);
-          }
+          });
+
+          const mergedCustomCoils = [...serverCart.customItems];
+
+          localCart.customCoils.forEach((localCoil: any) => {
+            const index = mergedCustomCoils.findIndex((item: any) => item.name === localCoil.name); // Use a better unique field if available
+            if (index === -1) {
+              mergedCustomCoils.push(localCoil);
+            }
+          });
+
+          const mergedCart = {
+            items: mergedItems,
+            customCoils: mergedCustomCoils
+          };
+
+          // Optionally update server with merged cart here
+
+          // Set merged cart to context + localStorage
+          setAllToCart(mergedCart);
+
         } catch (error) {
-          console.error("Error fetching cart:", error);
+          console.error("Error merging cart:", error);
         }
       }
     }
 
-    // Only fetch data if user exists and userId is available
     if (user && user.userId) {
-      fetchData();
+      fetchAndMergeCart();
     }
-
-    // Adding the dependencies properly
   }, [user]);
+
 
 
   // Until the component is mounted, you can render a placeholder or nothing.
@@ -187,6 +194,12 @@ const CartPage: React.FC = () => {
 
   return (
     <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <div className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+        </div>
+      )}
+
       <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
         <h1 className="text-blue-800 text-3xl font-semibold italic">Cart</h1>
 
