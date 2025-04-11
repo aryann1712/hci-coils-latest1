@@ -16,6 +16,7 @@ export default function CompanyPage() {
     { id: "cert2", src: "/certificates/2025030414 - heat craft industries - iso 13585-2021.png", alt: "ISO 13585-2021 Certificate", pages: 1 },
     { id: "cert3", src: "/certificates/FACTORY LICENSE.png", alt: "Factory License", pages: 1 },
     { id: "cert4", src: "/certificates/FIRE NOC.png", alt: "Fire NOC Certificate", pages: 1 },
+    { id: "cert4", src: "/certificates/TRADE MARK CERTIFICATE-1.png", alt: "Trade Mark Certificate", pages: 1 },
     { id: "cert5", src: "/certificates/HEAT CRAFT INDUSTRIES  9001 final.png", alt: "ISO 9001 Certificate", pages: 1 },
     { id: "cert6", src: "/certificates/HEAT CRAFT INDUSTRIES 45001 final.png", alt: "ISO 45001 Certificate", pages: 1 },
     { id: "cert7", src: "/certificates/HEAT CRAFT INDUSTRIES CE MARK 504.png", alt: "CE Mark Certificate", pages: 1 },
