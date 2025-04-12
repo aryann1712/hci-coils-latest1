@@ -339,13 +339,13 @@ export default function AdminAddProduct() {
 
             {/* GST */}
             <div className="w-1/2">
-              <label className="block font-medium mb-1">SKU</label>
+              <label className="block font-medium mb-1">Part Code</label>
               <input
                 type="text"
                 className="border px-3 py-2 rounded-sm w-full"
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                placeholder="SKU"
+                placeholder="Part Code"
               />
             </div>
           </div>
