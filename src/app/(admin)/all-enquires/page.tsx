@@ -59,7 +59,7 @@ const AdminAllEnquires = () => {
                 order.items.some(item =>
                     item.product.name.toLowerCase().includes(query) ||
                     item.product.description.toLowerCase().includes(query) ||
-                    item.product.category.toLowerCase().includes(query) ||
+                    // item.product.category.toLowerCase().includes(query) ||
                     item.product._id.toLowerCase().includes(query)
                 )
             );
