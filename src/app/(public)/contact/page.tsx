@@ -4,6 +4,7 @@ import { useState } from "react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: "", phone: "", message: "" });
+  const [isSending, setIsSending] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +26,7 @@ export default function ContactPage() {
     }
   
     try {
+      setIsSending(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/sendRequestToAdmin`, {
         method: "POST",
         headers: {
@@ -44,6 +46,9 @@ export default function ContactPage() {
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("An error occurred. Please try again later.");
+    }
+    finally {
+      setIsSending(false);
     }
   };
   
@@ -106,8 +111,8 @@ export default function ContactPage() {
                 setFormData((prev) => ({ ...prev, message: e.target.value }))
               }
             />
-            <button type="submit" className="bg-blue-800 text-white px-4 py-2">
-              Send
+            <button type="submit" disabled={isSending} className="bg-blue-800 text-white px-4 py-2">
+              {isSending? "Sending" : "Send"}
             </button>
           </form>
         </div>
