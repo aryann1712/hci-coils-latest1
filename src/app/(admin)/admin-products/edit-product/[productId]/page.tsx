@@ -175,7 +175,7 @@ export default function EditProductPage() {
         >
           {/* Name */}
           <div>
-            <label className="block font-medium mb-1">Name</label>
+            <label className="block font-medium mb-1">Name <span className="text-red-500">*</span></label>
             <input
               className="border px-3 py-2 rounded-sm w-full"
               type="text"
@@ -188,13 +188,14 @@ export default function EditProductPage() {
 
           {/* Description */}
           <div>
-            <label className="block font-medium mb-1">Description</label>
+            <label className="block font-medium mb-1">Description <span className="text-red-500">*</span></label>
             <textarea
               className="border px-3 py-2 rounded-sm w-full"
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter product description"
+              required
             />
           </div>
 
@@ -262,7 +263,7 @@ export default function EditProductPage() {
           {/* Price & GST */}
           <div className="flex gap-4">
             <div className="w-1/2">
-              <label className="block font-medium mb-1">Price</label>
+              <label className="block font-medium mb-1">Price <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 className="border px-3 py-2 rounded-sm w-full"
@@ -271,6 +272,7 @@ export default function EditProductPage() {
                 placeholder="0"
                 min={0}
                 step={0.01}
+                required
               />
             </div>
           </div>

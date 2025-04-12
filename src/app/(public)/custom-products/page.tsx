@@ -263,7 +263,7 @@ export default function CustomCoilForm() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Height (inches)</label>
+                    <label className="block text-sm font-medium text-gray-700">Height (inches) <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       name="height"
@@ -276,7 +276,7 @@ export default function CustomCoilForm() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Length (inches)</label>
+                    <label className="block text-sm font-medium text-gray-700">Length (inches) <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       name="length"
@@ -289,7 +289,7 @@ export default function CustomCoilForm() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Number of Rows</label>
+                    <label className="block text-sm font-medium text-gray-700">Number of Rows <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       name="rows"
@@ -302,7 +302,7 @@ export default function CustomCoilForm() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Fins Per Inch (FPI)</label>
+                    <label className="block text-sm font-medium text-gray-700">Fins Per Inch (FPI) <span className="text-red-500">*</span></label>
                     <input
                       type="number"
                       name="fpi"
@@ -468,7 +468,7 @@ export default function CustomCoilForm() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Number of Circuits</label>
+                  <label className="block text-sm font-medium text-gray-700">Number of Circuits <span className="text-red-500">*</span></label>
                   <input
                     type="number"
                     name="numberOfCircuits"
@@ -507,7 +507,7 @@ export default function CustomCoilForm() {
 
               <div className="grid grid-cols-1 gap-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Header Size</label>
+                  <label className="block text-sm font-medium text-gray-700">Header Size <span className="text-red-500">*</span></label>
                   <select
                     name="headerSize"
                     value={formData.headerSize}
@@ -524,7 +524,7 @@ export default function CustomCoilForm() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Tube Type</label>
+                  <label className="block text-sm font-medium text-gray-700">Tube Type <span className="text-red-500">*</span></label>
                   <select
                     name="tubeType"
                     value={formData.tubeType}
@@ -541,7 +541,7 @@ export default function CustomCoilForm() {
                 {/* Conditional Pipe Type field based on tube type selection */}
                 {formData.tubeType && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Pipe Type</label>
+                    <label className="block text-sm font-medium text-gray-700">Pipe Type <span className="text-red-500">*</span></label>
                     <select
                       name="pipeType"
                       value={formData.pipeType}
@@ -564,7 +564,7 @@ export default function CustomCoilForm() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Fin Type</label>
+                  <label className="block text-sm font-medium text-gray-700">Fin Type <span className="text-red-500">*</span></label>
                   <select
                     name="finType"
                     value={formData.finType}

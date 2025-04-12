@@ -177,7 +177,7 @@ export default function AdminAddProduct() {
         <form className="border p-4 rounded-sm border-dashed space-y-6" onSubmit={handleSubmit}>
           {/* Name */}
           <div>
-            <label className="block font-medium mb-1">Name</label>
+            <label className="block font-medium mb-1">Name <span className="text-red-500">*</span></label>
             <input
               className="border px-3 py-2 rounded-sm w-full"
               type="text"
@@ -190,19 +190,20 @@ export default function AdminAddProduct() {
 
           {/* Description */}
           <div>
-            <label className="block font-medium mb-1">Description</label>
+            <label className="block font-medium mb-1">Description <span className="text-red-500">*</span></label>
             <textarea
               className="border px-3 py-2 rounded-sm w-full"
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter product description"
+              required
             />
           </div>
 
           {/* Images */}
           <div>
-            <label className="block font-medium mb-1">Images</label>
+            <label className="block font-medium mb-1">Images <span className="text-red-500">*</span></label>
             <div className="mb-2 flex justify-between items-center">
               <div className={`text-sm ${totalSize > MAX_TOTAL_SIZE ? "text-red-500" : "text-gray-500"}`}>
                 Total size: {(totalSize / (1024 * 1024)).toFixed(2)}MB / 7MB
@@ -219,6 +220,7 @@ export default function AdminAddProduct() {
               multiple
               accept="image/*"
               onChange={handleImageChange}
+              required
             />
             {/* Preview + reorder */}
             <div className="mt-3 flex gap-4 flex-wrap">
@@ -325,7 +327,7 @@ export default function AdminAddProduct() {
           {/* Price */}
           <div className="flex gap-4">
             <div className="w-1/2">
-              <label className="block font-medium mb-1">Price</label>
+              <label className="block font-medium mb-1">Price <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 className="border px-3 py-2 rounded-sm w-full"
@@ -334,18 +336,20 @@ export default function AdminAddProduct() {
                 placeholder="0"
                 min={0}
                 step={1}
+                required
               />
             </div>
 
-            {/* GST */}
+            {/* Part Code */}
             <div className="w-1/2">
-              <label className="block font-medium mb-1">Part Code</label>
+              <label className="block font-medium mb-1">Part Code <span className="text-red-500">*</span></label>
               <input
                 type="text"
                 className="border px-3 py-2 rounded-sm w-full"
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
                 placeholder="Part Code"
+                required
               />
             </div>
           </div>
