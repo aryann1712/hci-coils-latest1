@@ -166,7 +166,7 @@ export default function CustomCoilForm() {
     console.log("Form submitted:", formData);
 
     // Move to a confirmation step
-    setStep(7);
+    setStep(8);
   };
 
   const goBack = () => {
@@ -178,7 +178,7 @@ export default function CustomCoilForm() {
   };
 
   const renderProgressBar = () => {
-    const totalSteps = formData.coilType === 'cooling' ? 7 : 6;
+    const totalSteps = formData.coilType === 'cooling' ? 8 : 7;
 
     return (
       <div className="mt-2 flex items-center">
@@ -247,11 +247,93 @@ export default function CustomCoilForm() {
             </div>
           )}
 
-          {/* Step 2: Coil Dimensions */}
+          {/* Step 2: Header Size and Materials - Updated to handle tube type selection */}
           {step === 2 && (
             <form>
+              <h2 className="text-xl font-semibold mb-6">Step 2: Material Type</h2>
+
+              <div className="grid grid-cols-1 gap-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tube Type <span className="text-red-500">*</span></label>
+                  <select
+                    name="tubeType"
+                    value={formData.tubeType}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    required
+                  >
+                    <option value="">Select Tube Type</option>
+                    <option value="copper-3/8">COPPER TUBE 3/8"</option>
+                    <option value="copper-7mm">COPPER TUBE 7MM</option>
+                  </select>
+                </div>
+
+                {/* Conditional Pipe Type field based on tube type selection */}
+                {formData.tubeType && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Pipe Type <span className="text-red-500">*</span></label>
+                    <select
+                      name="pipeType"
+                      value={formData.pipeType}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                      required
+                      disabled={formData.tubeType === 'copper-7mm'} // Disable if 7mm is selected
+                    >
+                      {formData.tubeType === 'copper-3/8' ? (
+                        <>
+                          <option value="">Select Pipe Type</option>
+                          <option value="plain-lwc">PLAIN LWC</option>
+                          <option value="igt">IGT</option>
+                        </>
+                      ) : (
+                        <option value="igt">IGT</option> // Default for 7mm
+                      )}
+                    </select>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Fin Type <span className="text-red-500">*</span></label>
+                  <select
+                    name="finType"
+                    value={formData.finType}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    required
+                  >
+                    <option value="">Select Fin Type</option>
+                    <option value="aluminum-bare">ALUMINIUM FIN BARE</option>
+                    <option value="hydrophilic-blue">HYDROPHILIC BLUE COATED</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-between">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={!(formData.tubeType && formData.pipeType && formData.finType)}
+                  onClick={nextStep}
+                  className="bg-blue-600 disabled:bg-blue-100 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Step 2: Coil Dimensions */}
+          {step === 3 && (
+            <form>
               <h2 className="text-xl font-semibold mb-6">
-                Step 2: {formData.coilType === 'condenser' ? 'Condenser' : 'Cooling'} Coil Dimensions
+                Step 3: {formData.coilType === 'condenser' ? 'Condenser' : 'Cooling'} Coil Dimensions
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
@@ -336,10 +418,10 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-          {/* Step 3: Endplate Type */}
-          {step === 3 && (
+          {/* Step 4: Endplate Type */}
+          {step === 4 && (
             <form>
-              <h2 className="text-xl font-semibold mb-6">Step 3: Select Endplate Type</h2>
+              <h2 className="text-xl font-semibold mb-6">Step 4: Select Endplate Type</h2>
               <div className="grid grid-cols-1 gap-y-4">
                 <div className="min-h-[300px]">
                   <label className="block text-sm font-medium text-gray-700 mb-3">Endplate Type</label>
@@ -414,10 +496,10 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-          {/* Step 4: Circuit Type */}
-          {step === 4 && (
+          {/* Step 5: Circuit Type */}
+          {step === 5 && (
             <form>
-              <h2 className="text-xl font-semibold mb-6">Step 4: Select Circuit Type</h2>
+              <h2 className="text-xl font-semibold mb-6">Step 5: Select Circuit Type</h2>
               <div className="grid grid-cols-1 gap-y-4">
                 <div className="min-h-[300px]">
                   <label className="block text-sm font-medium text-gray-700 mb-3">Circuit Type</label>
@@ -500,10 +582,10 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-          {/* Step 5: Header Size and Materials - Updated to handle tube type selection */}
-          {step === 5 && (
+          {/* Step 6: Header Size and Materials - Updated to handle tube type selection */}
+          {step === 6 && (
             <form>
-              <h2 className="text-xl font-semibold mb-6">Step 5: Header Size and Materials</h2>
+              <h2 className="text-xl font-semibold mb-6">Step 6: Header Size</h2>
 
               <div className="grid grid-cols-1 gap-y-4">
                 <div>
@@ -520,61 +602,6 @@ export default function CustomCoilForm() {
                     <option value="6/8">6/8"</option>
                     <option value="7/8">7/8"</option>
                     <option value="1-1/8">1-1/8"</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Tube Type <span className="text-red-500">*</span></label>
-                  <select
-                    name="tubeType"
-                    value={formData.tubeType}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    required
-                  >
-                    <option value="">Select Tube Type</option>
-                    <option value="copper-3/8">COPPER TUBE 3/8"</option>
-                    <option value="copper-7mm">COPPER TUBE 7MM</option>
-                  </select>
-                </div>
-
-                {/* Conditional Pipe Type field based on tube type selection */}
-                {formData.tubeType && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Pipe Type <span className="text-red-500">*</span></label>
-                    <select
-                      name="pipeType"
-                      value={formData.pipeType}
-                      onChange={handleChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                      required
-                      disabled={formData.tubeType === 'copper-7mm'} // Disable if 7mm is selected
-                    >
-                      {formData.tubeType === 'copper-3/8' ? (
-                        <>
-                          <option value="">Select Pipe Type</option>
-                          <option value="plain-lwc">PLAIN LWC</option>
-                          <option value="igt">IGT</option>
-                        </>
-                      ) : (
-                        <option value="igt">IGT</option> // Default for 7mm
-                      )}
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Fin Type <span className="text-red-500">*</span></label>
-                  <select
-                    name="finType"
-                    value={formData.finType}
-                    onChange={handleChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                    required
-                  >
-                    <option value="">Select Fin Type</option>
-                    <option value="aluminum-bare">ALUMINIUM FIN BARE</option>
-                    <option value="hydrophilic-blue">HYDROPHILIC BLUE COATED</option>
                   </select>
                 </div>
               </div>
@@ -610,10 +637,10 @@ export default function CustomCoilForm() {
             </form>
           )}
 
-          {/* Step 6: Distributor Type (Only for Cooling Coil) */}
-          {step === 6 && formData.coilType === 'cooling' && (
+          {/* Step 7: Distributor Type (Only for Cooling Coil) */}
+          {step === 7 && formData.coilType === 'cooling' && (
             <form onSubmit={handleSubmit}>
-              <h2 className="text-xl font-semibold mb-6">Step 6: Distributor Type</h2>
+              <h2 className="text-xl font-semibold mb-6">Step 7: Distributor Type</h2>
 
               <div className="grid grid-cols-1 gap-y-4">
                 <div className="mb-4">
@@ -701,8 +728,8 @@ export default function CustomCoilForm() {
           )}
 
 
-          {/* Step 7: Confirmation */}
-          {step === 7 && (
+          {/* Step 8: Confirmation */}
+          {step === 8 && (
             <div className="text-center py-6">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
