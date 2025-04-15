@@ -128,7 +128,7 @@ const Navbar = () => {
             </div>
           )}
 
-          {mounted && (user?.role == "admin" || user?.role == "manager") && (
+          {mounted && (user?.role == "admin" || user?.role == "manager" || user?.role == "product_adder") && (
             <div className="hidden md:block  ml-5">
               <Link href={"/admin-products"}>
                 <h4 className="font-semibold hover:text-red-500">Add Products</h4>
@@ -136,7 +136,7 @@ const Navbar = () => {
             </div>
           )}
 
-          {mounted && user && user?.role != "admin" && user?.role != "manager" && (
+          {mounted && user && user?.role != "admin" && user?.role != "manager" && user?.role != "product_adder" && (
             <div className=" hidden md:block ml-5">
               <Link href={"/enquire"}>
                 <h4 className="font-semibold hover:text-red-500">Enquires</h4>
@@ -144,7 +144,7 @@ const Navbar = () => {
             </div>
           )}
 
-          {mounted && user && user?.role != "admin" && user?.role != "manager" && (
+          {mounted && user && user?.role != "admin" && user?.role != "manager" && user?.role != "product_adder" && (
             <div className="hidden md:block  ml-5">
               <Link href={"/orders"}>
                 <h4 className="font-semibold hover:text-red-500">Orders</h4>
@@ -152,7 +152,7 @@ const Navbar = () => {
             </div>
           )}
 
-          {(!user || (user?.role != "admin" && user?.role != "manager")) && (
+          {(!user || (user?.role != "admin" && user?.role != "manager"  && user?.role != "product_adder")) && (
             <div className="relative mx-2">
               <Link href={"/cart"}>
                 <MdOutlineShoppingCart className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />

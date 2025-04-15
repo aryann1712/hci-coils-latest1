@@ -155,9 +155,10 @@ const ManageEmployeePage = () => {
         <div className='mt-5 p-4 bg-gray-100 rounded-md'>
           <h3 className='font-semibold text-sm md:text-lg'>User Role Permissions:</h3>
           <ul className='list-disc list-inside text-gray-700 text-xs md:text-base'>
-            <li>Only Admin and Manager can upload and manage products.</li>
+            <li>Only Admin, Manager and Product Adder can upload and manage products.</li>
             <li>Admin can manage employee roles and change them.</li>
             <li>Users can only access the front end and have no access to manager roles or any administrative privileges.</li>
+            <li>Product Manager can only access product Upload, Edit and Delete. But No Order Management, or Enquiry Management.</li>
           </ul>
         </div>
 

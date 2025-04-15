@@ -61,7 +61,7 @@ export default function EditProductPage() {
     if (!user) {
       router.replace("/");
       return;
-    } else if (!(user.role === "admin" || user.role === "manager")) {
+    } else if (!(user.role === "admin" || user.role === "manager" || user.role === "product_adder")) {
       router.replace("/");
       return;
     }

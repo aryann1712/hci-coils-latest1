@@ -79,6 +79,7 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
               >
                 <option value="user">User</option>
                 <option value="manager">Manager</option>
+                <option value="product_adder">Product Adder</option>
               </select>
             )}
           </div>
@@ -111,6 +112,7 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
               >
                 <option value="user">User</option>
                 <option value="manager">Manager</option>
+                <option value="product_adder">Product Adder</option>
               </select>
             )}
           </div>
