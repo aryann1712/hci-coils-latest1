@@ -39,7 +39,7 @@ const AdminCustomerCard = ({ userAllInfoTypes, currentUserId }: { userAllInfoTyp
           // Update local state to reflect the change
           setUsers(prevUsers =>
             prevUsers.map(user =>
-              user._id === userId ? { ...user, role: newRole } : user
+              user._id === userId ? { ...user, status: newRole === "true" } : user
             )
           );
 
@@ -68,18 +68,15 @@ const AdminCustomerCard = ({ userAllInfoTypes, currentUserId }: { userAllInfoTyp
             <h2 className='mr-8'>{data.email}</h2>
             <h2>{ }</h2>
             <h2>{data.phone}</h2>
-            {data.role === "admin" ? (
-              <h2>{data.status}</h2>
-            ) : (
-              <select
-                value={data.role}
-                onChange={(e) => handleStatusChange(data._id, e.target.value)}
-                className='border p-1 rounded'
-              >
-                <option value="true">Active</option>
-                <option value="false">Not Active</option>
-              </select>
-            )}
+
+            <select
+              value={data.status?.toString() || "false"}
+              onChange={(e) => handleStatusChange(data._id, e.target.value)}
+              className='border p-1 rounded'
+            >
+              <option value="true">Active</option>
+              <option value="false">Not Active</option>
+            </select>
           </div>
         ))}
       </div>
