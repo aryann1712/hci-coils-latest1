@@ -9,15 +9,25 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger
 } from "@/components/ui/navigation-menu";
+import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 
 
 
 const Navbar2 = () => {
+
+    const { user, signOut } = useUser();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, [user, mounted]);
+
+
     return (
         <div className="sticky top-0 w-full bg-white pt-1 z-50 ">
             <div className="w-full h-[1px] bg-gray-200"></div>
@@ -27,7 +37,7 @@ const Navbar2 = () => {
                 <Link href="/" className="hidden md:block">
                     <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" /> </Link>
                 {/* menu */}
-                <NavigationMenu className="flex items-center pb-3">
+               {mounted && user && user?.role != "admin" && user?.role != "manager" && user?.role != "product_adder" &&  <NavigationMenu className="flex items-center pb-3">
                     <NavigationMenuList className="text-sm font-semibold flex gap-5 md:gap-8">
                         <NavigationMenuItem className=" hover:text-blue-700">
                             <Link href="/" legacyBehavior passHref>
@@ -84,7 +94,7 @@ const Navbar2 = () => {
                             </Link>
                         </NavigationMenuItem>
                     </NavigationMenuList>
-                </NavigationMenu>
+                </NavigationMenu>}
             </div>
 
         </div>

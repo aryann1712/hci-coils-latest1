@@ -42,7 +42,6 @@ const ProductCard = ({ product, showHover = true }: { product: ProductAllTypeInt
     });
   }
 
-  console.log("productCard", product)
 
   return (
     <div className='w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 '>
@@ -72,6 +71,8 @@ const ProductCard = ({ product, showHover = true }: { product: ProductAllTypeInt
       <div className='space-y-2 px-2 pb-2 lg:p-3 '>
         {/* Name */}
         <h3 className='text-md md:text-xl font-semibold font-sans'>{product.name}</h3>
+        {/* SKU */}
+        <p className='text-xs md:text-xs text-gray-600 font-semibold font-sans'>Part Code - {product.sku}</p>
         {/* Desc */}
         <p className='text-xs md:text-sm font-thin text-gray-400 line-clamp-3'>{product.description}</p>
         {/* Buttons */}

@@ -21,12 +21,12 @@ const Navbar = () => {
   const router = useRouter();
 
   // Add null checks to prevent the "cartItems.items is undefined" error
-  const totalQuantity = (cartItems?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0) + 
-                       (cartItems?.customCoils?.reduce((acc, item) => acc + item.quantity, 0) || 0);
+  const totalQuantity = (cartItems?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0) +
+    (cartItems?.customCoils?.reduce((acc, item) => acc + item.quantity, 0) || 0);
 
 
-                       console.log("navbar se cart items", cartItems.items)
-                       console.log("navbar se custom items", cartItems.customCoils)
+  console.log("navbar se cart items", cartItems.items)
+  console.log("navbar se custom items", cartItems.customCoils)
 
   useEffect(() => {
     setMounted(true);
@@ -152,7 +152,17 @@ const Navbar = () => {
             </div>
           )}
 
-          {(!user || (user?.role != "admin" && user?.role != "manager"  && user?.role != "product_adder")) && (
+
+
+          {mounted && user && (
+            <div className="hidden md:block  ml-5">
+              <Link href={"/auth/change-password"}>
+                <h4 className="font-semibold hover:text-red-500">Change Password</h4>
+              </Link>
+            </div>
+          )}
+
+          {(!user || (user?.role != "admin" && user?.role != "manager" && user?.role != "product_adder")) && (
             <div className="relative mx-2">
               <Link href={"/cart"}>
                 <MdOutlineShoppingCart className="font-bold text-[26px] cursor-pointer hover:text-red-500 relative" />
@@ -192,6 +202,7 @@ const Navbar = () => {
               </Link>
             </div>
           )}
+
 
           {mounted && !user && (
             <div className="hidden md:block ml-2 px-4 py-2 bg-blue-700 text-white rounded-md text-sm font-semibold cursor-pointer">
@@ -320,6 +331,20 @@ const Navbar = () => {
                     }}
                   >
                     Profile
+                  </h4>
+                </div>
+              )}
+
+              {mounted && user && (
+                <div className="ml-5">
+                  <h4
+                    className="font-semibold hover:text-red-500"
+                    onClick={() => {
+                      setIsOpen(false);
+                      return router.push("/auth/change-password");
+                    }}
+                  >
+                    Change Password
                   </h4>
                 </div>
               )}

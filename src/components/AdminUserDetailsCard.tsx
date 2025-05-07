@@ -77,6 +77,7 @@ const AdminUserDetailsCard = ({ userAllInfoTypes, currentUserId }: { userAllInfo
                 onChange={(e) => handleRoleChange(data._id, e.target.value)}
                 className='border p-1 rounded'
               >
+                <option value="admin">Admin</option>
                 <option value="user">User</option>
                 <option value="manager">Manager</option>
                 <option value="product_adder">Product Adder</option>

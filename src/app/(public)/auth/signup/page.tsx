@@ -17,7 +17,24 @@ export default function SignUpPage() {
     email: ""
   });
 
+  const [errors, setErrors] = useState({
+    phone: "",
+    email: ""
+  });
+
   const [gstStatus, setGstStatus] = useState("Active");
+
+  // Function to validate email
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Function to validate phone number
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phone);
+  };
 
   // Function to fetch GST information
   const fetchGstInfo = async (gstNumber: string) => {
@@ -40,7 +57,6 @@ export default function SignUpPage() {
       console.log("GST API Response:", data); // Debug log
       setLoading(false);
       setGstVerifying(false);
-
 
       if (!response.ok) {
         setGstVerifying(false);
@@ -74,14 +90,44 @@ export default function SignUpPage() {
     }
   };
 
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { phone: "", email: "" };
+
+    // Validate email
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+      valid = false;
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+      valid = false;
+    }
+
+    // Validate phone
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+      valid = false;
+    } else if (!validatePhone(formData.phone)) {
+      newErrors.phone = "Phone number must be exactly 10 digits";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
 
     if (gstStatus != "Active") {
       alert("Sign Up failed. GST is either not active or verified properly.");
       return;
     }
-
 
     setLoading(true);
 
@@ -121,6 +167,11 @@ export default function SignUpPage() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
+    // Clear error when user types
+    if (name === "email" || name === "phone") {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+
     // Check for GST number length and trigger verification
     if (name === "gstNumber" && value.length === 15) {
       console.log("GST number reached 15 chars, triggering verification");
@@ -128,12 +179,11 @@ export default function SignUpPage() {
     }
   };
 
-
   return (
-    <div className="w-full px-5  lg:px-0 lg:max-w-[75%] mx-auto py-10">
+    <div className="w-full px-5 lg:px-0 lg:max-w-[75%] mx-auto py-10">
       <h1 className="text-blue-800 text-3xl font-semibold italic">Sign Up</h1>
       <div className="mx-auto py-16 px-0 lg:px-10 rounded-sm shadow-xl max-w-2xl">
-        <form onSubmit={handleSignUp} className="flex flex-col gap-y-12  px-4 lg:px-10">
+        <form onSubmit={handleSignUp} className="flex flex-col gap-y-12 px-4 lg:px-10">
           <div className="relative">
             <div className="flex gap-2">
               <input
@@ -144,13 +194,6 @@ export default function SignUpPage() {
                 value={formData.gstNumber}
                 onChange={handleInputChange}
               />
-              {/* <button
-                onClick={handleVerifyGst}
-                className="bg-blue-500 text-white px-3 py-2 rounded-sm"
-                disabled={gstVerifying || formData.gstNumber.length !== 15}
-              >
-                {gstVerifying ? "Verifying..." : "Verify"}
-              </button> */}
             </div>
             {gstVerifying && (
               <div className="absolute right-20 top-3">
@@ -169,23 +212,32 @@ export default function SignUpPage() {
             value={formData.name}
             onChange={handleInputChange}
           />
-          <input
-            className="border px-3 py-3 rounded-sm"
-            type="tel"
-            name="phone"
-            placeholder="Phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-          />
-          <input
-            className="border px-3 py-3 rounded-sm"
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleInputChange}
-          />
-
+          <div className="space-y-1">
+            <input
+              className={`border px-3 py-3 rounded-sm w-full ${errors.phone ? "border-red-500" : ""}`}
+              type="tel"
+              name="phone"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={handleInputChange}
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-xs">{errors.phone}</p>
+            )}
+          </div>
+          <div className="space-y-1">
+            <input
+              className={`border px-3 py-3 rounded-sm w-full ${errors.email ? "border-red-500" : ""}`}
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleInputChange}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs">{errors.email}</p>
+            )}
+          </div>
           <input
             className="border px-3 py-3 rounded-sm"
             type="text"

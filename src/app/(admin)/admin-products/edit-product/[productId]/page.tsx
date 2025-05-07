@@ -4,20 +4,35 @@ import { useUser } from "@/context/UserContext";
 import { predefinedCategories } from "@/data/allProducts";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
+// Helper function to format image URLs
+const formatImageUrl = (imageUrl: string) => {
+  if (!imageUrl) 
+    return '';
 
-
+  return imageUrl;
+  
+  // If it's already a full URL, return it as is
+  if (imageUrl.startsWith('http')) return imageUrl;
+  
+  // Otherwise, prepend the S3 base URL
+  const s3BaseUrl = process.env.NEXT_PUBLIC_S3_URL || '';
+  return `${s3BaseUrl}${imageUrl}`;
+};
 
 export default function EditProductPage() {
   const [mounted, setMounted] = useState(false);
-
   const [loading, setLoading] = useState(false);
+  
   // Form state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState<number>(0);
-
-
+  const [price, setPrice] = useState(0);
+  const [sku, setSku] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreview, setImagePreview] = useState<string[]>([]);
 
   const [categoryInput, setCategoryInput] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
@@ -26,13 +41,9 @@ export default function EditProductPage() {
   const { user } = useUser();
   const router = useRouter();
 
-  // If using the folder structure: (admin)/admin-products/edit-product/[productId]
-  // you can read productId via useParams
   const params = useParams();
-  const productIds = params?.productId; // string | string[]
-
+  const productIds = params?.productId;
   const productId = Array.isArray(productIds) ? productIds[0] : productIds;
-
 
   const toggleCategory = (category: string) => {
     if (categories.includes(category)) {
@@ -46,15 +57,7 @@ export default function EditProductPage() {
     setIsOpen(!isOpen);
   };
 
-  // Now singleProductId is guaranteed to be a string
-
-
-  // Alternatively, if you had "?id=123" in the query, you'd do:
-  // const searchParams = useSearchParams();
-  // const productId = searchParams.get("productId");
-
-
-  // 1) On mount, check user and load product data
+  // On mount, check user and load product data
   useEffect(() => {
     setMounted(true);
 
@@ -71,7 +74,7 @@ export default function EditProductPage() {
     }
   }, [user, router, productId]);
 
-  // 2) fetch existing product data
+  // Fetch existing product data
   async function fetchProduct(id: string) {
     try {
       setLoading(true);
@@ -80,7 +83,6 @@ export default function EditProductPage() {
       });
       if (!res.ok) {
         setLoading(false);
-        // e.g. redirect or show error
         throw new Error("Failed to fetch product");
       }
       const response = await res.json();
@@ -91,53 +93,90 @@ export default function EditProductPage() {
       setName(data.name || "");
       setDescription(data.description || "");
       setPrice(data.price || 0);
+      setSku(data.sku || "");
       setCategories(data.categories || []);
+      setImages(data.images || []);
 
     } catch (error) {
       setLoading(false);
       console.error("Error loading product:", error);
-      // possibly redirect or show error message
     }
   }
 
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFiles = Array.from(e.target.files);
+      setImageFiles(selectedFiles);
+      
+      // Create preview URLs
+      const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
+      setImagePreview(newPreviews);
+    }
+  };
 
+  // Remove selected image before upload
+  const removeSelectedImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreview(prev => {
+      // Revoke the object URL to avoid memory leaks
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
-  // handle categories
+  // Remove existing image
+  const removeExistingImage = (imageUrl: string) => {
+    setImages(prev => prev.filter(img => img !== imageUrl));
+  };
+
+  // Handle categories
   const addCategory = () => {
     if (categoryInput.trim() && !categories.includes(categoryInput.trim())) {
       setCategories((prev) => [...prev, categoryInput.trim()]);
     }
     setCategoryInput("");
   };
-  const removeCategory = (cat: string) => {
-    setCategories((prev) => prev.filter((c) => c !== cat));
-  };
 
-  // 3) handle form submission
+  // Handle form submission
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productId) return;
 
-
     setLoading(true);
 
-
+    // Validation
     if (!name || !description || !price) {
-      alert("Please fill in all fields");
+      alert("Please fill in all required fields");
       setLoading(false);
       return;
     }
 
-    // construct form data (multipart) or JSON
+    if (categories.length === 0) {
+      alert("At least one category is required");
+      setLoading(false);
+      return;
+    }
+
+    // Construct form data
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price.toString());
+    if (sku) formData.append("sku", sku);
+    
+    // Append existing images
+    formData.append("existingImages", JSON.stringify(images));
+    
+    // Append categories
     categories.forEach((item) => {
       formData.append("categories", item);
     });
 
-
+    // Append new image files
+    imageFiles.forEach((file) => {
+      formData.append("image", file);
+    });
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${productId}`, {
@@ -199,68 +238,143 @@ export default function EditProductPage() {
             />
           </div>
 
+          {/* SKU */}
+          <div>
+            <label className="block font-medium mb-1">Part Code</label>
+            <input
+              className="border px-3 py-2 rounded-sm w-full"
+              type="text"
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              placeholder="Part Code"
+            />
+          </div>
 
+          {/* Images */}
+          <div>
+            <label className="block font-medium mb-1">Current Images</label>
+            <div className="flex flex-wrap gap-4 mt-2">
+              {images.map((img, index) => (
+                <div key={index} className="relative w-24 h-24 border rounded">
+                  <Image 
+                    src={formatImageUrl(img)}
+                    alt={`Product image ${index}`}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    className="rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingImage(img)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {images.length === 0 && (
+                <p className="text-gray-500">No images available</p>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <label className="block font-medium mb-1">Add New Images</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="border px-3 py-2 rounded-sm w-full"
+              />
+            </div>
+
+            {imagePreview.length > 0 && (
+              <div className="mt-4">
+                <p className="font-medium mb-1">New Image Previews</p>
+                <div className="flex flex-wrap gap-4">
+                  {imagePreview.map((preview, index) => (
+                    <div key={index} className="relative w-24 h-24 border rounded">
+                      <Image 
+                        src={preview}
+                        alt={`New image ${index}`}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        className="rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeSelectedImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Categories */}
           <div className="w-full max-w-md">
-                      <label className="block font-medium mb-1">Categories (tags)</label>
-                      <div className="relative">
-                        {/* Dropdown button */}
-                        <button
-                          type="button"
-                          onClick={toggleDropdown}
-                          className="w-full flex justify-between items-center border px-3 py-2 rounded-sm bg-white"
-                        >
-                          <span className="truncate">
-                            {categories.length > 0
-                              ? `${categories.length} selected`
-                              : "Select categories"}
-                          </span>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                          </svg>
-                        </button>
-          
-                        {/* Dropdown menu */}
-                        {isOpen && (
-                          <div className="absolute mt-1 w-full bg-white border rounded-sm shadow-lg z-10 max-h-60 overflow-y-auto">
-                            {predefinedCategories.map((category) => (
-                              <div
-                                key={category}
-                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
-                                onClick={() => toggleCategory(category)}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={categories.includes(category)}
-                                  onChange={() => { }}
-                                  className="mr-2"
-                                />
-                                <span>{category}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-          
-                      {/* Display selected categories */}
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {categories.map((cat) => (
-                          <div key={cat} className="bg-gray-200 px-2 py-1 rounded-lg flex items-center gap-2">
-                            <span>{cat}</span>
-                            <button
-                              type="button"
-                              onClick={() => toggleCategory(cat)}
-                              className="text-red-600 font-bold"
-                            >
-                              x
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+            <label className="block font-medium mb-1">Categories (tags) <span className="text-red-500">*</span></label>
+            <div className="relative">
+              {/* Dropdown button */}
+              <button
+                type="button"
+                onClick={toggleDropdown}
+                className="w-full flex justify-between items-center border px-3 py-2 rounded-sm bg-white"
+              >
+                <span className="truncate">
+                  {categories.length > 0
+                    ? `${categories.length} selected`
+                    : "Select categories"}
+                </span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
 
-          {/* Price & GST */}
+              {/* Dropdown menu */}
+              {isOpen && (
+                <div className="absolute mt-1 w-full bg-white border rounded-sm shadow-lg z-10 max-h-60 overflow-y-auto">
+                  {predefinedCategories.map((category) => (
+                    <div
+                      key={category}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                      onClick={() => toggleCategory(category)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={categories.includes(category)}
+                        onChange={() => { }}
+                        className="mr-2"
+                      />
+                      <span>{category}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Display selected categories */}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <div key={cat} className="bg-gray-200 px-2 py-1 rounded-lg flex items-center gap-2">
+                  <span>{cat}</span>
+                  <button
+                    type="button"
+                    onClick={() => toggleCategory(cat)}
+                    className="text-red-600 font-bold"
+                  >
+                    x
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Price */}
           <div className="flex gap-4">
             <div className="w-1/2">
               <label className="block font-medium mb-1">Price <span className="text-red-500">*</span></label>
@@ -282,7 +396,7 @@ export default function EditProductPage() {
             type="submit"
             className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4"
           >
-            {loading ? "Loading" : "Update Product"}
+            {loading ? "Loading..." : "Update Product"}
           </button>
         </form>
       </div>

@@ -46,7 +46,8 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-2 md:px-4">
               <h1 className="text-sm md:text-lg font-semibold">{item.product.name}</h1>
-              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3">{item.product.description}</p>
+              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {item.product.sku || ''}</h1>
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{item.product.description || ''}</p>
             </div>
 
             {/* Quantity */}
@@ -77,7 +78,7 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
               <h1 className="text-sm md:text-lg font-semibold mb-3">{item.coilType} coil</h1>
               <div className="text-xs md:text-sm text-gray-600 grid grid-cols-1">
                 <div className="grid grid-cols-2 gap-x-10 gap-y-3 md:gap-y-3">
-                  
+
                   <span className="font-semibold">Height:</span>
                   <span>{item.height}</span>
 

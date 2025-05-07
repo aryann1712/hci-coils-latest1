@@ -53,7 +53,8 @@ export default function ProductsPage() {
     return allProducts.filter(
       (p) =>
         p.name.toLowerCase().includes(lowerQuery) ||
-        p.description.toLowerCase().includes(lowerQuery)
+        p.description.toLowerCase().includes(lowerQuery) ||
+        p.sku.toLowerCase().includes(lowerQuery)
     );
   }, [allProducts, searchQuery]);
 
@@ -68,7 +69,8 @@ export default function ProductsPage() {
       filtered[category] = products.filter(
         (p) =>
           p.name.toLowerCase().includes(lowerQuery) ||
-          p.description.toLowerCase().includes(lowerQuery)
+          p.description.toLowerCase().includes(lowerQuery) ||
+          p.sku.toLowerCase().includes(lowerQuery)
       );
     }
     

@@ -62,6 +62,8 @@ const AdminProductCard = ({ product }: { product: ProductAllTypeInterfact }) => 
       {/* Name and Description */}
       <div className="col-span-2 flex flex-col px-4">
         <h1 className="text-lg font-semibold">{product.name}</h1>
+        <h1 className="text-sm font-semibold "> Part Code - {product.sku}</h1>
+        <br></br>
         <p className="text-sm text-gray-600 line-clamp-3">{product.description}</p>
       </div>
 

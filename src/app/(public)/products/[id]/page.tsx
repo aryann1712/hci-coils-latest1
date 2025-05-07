@@ -85,6 +85,7 @@ const ProductPage = () => {
                     {/* Product Details Section */}
                     <div className="space-y-1 md:space-y-5 mt-6 md:mt-0">
                         <h1 className="text-2xl md:text-3xl font-semibold italic">{products?.name}</h1>
+                        <h2 className="text-sm md:text-base font-semibold italic">Part Code {products?.sku}</h2>
                         <p className="text-gray-400 pb-10 md:pb-30">{products?.description}</p>
                         {/* <p className="text-gray-400">Category: {products?.category}</p> */}
                         {/* <p className="text-gray-400">SKU: {products?.sku}</p> */}
