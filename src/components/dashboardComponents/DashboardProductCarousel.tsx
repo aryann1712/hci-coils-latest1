@@ -31,7 +31,7 @@ const DashboardProductCarousel = () => {
       {/* Marquee Animation for Products */}
       <div className="relative flex w-full flex-col  space-y-10 items-center justify-center overflow-hidden">
         {/* First Row - Moves Left */}
-        <Marquee className="[--duration:25s]">
+        <Marquee pauseOnHover={true} className="[--duration:25s]">
           {firstRow.map((product) => (
             <div key={product._id} className="lg:mx-10 w-48 lg:w-[350px]">
               <ProductCard product={product} showHover={false} />
@@ -40,7 +40,7 @@ const DashboardProductCarousel = () => {
         </Marquee>
 
         {/* Second Row - Moves Right */}
-        <Marquee reverse className="[--duration:25s]">
+        <Marquee reverse pauseOnHover={true} className="[--duration:25s]">
           {secondRow.map((product) => (
             <div key={product._id} className="lg:mx-10 w-48 lg:w-[350px]">
               <ProductCard product={product} showHover={false} />
