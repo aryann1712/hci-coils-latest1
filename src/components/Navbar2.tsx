@@ -37,7 +37,7 @@ const Navbar2 = () => {
                 <Link href="/" className="hidden md:block">
                     <Image src={"/logo.png"} height={100} width={100} alt="logo" className="cursor-pointer" /> </Link>
                 {/* menu */}
-               {mounted && user && user?.role != "admin" && user?.role != "manager" && user?.role != "product_adder" &&  <NavigationMenu className="flex items-center pb-3">
+               {mounted && user?.role != "admin" && user?.role != "manager" && user?.role != "product_adder" &&  <NavigationMenu className="flex items-center pb-3">
                     <NavigationMenuList className="text-sm font-semibold flex gap-5 md:gap-8">
                         <NavigationMenuItem className=" hover:text-blue-700">
                             <Link href="/" legacyBehavior passHref>
