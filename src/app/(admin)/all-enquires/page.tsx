@@ -12,7 +12,11 @@ const AdminAllEnquires = () => {
     const { user } = useUser();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
+<<<<<<< HEAD
     const [orders, setOrders] = useState<EnquiryItemType[]>([]);
+=======
+    const [userOrders, setUserOrders] = useState<EnquireItemType[]>([]);
+>>>>>>> fb1137bffaa415d3db0009b155864d6b69c73a3b
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
@@ -37,11 +41,19 @@ const AdminAllEnquires = () => {
                 }
 
                 const data = await response.json();
+<<<<<<< HEAD
                 setOrders(data.data);
             } catch (error) {
                 console.error('Error fetching enquiries:', error);
                 toast.error(error instanceof Error ? error.message : 'Failed to fetch enquiries');
                 setOrders([]); // Set empty array on error
+=======
+                setUserOrders(data.data);
+            } catch (error) {
+                console.error('Error fetching enquiries:', error);
+                toast.error(error instanceof Error ? error.message : 'Failed to fetch enquiries');
+                setUserOrders([]); // Set empty array on error
+>>>>>>> fb1137bffaa415d3db0009b155864d6b69c73a3b
             } finally {
                 setLoading(false);
             }
@@ -59,10 +71,17 @@ const AdminAllEnquires = () => {
     }, [mounted, user, router]);
 
     const filteredOrders = useMemo(() => {
+<<<<<<< HEAD
         if (!searchQuery.trim()) return orders;
 
         const query = searchQuery.trim().toLowerCase();
         return orders.filter(order => {
+=======
+        if (!searchQuery.trim()) return userOrders;
+
+        const query = searchQuery.trim().toLowerCase();
+        return userOrders.filter(order => {
+>>>>>>> fb1137bffaa415d3db0009b155864d6b69c73a3b
             // Search in enquiry ID
             if (order.enquiryId?.toLowerCase().includes(query)) return true;
             
@@ -76,6 +95,7 @@ const AdminAllEnquires = () => {
             if (order.status?.toLowerCase().includes(query)) return true;
             
             // Search in products
+<<<<<<< HEAD
             if (order.items.some((item) => 
                 item.product.name.toLowerCase().includes(query.toLowerCase()) ||
                 item.product.description.toLowerCase().includes(query.toLowerCase()) ||
@@ -92,6 +112,24 @@ const AdminAllEnquires = () => {
             return false;
         });
     }, [orders, searchQuery]);
+=======
+            if (order.items.some(item => 
+                item.product.name.toLowerCase().includes(query) ||
+                item.product.description.toLowerCase().includes(query) ||
+                item.product.sku?.toLowerCase().includes(query)
+            )) return true;
+
+            // Search in custom items
+            if (order.customItems?.some(item =>
+                item.coilType?.toLowerCase().includes(query) ||
+                item.tubeType?.toLowerCase().includes(query) ||
+                item.finType?.toLowerCase().includes(query)
+            )) return true;
+
+            return false;
+        });
+    }, [userOrders, searchQuery]);
+>>>>>>> fb1137bffaa415d3db0009b155864d6b69c73a3b
 
     // Pagination
     const totalPages = Math.ceil(filteredOrders.length / pageSize);
@@ -130,7 +168,11 @@ const AdminAllEnquires = () => {
             }
 
             // Update local state
+<<<<<<< HEAD
             setOrders(prevOrders =>
+=======
+            setUserOrders(prevOrders =>
+>>>>>>> fb1137bffaa415d3db0009b155864d6b69c73a3b
                 prevOrders.map(order =>
                     order._id === enquiryId
                         ? { ...order, status: newStatus }

@@ -32,6 +32,10 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+<<<<<<< HEAD
+=======
+    "@eslint/eslintrc": "^3",
+>>>>>>> fb1137bffaa415d3db0009b155864d6b69c73a3b
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
     "@types/pdfmake": "^0.2.11",
