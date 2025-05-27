@@ -29,9 +29,9 @@ const DashboardProductCarousel = () => {
       <h1 className="font-bold text-4xl w-full px-10">Products</h1>
 
       {/* Marquee Animation for Products */}
-      <div className="relative flex w-full flex-col  space-y-10 items-center justify-center overflow-hidden">
+      <div className="relative flex w-full flex-col space-y-10 items-center justify-center overflow-hidden">
         {/* First Row - Moves Left */}
-        <Marquee pauseOnHover={true} className="[--duration:25s]">
+        <Marquee pauseOnHover={true} className="[--duration:300s]">
           {firstRow.map((product) => (
             <div key={product._id} className="lg:mx-10 w-48 lg:w-[350px]">
               <ProductCard product={product} showHover={false} />
@@ -40,14 +40,13 @@ const DashboardProductCarousel = () => {
         </Marquee>
 
         {/* Second Row - Moves Right */}
-        <Marquee reverse pauseOnHover={true} className="[--duration:25s]">
+        <Marquee reverse pauseOnHover={true} className="[--duration:300s]">
           {secondRow.map((product) => (
             <div key={product._id} className="lg:mx-10 w-48 lg:w-[350px]">
               <ProductCard product={product} showHover={false} />
             </div>
           ))}
         </Marquee>
-
       </div>
 
       {/* Show More Button */}
@@ -63,24 +62,27 @@ const DashboardProductCarousel = () => {
 export default DashboardProductCarousel;
 
 async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/"/g, ''); // Remove any quotes
+    if (!baseUrl) {
+      console.error("NEXT_PUBLIC_BASE_URL is not defined");
+      return [];
+    }
 
+    const response = await fetch(`${baseUrl}/products`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
 
-  // const data = AllProducts;
+    if (!response.ok) {
+      console.error("Failed to fetch products:", data.error);
+      return [];
+    }
 
-  // return data;
-
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-  const data = await response.json();
-
-  console.log("data", data);
-  if (!response.ok) {
-    alert(data.error || "Sign in failed");
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching products:", error);
     return [];
   }
-
-  return data.data;
 }

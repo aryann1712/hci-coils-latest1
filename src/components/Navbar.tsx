@@ -15,7 +15,7 @@ import { TiSocialFacebook } from "react-icons/ti";
 const Navbar = () => {
   const { cartItems } = useCart();
   const { user, signOut } = useUser();
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
 
   const router = useRouter();
@@ -24,19 +24,20 @@ const Navbar = () => {
   const totalQuantity = (cartItems?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0) +
     (cartItems?.customCoils?.reduce((acc, item) => acc + item.quantity, 0) || 0);
 
-
   console.log("navbar se cart items", cartItems.items)
   console.log("navbar se custom items", cartItems.customCoils)
 
   useEffect(() => {
-    setMounted(true);
-  }, [user, mounted]);
+    // Clear any stale user data from localStorage on component mount
+    if (typeof window !== 'undefined' && !user) {
+      localStorage.removeItem('user');
+    }
+  }, []);
 
   const handleSignOut = () => {
     if (user) {
       signOut();
-    } else {
-      console.log("user doesnt exist...so no sign out");
+      localStorage.removeItem('user');  // Ensure user data is cleared
     }
   };
 

@@ -1,10 +1,14 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import { CartItemType } from "@/lib/interfaces/CartInterface";
+import { formatProductName } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { MdDelete } from "react-icons/md";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 
 interface CartProductItemCardProps {
   cardData: CartItemType;
@@ -12,7 +16,6 @@ interface CartProductItemCardProps {
 
 const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
   cardData,
-
 }) => {
   const { addToCart, removeFromCart } = useCart();
   const router = useRouter();
@@ -21,14 +24,27 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
    * Called when user manually types a new quantity in the input.
    */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQty = parseInt(e.target.value, 10);
-    if(newQty >= 1) {
-      cardData.quantity  = newQty;
-      addToCart(cardData);
+    const value = parseInt(e.target.value);
+    if (isNaN(value) || value < 1) {
+      toast.error("Quantity must be at least 1", {
+        position: "top-right",
+        autoClose: 2000,
+        icon: <FaExclamationCircle className="text-white" />,
+        style: { background: '#ef4444', color: 'white' },
+        toastId: 'cart-update'
+      });
+      return;
     }
+    cardData.quantity = value;
+    addToCart(cardData);
+    toast.success("Cart updated", {
+      position: "top-right",
+      autoClose: 2000,
+      icon: <FaCheckCircle className="text-white" />,
+      style: { background: '#22c55e', color: 'white' },
+      toastId: 'cart-update'
+    });
   };
-
-
 
   return (
     <div className="grid grid-cols-4 items-center py-5 md:px-5 border-b">
@@ -36,7 +52,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
       <div>
         <Image
           src={cardData.images[0] || "/logo.png"}
-          alt={cardData.name}
+          alt={formatProductName(cardData)}
           width={1000}
           height={1000}
           className="h-[70px] w-[100px] md:h-[200px] md:w-[350px] rounded-md object-cover cursor-pointer"
@@ -45,8 +61,8 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
       </div>
 
       {/* Name and Description */}
-      <div className="col-span-2 flex flex-col px-4 cursor-pointer h-full  md:gap-y-5 justify-center" onClick={() => router.push(`/products/${cardData._id}`)}>
-        <h1 className="text-sm md:text-lg font-semibold">{cardData.name}</h1>
+      <div className="col-span-2 flex flex-col px-4 cursor-pointer h-full md:gap-y-5 justify-center" onClick={() => router.push(`/products/${cardData._id}`)}>
+        <h1 className="text-sm md:text-lg font-semibold">{formatProductName(cardData)}</h1>
         <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3">{cardData.description}</p>
       </div>
 
@@ -58,8 +74,25 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
             {/* Decrement Button */}
             <button
               onClick={() => {
+                if (cardData.quantity <= 1) {
+                  toast.error("Quantity must be at least 1", {
+                    position: "top-right",
+                    autoClose: 2000,
+                    icon: <FaExclamationCircle className="text-white" />,
+                    style: { background: '#ef4444', color: 'white' },
+                    toastId: 'cart-update'
+                  });
+                  return;
+                }
                 cardData.quantity--;
-                return addToCart(cardData);
+                addToCart(cardData);
+                toast.success("Cart updated", {
+                  position: "top-right",
+                  autoClose: 2000,
+                  icon: <FaCheckCircle className="text-white" />,
+                  style: { background: '#22c55e', color: 'white' },
+                  toastId: 'cart-update'
+                });
               }}
               disabled={cardData.quantity <= 1}
               className={`w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:bg-gray-100 transition`}
@@ -78,10 +111,15 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
             {/* Increment Button */}
             <button
               onClick={() => {
-                console.log("before quantity =>" , cardData.quantity);
                 cardData.quantity++;
-                console.log("after quantity =>" , cardData.quantity);
-                return addToCart(cardData);
+                addToCart(cardData);
+                toast.success("Cart updated", {
+                  position: "top-right",
+                  autoClose: 2000,
+                  icon: <FaCheckCircle className="text-white" />,
+                  style: { background: '#22c55e', color: 'white' },
+                  toastId: 'cart-update'
+                });
               }}
               className="w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
             >
@@ -89,7 +127,19 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
             </button>
           </div>
         </div>
-        <MdDelete className="text-2xl mb-1 text-gray-500 hover:text-black" onClick={() => removeFromCart(cardData._id)} />
+        <MdDelete 
+          className="text-2xl mb-1 text-gray-500 hover:text-black" 
+          onClick={() => {
+            removeFromCart(cardData._id);
+            toast.success("Cart updated", {
+              position: "top-right",
+              autoClose: 2000,
+              icon: <FaCheckCircle className="text-white" />,
+              style: { background: '#22c55e', color: 'white' },
+              toastId: 'cart-update'
+            });
+          }} 
+        />
       </div>
     </div>
   );

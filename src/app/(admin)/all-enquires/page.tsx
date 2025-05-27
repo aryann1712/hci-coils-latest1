@@ -1,39 +1,50 @@
 "use client";
 
-import AdminOrderCheckItemCard from '@/components/AdminOrderCheckCard';
 import { useUser } from '@/context/UserContext';
-import { EnquireItemType } from '@/lib/interfaces/OrderInterface';
+import { OrderItemType, CartItemType, EnquireItemType, CustomCoilItemType, EnquiryItemType } from '@/lib/interfaces/OrderInterface';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import EnquiryManagementTable from '@/components/EnquiryManagementTable';
+import { Button } from '@/components/ui/button';
+import { toast } from 'react-toastify';
 
 const AdminAllEnquires = () => {
     const { user } = useUser();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
-    const [userOrders, setUserOrders] = useState<EnquireItemType[]>([]);
+    const [orders, setOrders] = useState<EnquiryItemType[]>([]);
+    const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 9;
-
-    // Separate search states for each field
-    const [searchFilters, setSearchFilters] = useState({
-        productName: "",
-        enquiryId: "",
-        customerName: "",
-        companyName: "",
-        email: "",
-        gstNumber: "",
-        enquiryDate: "",
-        status: ""
-    });
-
-    // Active filter to show which search field is currently displayed
-    const [activeFilter, setActiveFilter] = useState<string | null>("productName");
+    const [searchQuery, setSearchQuery] = useState("");
+    const pageSize = 10;
 
     useEffect(() => {
         setMounted(true);
         async function fetchData() {
-            const data = await getUserOrder();
-            setUserOrders(data);
+            try {
+                setLoading(true);
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire`, {
+                    method: "GET",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${localStorage.getItem('token')}`
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch enquiries');
+                }
+
+                const data = await response.json();
+                setOrders(data.data);
+            } catch (error) {
+                console.error('Error fetching enquiries:', error);
+                toast.error(error instanceof Error ? error.message : 'Failed to fetch enquiries');
+                setOrders([]); // Set empty array on error
+            } finally {
+                setLoading(false);
+            }
         }
 
         if (!user) {
@@ -45,113 +56,50 @@ const AdminAllEnquires = () => {
         } else {
             fetchData();
         }
-
     }, [mounted, user, router]);
 
     const filteredOrders = useMemo(() => {
-        // Start with the full array
-        let filtered = userOrders;
+        if (!searchQuery.trim()) return orders;
 
-        // Apply each filter that has a value
-        if (searchFilters.productName.trim()) {
-            const query = searchFilters.productName.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                order.items.some(item =>
-                    item.product.name.toLowerCase().includes(query) ||
-                    item.product.description.toLowerCase().includes(query) ||
-                    // item.product.category.toLowerCase().includes(query) ||
-                    item.product._id.toLowerCase().includes(query)
+        const query = searchQuery.trim().toLowerCase();
+        return orders.filter(order => {
+            // Search in enquiry ID
+            if (order.enquiryId?.toLowerCase().includes(query)) return true;
+            
+            // Search in user details
+            if (order.user.name?.toLowerCase().includes(query)) return true;
+            if (order.user.email?.toLowerCase().includes(query)) return true;
+            if (order.user.companyName?.toLowerCase().includes(query)) return true;
+            if (order.user.gstNumber?.toLowerCase().includes(query)) return true;
+            
+            // Search in status
+            if (order.status?.toLowerCase().includes(query)) return true;
+            
+            // Search in products
+            if (order.items.some((item) => 
+                item.product.name.toLowerCase().includes(query.toLowerCase()) ||
+                item.product.description.toLowerCase().includes(query.toLowerCase()) ||
+                item.product.sku?.toLowerCase().includes(query.toLowerCase())
+            )) return true;
+
+            // Search in custom coils
+            if (order.customItems.some((item: CustomCoilItemType) => 
+                Object.values(item).some(value => 
+                    typeof value === 'string' && value.toLowerCase().includes(query.toLowerCase())
                 )
-            );
-        }
+            )) return true;
 
-        if (searchFilters.enquiryId.trim()) {
-            const query = searchFilters.enquiryId.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.enquiryId?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.customerName.trim()) {
-            const query = searchFilters.customerName.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.name?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.companyName.trim()) {
-            const query = searchFilters.companyName.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.companyName?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.email.trim()) {
-            const query = searchFilters.email.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.email?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.gstNumber.trim()) {
-            const query = searchFilters.gstNumber.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.gstNumber?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.enquiryDate.trim()) {
-            const query = searchFilters.enquiryDate.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.createdAt?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.status.trim()) {
-            const query = searchFilters.status.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.status?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        return filtered;
-    }, [userOrders, searchFilters]);
+            return false;
+        });
+    }, [orders, searchQuery]);
 
     // Pagination
     const totalPages = Math.ceil(filteredOrders.length / pageSize);
-    const currentPageProducts = useMemo(() => {
+    const currentPageOrders = useMemo(() => {
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         return filteredOrders.slice(startIndex, endIndex);
     }, [filteredOrders, currentPage]);
-
-    // Handlers
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setSearchFilters(prev => ({
-            ...prev,
-            [name]: value
-        }));
-        setCurrentPage(1);
-    };
-
-    const handleFilterSelect = (filterName: string) => {
-        setActiveFilter(activeFilter === filterName ? null : filterName);
-    };
-
-    const clearFilters = () => {
-        setSearchFilters({
-            productName: "",
-            enquiryId: "",
-            customerName: "",
-            companyName: "",
-            email: "",
-            gstNumber: "",
-            enquiryDate: "",
-            status: ""
-        });
-        setCurrentPage(1);
-    };
 
     const handleNextPage = () => {
         setCurrentPage((prev) => Math.min(prev + 1, totalPages));
@@ -161,299 +109,139 @@ const AdminAllEnquires = () => {
         setCurrentPage((prev) => Math.max(prev - 1, 1));
     };
 
-    // Excel export function
-    const exportToExcel = () => {
-        // Define the type for our export row
-        type ExportRowType = {
-            "S.No": number;
-            "Enquiry ID": string;
-            "Customer Name": string;
-            "Company": string;
-            "Email": string;
-            "GST Number": string;
-            "Address": string;
-            "Enquiry Date": string;
-            "Status": string;
-            "Total Items": number;
-            "Products": string;
-            "Custom Items": string;
-        };
-
-        // Format data for export
-        const exportData: ExportRowType[] = filteredOrders.map((enquiry, index) => {
-            return {
-                "S.No": index + 1,
-                "Enquiry ID": enquiry.enquiryId || "N/A",
-                "Customer Name": enquiry.user.name || "N/A",
-                "Company": enquiry.user.companyName || "N/A",
-                "Email": enquiry.user.email || "N/A",
-                "GST Number": enquiry.user.gstNumber || "N/A",
-                "Address": enquiry.user.address || "N/A",
-                "Enquiry Date": enquiry.createdAt || "N/A",
-                "Status": enquiry.status || "N/A",
-                "Total Items": enquiry.items.length,
-                "Products": enquiry.items.map(item =>
-                    `${item.product.name} (Qty: ${item.quantity})`
-                ).join(", "),
-                "Custom Items": enquiry.customItems ? enquiry.customItems.map(item => {
-                    return `Custom Coil Details:
-                        Coil Type: ${item.coilType || "N/A"}
-                        Height: ${item.height || "N/A"}
-                        Length: ${item.length || "N/A"}
-                        Rows: ${item.rows || "N/A"}
-                        FPI: ${item.fpi || "N/A"}
-                        Endplate Type: ${item.endplateType || "N/A"}
-                        Circuit Type: ${item.circuitType || "N/A"}
-                        Number of Circuits: ${item.numberOfCircuits || "N/A"}
-                        Header Size: ${item.headerSize || "N/A"}
-                        Tube Type: ${item.tubeType || "N/A"}
-                        Fin Type: ${item.finType || "N/A"}
-                        Distributor Holes: ${item.distributorHoles || (item.distributorHolesDontKnow ? "Don't Know" : "N/A")}
-                        Inlet Connection: ${item.inletConnection || (item.inletConnectionDontKnow ? "Don't Know" : "N/A")}
-                        Quantity: ${item.quantity || "N/A"}
-                        `;
-                }).join("\n\n") : "No custom items"
-            };
-        });
-
-        // Convert to CSV
-        if (exportData.length === 0) {
-            alert("No data to export");
-            return;
-        }
-
-        const headers = Object.keys(exportData[0]);
-        const csvRows = [];
-
-        // Add headers
-        csvRows.push(headers.join(','));
-
-        // Add data rows
-        for (const row of exportData) {
-            const values = headers.map(header => {
-                const value = row[header as keyof ExportRowType];
-                const escaped = ('' + value).replace(/"/g, '\\"');
-                return `"${escaped}"`;
-            });
-            csvRows.push(values.join(','));
-        }
-
-        const csvString = csvRows.join('\n');
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-
-        // Create a link to download
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `Enquiries_Export_${new Date().toLocaleDateString()}.csv`);
-        link.style.visibility = 'hidden';
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
     };
 
-    async function getUserOrder(): Promise<EnquireItemType[]> {
-        if (user) {
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
-                const data = await res.json();
-                if (!res.ok) {
-                    alert(data.error || "Error in fetching orders");
-                    return [];
-                }
-                return data.data;
-            } catch (error) {
-                console.error("Error loading orders:", error);
-                return [];
+    const handleUpdateStatus = async (enquiryId: string, newStatus: string) => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/${enquiryId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update status');
             }
-        } else {
-            return [];
+
+            // Update local state
+            setOrders(prevOrders =>
+                prevOrders.map(order =>
+                    order._id === enquiryId
+                        ? { ...order, status: newStatus }
+                        : order
+                )
+            );
+
+            toast.success('Status updated successfully');
+        } catch (error) {
+            console.error('Error updating status:', error);
+            toast.error('Failed to update status');
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
-    // Calculate how many filters are currently active
-    const activeFiltersCount = Object.values(searchFilters).filter(value => value.trim() !== "").length;
-
-    return (
-        <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
-            <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-blue-800 text-2xl md:text-3xl font-semibold italic">All Enquiries</h1>
-                    <button
-                        onClick={exportToExcel}
-                        className="px-2 md:px-4 text-sm md:text-base py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
-                    >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Export to Excel
-                    </button>
-                </div>
-
-                {/* Search Filters UI */}
-                <div className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                        <button
-                            onClick={() => handleFilterSelect("productName")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "productName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Product
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("enquiryId")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "enquiryId" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Enquiry ID
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("customerName")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "customerName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Customer
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("companyName")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "companyName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Company
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("email")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "email" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Email
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("gstNumber")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "gstNumber" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            GST
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("enquiryDate")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "enquiryDate" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Date
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("status")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "status" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Status
-                        </button>
-
-                        {activeFiltersCount > 0 && (
-                            <button
-                                onClick={clearFilters}
-                                className="px-3 py-1 text-sm md:text-base rounded-md bg-red-500 text-white ml-auto"
-                            >
-                                Clear All ({activeFiltersCount})
-                            </button>
-                        )}
+    if (!mounted || loading) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="animate-pulse space-y-4">
+                    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-10 bg-gray-200 rounded"></div>
+                    <div className="space-y-3">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                        ))}
                     </div>
-
-                    {activeFilter && (
-                        <div className="flex items-center gap-2">
-                            <label htmlFor={activeFilter} className="text-sm md:text-base font-medium">
-                                {activeFilter === "productName" && "Search by product:"}
-                                {activeFilter === "enquiryId" && "Search by enquiry ID:"}
-                                {activeFilter === "customerName" && "Search by customer name:"}
-                                {activeFilter === "companyName" && "Search by company:"}
-                                {activeFilter === "email" && "Search by email:"}
-                                {activeFilter === "gstNumber" && "Search by GST number:"}
-                                {activeFilter === "enquiryDate" && "Search by enquiry date:"}
-                                {activeFilter === "status" && "Search by status:"}
-                            </label>
-                            <input
-                                id={activeFilter}
-                                name={activeFilter}
-                                type="text"
-                                value={searchFilters[activeFilter as keyof typeof searchFilters]}
-                                onChange={handleSearchChange}
-                                placeholder={`Enter ${activeFilter}...`}
-                                className="border p-1 text-sm md:text-base flex-grow"
-                            />
-                            {searchFilters[activeFilter as keyof typeof searchFilters] && (
-                                <button
-                                    onClick={() => {
-                                        setSearchFilters(prev => ({
-                                            ...prev,
-                                            [activeFilter]: ""
-                                        }));
-                                    }}
-                                    className="p-1 bg-gray-200 rounded-full"
-                                >
-
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            )}
-                        </div>
-                    )}
-
-                    <div className="text-sm text-gray-600 flex justify-between">
-                        <span>{filteredOrders.length} enquiries found</span>
-                        {activeFiltersCount > 0 && (
-                            <span className="text-blue-600">{activeFiltersCount} filter{activeFiltersCount > 1 ? 's' : ''} applied</span>
-                        )}
-                    </div>
-                </div>
-
-                <div>
-                    <div className=''>
-                        {currentPageProducts.length > 0 ? (
-                            currentPageProducts.map((orderData, index) => (
-                                <AdminOrderCheckItemCard key={index} enquireItem={orderData} />
-                            ))
-                        ) : (
-                            <div className="text-center py-10 bg-gray-50 rounded-md">
-                                <p className="text-gray-500 text-lg">No enquiries match your search criteria</p>
-                                {activeFiltersCount > 0 && (
-                                    <button
-                                        onClick={clearFilters}
-                                        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                    >
-                                        Clear All Filters
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Pagination Controls */}
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-center space-x-4 mt-6">
-                            <button
-                                onClick={handlePrevPage}
-                                disabled={currentPage === 1}
-                                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                            >
-                                Prev
-                            </button>
-                            <span className="font-medium">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <button
-                                onClick={handleNextPage}
-                                disabled={currentPage === totalPages}
-                                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
-        </div>
-    )
-}
+        );
+    }
 
-export default AdminAllEnquires
+    return (
+        <div className="container mx-auto px-4 py-8">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Enquiry Management</h1>
+                <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-600">
+                        Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filteredOrders.length)} of {filteredOrders.length} enquiries
+                    </span>
+                </div>
+            </div>
+
+            {/* Single Search Bar */}
+            <div className="mb-6">
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        placeholder="Search by enquiry ID, customer, company, product, status..."
+                        className="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        🔍
+                    </div>
+                </div>
+                <p className="mt-2 text-sm text-gray-500">
+                    Search across all fields including enquiry ID, customer details, company, products, and status
+                </p>
+            </div>
+
+            {/* Enquiry Table */}
+            <EnquiryManagementTable
+                enquiries={currentPageOrders}
+                onUpdateStatus={handleUpdateStatus}
+                currentPage={currentPage}
+                pageSize={pageSize}
+            />
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="mt-6 flex items-center justify-between border-t pt-4">
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={handlePrevPage}
+                            disabled={currentPage === 1}
+                            variant="outline"
+                            size="sm"
+                        >
+                            Previous
+                        </Button>
+                        <div className="flex items-center gap-1">
+                            {[...Array(totalPages)].map((_, i) => (
+                                <Button
+                                    key={i}
+                                    variant={currentPage === i + 1 ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className="w-8 h-8 p-0"
+                                >
+                                    {i + 1}
+                                </Button>
+                            ))}
+                        </div>
+                        <Button
+                            onClick={handleNextPage}
+                            disabled={currentPage === totalPages}
+                            variant="outline"
+                            size="sm"
+                        >
+                            Next
+                        </Button>
+                    </div>
+                    <span className="text-sm text-gray-600">
+                        Page {currentPage} of {totalPages}
+                    </span>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default AdminAllEnquires;

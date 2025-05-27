@@ -2,35 +2,24 @@
 
 import { useCart } from '@/context/CartContext';
 import { ProductAllTypeInterfact } from '@/data/allProducts';
+import { formatProductName } from '@/lib/utils';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Link from 'next/link';
 
 import {
   Carousel,
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
-import { useRouter } from 'next/navigation';
-import { ToastContainer, toast } from 'react-toastify';
-
 
 const ProductCard = ({ product, showHover = true }: { product: ProductAllTypeInterfact, showHover?: boolean }) => {
   const { addToCart } = useCart();
   const router = useRouter();
 
   const cartAddMethod = () => {
-    // toast.success('Product Added Successfully!', {
-    //   position: "top-right",
-    //   // autoClose: 5000,
-    //   // hideProgressBar: false,
-    //   closeOnClick: true,
-    //   pauseOnHover: false,
-    //   // draggable: true,
-    //   // progress: undefined,
-    //   theme: "light",
-    // });
-    alert("Product Added successfully");
-
-
     addToCart({
       _id: product._id,
       name: product.name,
@@ -42,61 +31,48 @@ const ProductCard = ({ product, showHover = true }: { product: ProductAllTypeInt
     });
   }
 
-
   return (
-    <div className='w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5 '>
-      <ToastContainer />
-      {/* Image */}
-      <div className="relative overflow-hidden group">
-        <Carousel className="w-full">
-          <CarouselContent>
-            {product.images.map((item, index) => (
-              <CarouselItem key={index}>
-                <Image
-                  key={index}
-                  src={item}
-                  alt={product.name}
-                  height={800}
-                  width={800}
-                  onClick={() => router.push(`/products/${product._id}`)}
-                  className={`object-cover transition-transform duration-300  ${showHover ? 'group-hover:scale-110' : 'group-hover:scale-100'} h-36 lg:h-[300px] rounded-t-md hover:cursor-pointer`}
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-
-        </Carousel>
-
-      </div>
-      <div className='space-y-2 px-2 pb-2 lg:p-3 '>
-        {/* Name */}
-        <h3 className='text-md md:text-xl font-semibold font-sans'>{product.name}</h3>
-        {/* SKU */}
-        <p className='text-xs md:text-xs text-gray-600 font-semibold font-sans'>Part Code - {product.sku}</p>
-        {/* Desc */}
-        <p className='text-xs md:text-sm font-thin text-gray-400 line-clamp-3'>{product.description}</p>
-        {/* Buttons */}
-        <div className='pt-5 px-2 md:px-10 flex justify-center'>
-          {/* <button
-            className='bg-green-700 text-white px-5 py-2 rounded-md'
-            onClick={() => console.log("enquire now")}>
-            Enquire Now
-          </button> */}
-          <button
-            className='bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md'
-            onClick={() => 
-
-              cartAddMethod()
-            }>
-            Add to Cart
-          </button>
+    <div className={`bg-white rounded-lg shadow-md overflow-hidden h-full ${showHover ? 'hover:shadow-xl transition-shadow duration-300' : ''}`}>
+      <Link href={`/products/${product._id}`} className="block">
+        <div className="relative aspect-square">
+          <Carousel>
+            <CarouselContent>
+              {product.images.map((image, index) => (
+                <CarouselItem key={index}>
+                  <Image
+                    src={image}
+                    alt={formatProductName(product)}
+                    width={1000}
+                    height={1000}
+                    className="w-full h-full object-cover"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
         </div>
-      </div>
+      </Link>
 
+      <div className="p-6 flex flex-col justify-between h-[200px]">
+        <div>
+          <Link href={`/products/${product._id}`} className="block">
+            <h3 className="text-xl font-semibold mb-3 line-clamp-1 hover:text-blue-600 transition-colors">
+              {formatProductName(product)}
+            </h3>
+            <p className="text-gray-600 text-base mb-4 line-clamp-3">
+              {product.description}
+            </p>
+          </Link>
+        </div>
+        <button
+          onClick={cartAddMethod}
+          className="w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-colors text-lg font-medium"
+        >
+          Add to Cart
+        </button>
+      </div>
     </div>
   );
-}
+};
 
-
-
-export default ProductCard
+export default ProductCard;

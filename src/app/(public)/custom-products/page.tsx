@@ -6,6 +6,8 @@ import Image from 'next/image';
 import Head from 'next/head';
 import { useCart } from '@/context/CartContext';
 import { CustomCoilItemType } from '@/lib/interfaces/CartInterface';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CustomCoilForm() {
   const { addCustomCoilToCart } = useCart();
@@ -797,8 +799,8 @@ export default function CustomCoilForm() {
                 <button
                   onClick={() => {
                     addCustomCoilToCart(formData);
-                    alert("Item added successfully");
-                    return router.push('/cart');
+                    toast.success("Item added successfully");
+                    router.push('/cart');
                   }}
                   className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                 >

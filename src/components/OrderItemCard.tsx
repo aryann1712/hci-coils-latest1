@@ -1,24 +1,22 @@
 "use client";
-import { useCart } from '@/context/CartContext';
-import { OrderItemType } from '@/lib/interfaces/OrderInterface';
+import { OrderItemType, CustomCoilItemType } from '@/lib/interfaces/OrderInterface';
+import { formatProductName } from '@/lib/utils';
 import Image from 'next/image';
-import { FaReply } from "react-icons/fa";
+
+interface ProductType {
+    _id: string;
+    name: string;
+    description: string;
+    sku: string;
+    images: string[];
+    dimensions?: {
+        length: number;
+        width: number;
+        height: number;
+    };
+}
 
 const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
-  const { addToCart, addCustomCoilToCart } = useCart();
-
-
-  const addItemsToCart = (() => {
-    for (const item of orderItem.items) {
-      item.product.quantity = item.quantity;
-      addToCart(item.product);
-    }
-    for (const customItem of orderItem.customItems) {
-      addCustomCoilToCart(customItem);
-    }
-    alert("Item added to card");
-  });
-
   return (
     <div className='shadow-md rounded-md my-5 py-5  px-1 md:px-5 border-dashed border flex flex-row gap-5 items-center justify-center'>
       <div className=''>
@@ -26,127 +24,84 @@ const OrderItemCard = ({ orderItem }: { orderItem: OrderItemType }) => {
           <h1>Order Id: {orderItem.orderId}</h1>
           <h1>Purchase Date: {orderItem.createdAt}</h1>
           <h1>GST No: {orderItem.user.gstNumber}</h1>
-
         </div>
-        {orderItem.items.map((item, index) =>
-        (
+        {orderItem.items.map((item, index) => {
+          const product = item.product as unknown as ProductType;
+          return (
+            <div key={index} className='grid grid-cols-4 items-center py-5 px-2 md:px-5 border-b'>
+              {/* Image */}
+              <div>
+                <Image
+                  src={product.images?.[0] || '/logo.png'}
+                  alt={formatProductName(product)}
+                  width={1000}
+                  height={1000}
+                  className="w-[100px] h-[70px] md:h-[100px] md:w-[150px] rounded-md object-cover"
+                />
+              </div>
+
+              {/* Name and Description */}
+              <div className="col-span-2 flex flex-col px-2 md:px-4">
+                <h1 className="text-sm md:text-lg font-semibold">{formatProductName(product)}</h1>
+                <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code: {product.sku || ''}</h1>
+                {product.dimensions && (
+                  <h1 className="text-xs md:text-xs font-gray-600 font-semibold">
+                    Dimensions: {product.dimensions.length || 0} x {product.dimensions.width || 0} x {product.dimensions.height || 0}
+                  </h1>
+                )}
+                <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{product.description || ''}</p>
+              </div>
+
+              {/* Quantity */}
+              <div className="flex flex-col justify-center">
+                <h1 className="text-xs text-gray-400 font-semibold">Qty</h1>
+                <h1 className="text-lg font-semibold">{item.quantity}</h1>
+              </div>
+            </div>
+          );
+        })}
+        {orderItem.customItems && orderItem.customItems.map((item: CustomCoilItemType, index) => (
           <div key={index} className='grid grid-cols-4 items-center py-5 px-2 md:px-5 border-b'>
             {/* Image */}
             <div>
               <Image
-                src={item.product.images[0] || '/logo.png'}
-                alt={item.product.name}
+                src="/custom-coil-info1.png"
+                alt="Custom Coil"
                 width={1000}
                 height={1000}
                 className="w-[100px] h-[70px] md:h-[100px] md:w-[150px] rounded-md object-cover"
               />
             </div>
 
-
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-2 md:px-4">
-              <h1 className="text-sm md:text-lg font-semibold">{item.product.name}</h1>
-              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {item.product.sku || ''}</h1>
-              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{item.product.description || ''}</p>
-            </div>
-
-            {/* Quantity */}
-            <div className="flex flex-col justify-center">
-              <h1 className="text-xs  text-gray-400 font-semibold">Qty</h1>
-              <h1 className="text-lg font-semibold">{item.quantity}</h1>
-            </div>
-
-          </div>
-        ))}
-        {orderItem.customItems.map((item, index) =>
-        (
-          <div key={index} className='grid grid-cols-4 items-center py-5 px-2 md:px-5 border-b'>
-            {/* Image */}
-            <div>
-              <Image
-                src={"/custom-coil-info1.png"}
-                alt={"custom coil"}
-                width={1000}
-                height={1000}
-                className="w-[100px] h-[70px] md:h-[100px] md:w-[150px] rounded-md object-cover"
-              />
-            </div>
-
-
-            {/* Name and Description */}
-            <div className="col-span-2 flex flex-col px-2 md:px-4">
-              <h1 className="text-sm md:text-lg font-semibold mb-3">{item.coilType} coil</h1>
+              <h1 className="text-sm md:text-lg font-semibold">{item.coilType}</h1>
               <div className="text-xs md:text-sm text-gray-600 grid grid-cols-1">
-                <div className="grid grid-cols-2 gap-x-10 gap-y-3 md:gap-y-3">
-
-                  <span className="font-semibold">Height:</span>
-                  <span>{item.height}</span>
-
-                  <span className="font-semibold">Length:</span>
-                  <span>{item.length}</span>
-
-                  <span className="font-semibold">Rows:</span>
-                  <span>{item.rows}</span>
-
-                  <span className="font-semibold">FPI:</span>
-                  <span>{item.fpi}</span>
-
-                  <span className="font-semibold">Endplate Type:</span>
-                  <span>{item.endplateType}</span>
-
-                  <span className="font-semibold">Circuit Type:</span>
-                  <span>{item.circuitType}</span>
-
-                  <span className="font-semibold">Number of Circuits:</span>
-                  <span>{item.numberOfCircuits}</span>
-
-                  <span className="font-semibold">Header Size:</span>
-                  <span>{item.headerSize}</span>
-
-                  <span className="font-semibold">Tube Type:</span>
-                  <span>{item.tubeType}</span>
-
-                  <span className="font-semibold">Pipe Type:</span>
-                  <span>{item.pipeType}</span>
-
-                  <span className="font-semibold">Fin Type:</span>
-                  <span>{item.finType}</span>
-
-                  <span className="font-semibold">Distributor Holes:</span>
-                  <span>{item.distributorHoles}</span>
-
-                  <span className="font-semibold">Distributor Holes Don't Know:</span>
-                  <span>{item.distributorHolesDontKnow ? 'Yes' : 'No'}</span>
-
-                  <span className="font-semibold">Inlet Connection:</span>
-                  <span>{item.inletConnection}</span>
-
-                  <span className="font-semibold">Inlet Connection Don't Know:</span>
-                  <span>{item.inletConnectionDontKnow ? 'Yes' : 'No'}</span>
-
-                  <span className="font-semibold">Quantity:</span>
-                  <span>{item.quantity}</span>
-                </div>
+                <p><span className="font-semibold mr-2">Height:</span> {item.height}</p>
+                <p><span className="font-semibold mr-2">Length:</span> {item.length}</p>
+                <p><span className="font-semibold mr-2">Rows:</span> {item.rows}</p>
+                <p><span className="font-semibold mr-2">FPI:</span> {item.fpi}</p>
+                <p><span className="font-semibold mr-2">Endplate Type:</span> {item.endplateType}</p>
+                <p><span className="font-semibold mr-2">Circuit Type:</span> {item.circuitType}</p>
+                <p><span className="font-semibold mr-2">Number of Circuits:</span> {item.numberOfCircuits}</p>
+                <p><span className="font-semibold mr-2">Header Size:</span> {item.headerSize}</p>
+                <p><span className="font-semibold mr-2">Tube Type:</span> {item.tubeType}</p>
+                <p><span className="font-semibold mr-2">Fin Type:</span> {item.finType}</p>
+                <p><span className="font-semibold mr-2">Distributor Holes:</span> {item.distributorHoles}</p>
+                <p><span className="font-semibold mr-2">Inlet Connection:</span> {item.inletConnection}</p>
               </div>
             </div>
 
             {/* Quantity */}
             <div className="flex flex-col justify-center">
-              <h1 className="text-xs  text-gray-400 font-semibold">Qty</h1>
+              <h1 className="text-xs text-gray-400 font-semibold">Qty</h1>
               <h1 className="text-lg font-semibold">{item.quantity}</h1>
             </div>
-
           </div>
         ))}
       </div>
-      <div className='group' >
-        <div className='min-w-[70px] md:min-w-[200px] flex flex-col justify-center items-center cursor-pointer gap-y-2' onClick={() => addItemsToCart()}>
-          <FaReply className='text-2xl md:text-4xl text-gray-400 group-hover:text-red-500' />
-          <h1 className='font-semibold group-hover:text-red-500'>Add to cart</h1>
-        </div>
-      </div>
     </div>
-  )
-}
+  );
+};
 
-export default OrderItemCard
+export default OrderItemCard;

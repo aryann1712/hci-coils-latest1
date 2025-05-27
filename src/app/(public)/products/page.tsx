@@ -144,10 +144,10 @@ export default function ProductsPage() {
     
     return (
       <div className="mb-20">
-        <h2 className="mb-4 text-xl font-bold text-gray-600">{category}</h2>
-        <div className="flex flex-row overflow-x-scroll gap-x-20">
+        <h2 className="mb-8 text-2xl font-bold text-gray-600">{category}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.map((product) => (
-            <div key={product._id} className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5">
+            <div key={product._id} className="w-full">
               <ProductCard product={product} />
             </div>
           ))}

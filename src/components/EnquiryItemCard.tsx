@@ -3,10 +3,12 @@ import { useCart } from '@/context/CartContext';
 import { EnquiryItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
 import Image from 'next/image';
 import { FaReply } from "react-icons/fa";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaCheckCircle } from 'react-icons/fa';
 
 const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
   const { addToCart, addCustomCoilToCart } = useCart();
-
 
   const addItemsToCart = (() => {
     for (const item of orderItem.items) {
@@ -16,7 +18,17 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
     for (const customItem of orderItem.customItems) {
       addCustomCoilToCart(customItem);
     }
-    alert("Item added to card");
+    toast.success("Items added to cart!", {
+      position: "bottom-right",
+      autoClose: 2000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      icon: <FaCheckCircle className="text-white" />,
+      style: { background: '#22c55e', color: 'white' },
+      toastId: 'enquiry-items-add'
+    });
   });
 
   return (
