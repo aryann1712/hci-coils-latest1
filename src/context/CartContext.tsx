@@ -16,6 +16,7 @@ interface CartContextType {
   decrementToCart: (id: string) => void;
   removeFromCart: (id: string) => void;
   updateProductToCart: (item: CartItemType) => void;
+  mounted: boolean;
 }
 
 const CartContext = createContext<CartContextType>({
@@ -28,31 +29,38 @@ const CartContext = createContext<CartContextType>({
   decrementToCart: () => {},
   removeFromCart: () => {},
   updateProductToCart: () => {},
+  mounted: false,
 });
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useUser();
-  const [cartItems, setCartItems] = useState<FinalCartItem>(() => {
-    if (typeof window !== "undefined") {
-      const storedCart = localStorage.getItem("cartItems");
+  const { user, mounted: userMounted } = useUser();
+  const [mounted, setMounted] = useState(false);
+  const [cartItems, setCartItems] = useState<FinalCartItem>({ items: [], customCoils: [] });
+
+  // Initialize cart from localStorage after mount
+  useEffect(() => {
+    setMounted(true);
+    const storedCart = localStorage.getItem("cartItems");
+    if (storedCart) {
       try {
-        const parsedCart = storedCart ? JSON.parse(storedCart) : { items: [], customCoils: [] };
-        // Ensure both items and customCoils exist
-        return {
+        const parsedCart = JSON.parse(storedCart);
+        setCartItems({
           items: Array.isArray(parsedCart.items) ? parsedCart.items : [],
           customCoils: Array.isArray(parsedCart.customCoils) ? parsedCart.customCoils : []
-        };
+        });
       } catch (error) {
         console.error("Error parsing cart from localStorage:", error);
-        return { items: [], customCoils: [] };
+        localStorage.removeItem("cartItems");
       }
     }
-    return { items: [], customCoils: [] };
-  });
+  }, []);
 
+  // Store cart in localStorage when it changes
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+    if (mounted) {
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    }
+  }, [cartItems, mounted]);
 
   const setAllToCart = (items: FinalCartItem) => {
     // Ensure both items and customCoils exist in the input
@@ -434,12 +442,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, setAllToCart, addToCart, addCustomCoilToCart, updateCustomCoilToCart, decrementToCart, removeFromCart, updateProductToCart, removeCustomCoilFromCart }}>
+    <CartContext.Provider value={{ 
+      cartItems, 
+      setAllToCart, 
+      addToCart, 
+      addCustomCoilToCart, 
+      updateCustomCoilToCart, 
+      decrementToCart, 
+      removeFromCart, 
+      updateProductToCart, 
+      removeCustomCoilFromCart,
+      mounted: mounted && userMounted 
+    }}>
       {children}
     </CartContext.Provider>
   );
 }
 
-export function useCart() {
-  return useContext(CartContext);
-}
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (context === undefined) {
+    throw new Error("useCart must be used within a CartProvider");
+  }
+  return context;
+};

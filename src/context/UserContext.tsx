@@ -4,13 +4,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { UserType } from "@/lib/interfaces/UserInterface";
 import { useRouter } from "next/navigation";
 
-
-
 interface UserContextType {
   user: UserType | null;
   signIn: (userData: UserType) => void;
   signOut: () => void;
   updateUser: (updatedUser: Partial<UserType>) => void;
+  mounted: boolean;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -18,43 +17,48 @@ const UserContext = createContext<UserContextType>({
   signIn: () => {},
   signOut: () => {},
   updateUser: () => {},
+  mounted: false,
 });
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  
-    const router = useRouter();
-  
-  // State for user
-  const [user, setUser] = useState<UserType | null>(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    }
-    return null;
-  });
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<UserType | null>(null);
 
-  // Whenever user changes, store it in localStorage
+  // Initialize user from localStorage after mount
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
+    setMounted(true);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing stored user:", error);
+        localStorage.removeItem("user");
+      }
     }
-  }, [user]);
+  }, []);
 
-  // signIn can be called after you verify credentials with your backend
-  // e.g. if you get a JWT token, user info, etc.
+  // Store user in localStorage when it changes
+  useEffect(() => {
+    if (mounted) {
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+      } else {
+        localStorage.removeItem("user");
+      }
+    }
+  }, [user, mounted]);
+
   const signIn = (userData: UserType) => {
     setUser(userData);
   };
 
-  // signOut clears user state
   const signOut = () => {
     setUser(null);
-    router.replace("/auth/signin")
+    router.replace("/auth/signin");
   };
 
-  // updateUser merges fields with the existing user data
   const updateUser = (updatedUser: Partial<UserType>) => {
     setUser((prev) => {
       if (!prev) return null;
@@ -63,12 +67,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, signIn, signOut, updateUser }}>
+    <UserContext.Provider value={{ user, signIn, signOut, updateUser, mounted }}>
       {children}
     </UserContext.Provider>
   );
 }
 
-export function useUser() {
-  return useContext(UserContext);
-}
+export const useUser = () => {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
+};

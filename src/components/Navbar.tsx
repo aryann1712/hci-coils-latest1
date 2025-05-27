@@ -14,30 +14,29 @@ import { TiSocialFacebook } from "react-icons/ti";
 
 const Navbar = () => {
   const { cartItems } = useCart();
-  const { user, signOut } = useUser();
-  const [mounted, setMounted] = useState(true);
+  const { user, signOut, mounted } = useUser();
   const [isOpen, setIsOpen] = useState(false);
-
   const router = useRouter();
 
-  // Add null checks to prevent the "cartItems.items is undefined" error
-  const totalQuantity = (cartItems?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0) +
-    (cartItems?.customCoils?.reduce((acc, item) => acc + item.quantity, 0) || 0);
+  // Calculate total quantity only after component is mounted
+  const totalQuantity = mounted ? (
+    (cartItems?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0) +
+    (cartItems?.customCoils?.reduce((acc, item) => acc + item.quantity, 0) || 0)
+  ) : 0;
 
   console.log("navbar se cart items", cartItems.items)
   console.log("navbar se custom items", cartItems.customCoils)
 
   useEffect(() => {
     // Clear any stale user data from localStorage on component mount
-    if (typeof window !== 'undefined' && !user) {
+    if (mounted && !user) {
       localStorage.removeItem('user');
     }
-  }, [user]);
+  }, [user, mounted]);
 
   const handleSignOut = () => {
     if (user) {
       signOut();
-      localStorage.removeItem('user');  // Ensure user data is cleared
     }
   };
 
