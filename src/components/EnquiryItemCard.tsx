@@ -1,22 +1,44 @@
 "use client";
 import { useCart } from '@/context/CartContext';
-import { EnquiryItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
+import { EnquiryItemType } from '@/lib/interfaces/OrderInterface';
+import type { CartItemType, CustomCoilItemType as CartCustomCoilItemType } from '@/lib/interfaces/CartInterface';
+import type { CustomCoilItemType as OrderCustomCoilItemType } from '@/lib/interfaces/OrderInterface';
 import Image from 'next/image';
 import { FaReply } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaCheckCircle } from 'react-icons/fa';
 
+// Helper function to convert order custom coil to cart custom coil
+const convertToCartCustomCoil = (orderCoil: OrderCustomCoilItemType): CartCustomCoilItemType => {
+  const { tubeType, ...rest } = orderCoil;
+  return {
+    ...rest,
+    tubeType,
+    pipeType: tubeType // Use tubeType as pipeType since they represent the same thing
+  };
+};
+
 const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
   const { addToCart, addCustomCoilToCart } = useCart();
 
   const addItemsToCart = (() => {
     for (const item of orderItem.items) {
-      item.product.quantity = item.quantity;
-      addToCart(item.product);
+      // Convert OrderItemType to CartItemType
+      const cartItem: CartItemType = {
+        _id: item.product._id,
+        sku: item.product.sku,
+        images: [(item.product as any).images?.[0] || '/logo.png'],
+        name: item.product.name,
+        category: (item.product as any).category || 'default',
+        description: item.product.description,
+        quantity: item.quantity
+      };
+      addToCart(cartItem);
     }
     for (const customItem of orderItem.customItems) {
-      addCustomCoilToCart(customItem);
+      const cartCustomItem = convertToCartCustomCoil(customItem);
+      addCustomCoilToCart(cartCustomItem);
     }
     toast.success("Items added to cart!", {
       position: "bottom-right",
@@ -46,7 +68,7 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
             {/* Image */}
             <div>
               <Image
-                src={item.product.images[0] || '/logo.png'}
+                src={(item.product as any).images?.[0] || '/logo.png'}
                 alt={item.product.name}
                 width={1000}
                 height={1000}

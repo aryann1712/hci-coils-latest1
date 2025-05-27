@@ -110,7 +110,7 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             <div>
               <Image
                 src={(item.product as any).images?.[0] || '/logo.png'}
-                alt={formatProductName(item.product)}
+                alt={formatProductName(item.product.product)}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -119,9 +119,9 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
 
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-4">
-              <h1 className="text-sm md:text-lg font-semibold">{formatProductName(item.product)}</h1>
-              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {item.product.sku || ''}</h1>
-              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{item.product.description || ''}</p>
+              <h1 className="text-sm md:text-lg font-semibold">{formatProductName(item.product.product)}</h1>
+              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {(item.product.product as any).sku || ''}</h1>
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{(item.product.product as any).description || ''}</p>
             </div>
 
             {/* Quantity */}
