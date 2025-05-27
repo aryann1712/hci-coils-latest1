@@ -36,7 +36,7 @@ const CartProductCustomCoilCard: React.FC<CartProductItemCardProps> = ({
             <div>
                 <Image
                     src={"/custom-coil-info1.png"}
-                    alt={"custom coil"}
+                    alt="custom coil"
                     width={1000}
                     height={1000}
                     className="h-[70px] w-[100px] md:h-[200px] md:w-[350px] rounded-md object-cover cursor-pointer"
@@ -63,9 +63,9 @@ const CartProductCustomCoilCard: React.FC<CartProductItemCardProps> = ({
                     <p><span className="font-semibold mr-2">pipeType:</span> {cardData.pipeType}</p>
                     <p><span className="font-semibold mr-2">finType:</span> {cardData.finType}</p>
                     <p><span className="font-semibold mr-2">distributorHoles:</span> {cardData.distributorHoles}</p>
-                    <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {cardData.distributorHolesDontKnow ? 'Yes' : 'No'}</p>
+                    <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {cardData.distributorHolesDontKnow ? "Yes" : "No"}</p>
                     <p><span className="font-semibold mr-2">inletConnection:</span> {cardData.inletConnection}</p>
-                    <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {cardData.inletConnectionDontKnow ? 'Yes' : 'No'}</p>
+                    <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {cardData.inletConnectionDontKnow ? "Yes" : "No"}</p>
                     <p><span className="font-semibold mr-2">quantity:</span> {cardData.quantity}</p>
                 </div>
             </div>

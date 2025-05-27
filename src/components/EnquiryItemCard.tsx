@@ -77,7 +77,7 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
             <div>
               <Image
                 src={"/custom-coil-info1.png"}
-                alt={"custom coil"}
+                alt="custom coil"
                 width={1000}
                 height={1000}
                 className="w-[100px] h-[70px] md:h-[100px] md:w-[150px] rounded-md object-cover"
@@ -127,13 +127,13 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
                   <span className="font-semibold">Distributor Holes:</span>
                   <span>{item.distributorHoles}</span>
 
-                  <span className="font-semibold">Distributor Holes Don't Know:</span>
+                  <span className="font-semibold">Distributor Holes Don&apos;t Know:</span>
                   <span>{item.distributorHolesDontKnow ? 'Yes' : 'No'}</span>
 
                   <span className="font-semibold">Inlet Connection:</span>
                   <span>{item.inletConnection}</span>
 
-                  <span className="font-semibold">Inlet Connection Don't Know:</span>
+                  <span className="font-semibold">Inlet Connection Don&apos;t Know:</span>
                   <span>{item.inletConnectionDontKnow ? 'Yes' : 'No'}</span>
 
                   <span className="font-semibold">Quantity:</span>

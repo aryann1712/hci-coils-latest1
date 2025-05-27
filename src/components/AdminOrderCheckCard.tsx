@@ -54,7 +54,7 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             <div>
               <Image
                 src={"/custom-coil-info1.png"}
-                alt={"custom coil"}
+                alt="custom coil"
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -78,9 +78,9 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
                 <p><span className="font-semibold mr-2">tubeType:</span> {item.tubeType}</p>
                 <p><span className="font-semibold mr-2">finType:</span> {item.finType}</p>
                 <p><span className="font-semibold mr-2">distributorHoles:</span> {item.distributorHoles}</p>
-                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? 'Yes' : 'No'}</p>
+                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? "Yes" : "No"}</p>
                 <p><span className="font-semibold mr-2">inletConnection:</span> {item.inletConnection}</p>
-                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? 'Yes' : 'No'}</p>
+                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? "Yes" : "No"}</p>
                 <p><span className="font-semibold mr-2">quantity:</span> {item.quantity}</p>
               </div>
             </div>
@@ -139,7 +139,7 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             <div>
               <Image
                 src={"/custom-coil-info1.png"}
-                alt={"custom coil"}
+                alt="custom coil"
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -163,9 +163,9 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
                 <p><span className="font-semibold mr-2">tubeType:</span> {item.tubeType}</p>
                 <p><span className="font-semibold mr-2">finType:</span> {item.finType}</p>
                 <p><span className="font-semibold mr-2">distributorHoles:</span> {item.distributorHoles}</p>
-                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? 'Yes' : 'No'}</p>
+                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? "Yes" : "No"}</p>
                 <p><span className="font-semibold mr-2">inletConnection:</span> {item.inletConnection}</p>
-                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? 'Yes' : 'No'}</p>
+                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? "Yes" : "No"}</p>
                 <p><span className="font-semibold mr-2">quantity:</span> {item.quantity}</p>
               </div>
             </div>

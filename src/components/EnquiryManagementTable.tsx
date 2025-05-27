@@ -261,13 +261,13 @@ const EnquiryManagementTable = ({ enquiries, onUpdateStatus, currentPage, pageSi
                               <div>
                                 <p className="text-sm text-gray-600">Distributor Holes</p>
                                 <p className="font-medium">
-                                  {item.distributorHolesDontKnow ? 'Not specified' : item.distributorHoles}
+                                  {item.distributorHolesDontKnow ? "Not specified" : item.distributorHoles}
                                 </p>
                               </div>
                               <div>
                                 <p className="text-sm text-gray-600">Inlet Connection</p>
                                 <p className="font-medium">
-                                  {item.inletConnectionDontKnow ? 'Not specified' : item.inletConnection}
+                                  {item.inletConnectionDontKnow ? "Not specified" : item.inletConnection}
                                 </p>
                               </div>
                             </div>
