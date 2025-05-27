@@ -30,8 +30,7 @@ const EnquirePage = () => {
         } else {
             fetchData();
         }
-
-    }, [user]);
+    }, [user, router, getUserOrder]);
 
     if (!mounted) {
         return null;

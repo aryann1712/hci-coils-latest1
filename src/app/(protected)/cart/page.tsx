@@ -22,11 +22,11 @@ const CartPage: React.FC = () => {
   const handlePurchase = () => {
     if (!user) {
       toast.error("Please sign in to continue", {
-        position: "top-right",
+        position: "bottom-right",
         autoClose: 3000,
         icon: <FaExclamationCircle className="text-white" />,
         style: { background: '#ef4444', color: 'white' },
-        toastId: 'cart-action'
+        toastId: 'signin-required'
       });
       router.push("/auth/signin");
       return;
@@ -37,6 +37,8 @@ const CartPage: React.FC = () => {
     async function placeOrders() {
       try {
         if ((cartItems.items.length + cartItems.customCoils.length) > 0) {
+          console.log("cartItems --> ", cartItems);
+  
           const tempItems = cartItems.items.map((item) => ({
             product: item._id,
             quantity: item.quantity,
@@ -61,17 +63,17 @@ const CartPage: React.FC = () => {
   
           if (!response.ok) {
             toast.error(data.error || "Failed to place order", {
-              position: "top-right",
+              position: "bottom-right",
               autoClose: 3000,
               icon: <FaExclamationCircle className="text-white" />,
               style: { background: '#ef4444', color: 'white' },
-              toastId: 'cart-action'
+              toastId: 'order-error'
             });
             return;
           }
   
-          toast.success("Order placed successfully", {
-            position: "top-right",
+          toast.success("Order placed successfully!", {
+            position: "bottom-right",
             autoClose: 2000,
             hideProgressBar: true,
             closeOnClick: true,
@@ -79,19 +81,19 @@ const CartPage: React.FC = () => {
             draggable: true,
             icon: <FaCheckCircle className="text-white" />,
             style: { background: '#22c55e', color: 'white' },
-            toastId: 'cart-action'
+            toastId: 'order-success'
           });
           setAllToCart({ items: [], customCoils: [] });
           router.push("/orders");
         }
       } catch (error) {
         console.error("Order error:", error);
-        toast.error("Failed to place order", {
+        toast.error("Something went wrong while placing the order", {
           position: "top-right",
           autoClose: 3000,
           icon: <FaExclamationCircle className="text-white" />,
           style: { background: '#ef4444', color: 'white' },
-          toastId: 'cart-action'
+          toastId: 'order-error'
         });
       } finally {
         setLoading(false);
@@ -105,22 +107,18 @@ const CartPage: React.FC = () => {
 
   const handleEnquire = () => {
     if (!user) {
-      toast.error("Please sign in to continue", {
-        position: "top-right",
-        autoClose: 3000,
-        icon: <FaExclamationCircle className="text-white" />,
-        style: { background: '#ef4444', color: 'white' },
-        toastId: 'cart-action'
-      });
+      console.log("No user found... try to sign in");
       router.push("/auth/signin");
       return;
     }
   
-    setLoading(true);
+    setLoading(true); // Show spinner
   
     async function placeEnquires() {
       try {
         if ((cartItems.items.length + cartItems.customCoils.length) > 0) {
+          console.log("cartItems --> ", cartItems);
+  
           const tempItems = cartItems.items.map((item) => ({
             product: item._id,
             quantity: item.quantity,
@@ -143,41 +141,19 @@ const CartPage: React.FC = () => {
           const data = await response.json();
   
           if (!response.ok) {
-            toast.error(data.error || "Failed to send enquiry", {
-              position: "top-right",
-              autoClose: 3000,
-              icon: <FaExclamationCircle className="text-white" />,
-              style: { background: '#ef4444', color: 'white' },
-              toastId: 'cart-action'
-            });
+            alert(data.error || "Enquiry failed");
             return;
           }
   
-          toast.success("Enquiry sent successfully", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            icon: <FaCheckCircle className="text-white" />,
-            style: { background: '#22c55e', color: 'white' },
-            toastId: 'cart-action'
-          });
+          console.log("Enquiry placed successfully");
           setAllToCart({ items: [], customCoils: [] });
           router.push("/enquire");
         }
       } catch (error) {
         console.error("Enquiry error:", error);
-        toast.error("Failed to send enquiry", {
-          position: "top-right",
-          autoClose: 3000,
-          icon: <FaExclamationCircle className="text-white" />,
-          style: { background: '#ef4444', color: 'white' },
-          toastId: 'cart-action'
-        });
+        alert("Something went wrong while sending the enquiry.");
       } finally {
-        setLoading(false);
+        setLoading(false); // Hide spinner
       }
     }
   
@@ -186,8 +162,6 @@ const CartPage: React.FC = () => {
   
 
   useEffect(() => {
-    setMounted(true);
-
     async function fetchAndMergeCart() {
       if (user && user.userId) {
         try {
@@ -210,7 +184,7 @@ const CartPage: React.FC = () => {
           const mergedCustomCoils = [...serverCart.customItems];
 
           localCart.customCoils.forEach((localCoil: any) => {
-            const index = mergedCustomCoils.findIndex((item: any) => item.name === localCoil.name); // Use a better unique field if available
+            const index = mergedCustomCoils.findIndex((item: any) => item.name === localCoil.name);
             if (index === -1) {
               mergedCustomCoils.push(localCoil);
             }
@@ -221,9 +195,6 @@ const CartPage: React.FC = () => {
             customCoils: mergedCustomCoils
           };
 
-          // Optionally update server with merged cart here
-
-          // Set merged cart to context + localStorage
           setAllToCart(mergedCart);
 
         } catch (error) {
@@ -235,7 +206,7 @@ const CartPage: React.FC = () => {
     if (user && user.userId) {
       fetchAndMergeCart();
     }
-  }, [user]);
+  }, [user, setAllToCart, router]);
 
 
 

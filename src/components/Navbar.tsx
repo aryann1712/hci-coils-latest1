@@ -32,7 +32,7 @@ const Navbar = () => {
     if (typeof window !== 'undefined' && !user) {
       localStorage.removeItem('user');
     }
-  }, []);
+  }, [user]);
 
   const handleSignOut = () => {
     if (user) {

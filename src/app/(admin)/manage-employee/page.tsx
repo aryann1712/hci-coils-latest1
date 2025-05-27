@@ -33,7 +33,7 @@ const ManageEmployeePage = () => {
     } else {
       fetchData();
     }
-  }, [mounted, router, user]);
+  }, [mounted, router, user, getEmployeeList]);
 
 
   // Filter the products by category AND search query

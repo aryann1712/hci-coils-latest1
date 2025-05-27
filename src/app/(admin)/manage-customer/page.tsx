@@ -34,7 +34,7 @@ const ManageCustomerPage = () => {
     } else {
       fetchData();
     }
-  }, [mounted, router, user]);
+  }, [mounted, router, user, getCustomerList]);
 
 
   // Filter the products by category AND search query
