@@ -8,7 +8,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { CgSmile } from "react-icons/cg";
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 
 const CartPage: React.FC = () => {
   const { cartItems, setAllToCart } = useCart();
@@ -17,22 +19,24 @@ const CartPage: React.FC = () => {
   const router = useRouter();
   const { user } = useUser();
 
-
-
   const handlePurchase = () => {
     if (!user) {
-      console.log("No user found... try to sign in");
+      toast.error("Please sign in to continue", {
+        position: "top-right",
+        autoClose: 3000,
+        icon: <FaExclamationCircle className="text-white" />,
+        style: { background: '#ef4444', color: 'white' },
+        toastId: 'cart-action'
+      });
       router.push("/auth/signin");
       return;
     }
   
-    setLoading(true); // Show spinner
+    setLoading(true);
   
     async function placeOrders() {
       try {
         if ((cartItems.items.length + cartItems.customCoils.length) > 0) {
-          console.log("cartItems --> ", cartItems);
-  
           const tempItems = cartItems.items.map((item) => ({
             product: item._id,
             quantity: item.quantity,
@@ -56,19 +60,41 @@ const CartPage: React.FC = () => {
           const data = await response.json();
   
           if (!response.ok) {
-            alert(data.error || "Order failed");
+            toast.error(data.error || "Failed to place order", {
+              position: "top-right",
+              autoClose: 3000,
+              icon: <FaExclamationCircle className="text-white" />,
+              style: { background: '#ef4444', color: 'white' },
+              toastId: 'cart-action'
+            });
             return;
           }
   
-          console.log("Order placed successfully");
+          toast.success("Order placed successfully", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            icon: <FaCheckCircle className="text-white" />,
+            style: { background: '#22c55e', color: 'white' },
+            toastId: 'cart-action'
+          });
           setAllToCart({ items: [], customCoils: [] });
           router.push("/orders");
         }
       } catch (error) {
         console.error("Order error:", error);
-        alert("Something went wrong while placing the order.");
+        toast.error("Failed to place order", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'cart-action'
+        });
       } finally {
-        setLoading(false); // Hide spinner
+        setLoading(false);
       }
     }
   
@@ -79,18 +105,22 @@ const CartPage: React.FC = () => {
 
   const handleEnquire = () => {
     if (!user) {
-      console.log("No user found... try to sign in");
+      toast.error("Please sign in to continue", {
+        position: "top-right",
+        autoClose: 3000,
+        icon: <FaExclamationCircle className="text-white" />,
+        style: { background: '#ef4444', color: 'white' },
+        toastId: 'cart-action'
+      });
       router.push("/auth/signin");
       return;
     }
   
-    setLoading(true); // Show spinner
+    setLoading(true);
   
     async function placeEnquires() {
       try {
         if ((cartItems.items.length + cartItems.customCoils.length) > 0) {
-          console.log("cartItems --> ", cartItems);
-  
           const tempItems = cartItems.items.map((item) => ({
             product: item._id,
             quantity: item.quantity,
@@ -113,19 +143,41 @@ const CartPage: React.FC = () => {
           const data = await response.json();
   
           if (!response.ok) {
-            alert(data.error || "Enquiry failed");
+            toast.error(data.error || "Failed to send enquiry", {
+              position: "top-right",
+              autoClose: 3000,
+              icon: <FaExclamationCircle className="text-white" />,
+              style: { background: '#ef4444', color: 'white' },
+              toastId: 'cart-action'
+            });
             return;
           }
   
-          console.log("Enquiry placed successfully");
+          toast.success("Enquiry sent successfully", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            icon: <FaCheckCircle className="text-white" />,
+            style: { background: '#22c55e', color: 'white' },
+            toastId: 'cart-action'
+          });
           setAllToCart({ items: [], customCoils: [] });
           router.push("/enquire");
         }
       } catch (error) {
         console.error("Enquiry error:", error);
-        alert("Something went wrong while sending the enquiry.");
+        toast.error("Failed to send enquiry", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'cart-action'
+        });
       } finally {
-        setLoading(false); // Hide spinner
+        setLoading(false);
       }
     }
   

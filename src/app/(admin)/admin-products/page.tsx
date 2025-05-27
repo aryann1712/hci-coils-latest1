@@ -6,6 +6,8 @@ import { ProductAllTypeInterfact } from "@/data/allProducts";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from 'react'
+import ProductManagementTable from "@/components/ProductManagementTable";
+import { Button } from "@/components/ui/button";
 
 // Define TypeScript interfaces for PDF document definition
 interface PdfStyle {
@@ -43,7 +45,7 @@ const AdminProductsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<ProductAllTypeInterfact[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 9;
+  const pageSize = 10;
 
   // Filter the products by category AND search query
   const filteredProducts = useMemo(() => {
@@ -302,91 +304,110 @@ const AdminProductsPage = () => {
     }
   };
 
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/${productId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        console.error(data.error || "Failed to delete product");
+        return;
+      }
+
+      // Remove the product from the local state
+      setProducts(products.filter(p => p._id !== productId));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <section className="px-14 pt-10 pb-28 min-h-[60vh]">
-      {/* Search Bar */}
-      <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div className="w-full flex flex-row items-center justify-between gap-5">
-          {/* Search Input */}
-          <div>
-            <label htmlFor="search" className="mr-2">
-              Search:
-            </label>
-            <input
-              id="search"
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              placeholder="Search by name or desc..."
-              className="border p-1"
-            />
-          </div>
-
-
-          <div className="flex flex-row gap-3">
-
-            <div
-              className="bg-blue-800 hover:bg-blue-900 cursor-pointer px-5 py-2 text-white font-semibold rounded-md"
-              onClick={downloadCatalogue}
-            >
-              {loading ? "Generating..." : "Download Full Catalogue"}
-            </div>
-
-
-            {/* Add Product Grid */}
-            <Link href={"/admin-products/add-product"}>
-              <div className="bg-blue-800 hover:bg-blue-900 cursor-pointer px-5 py-2 text-white font-semibold rounded-md">Add New Product</div>
-            </Link>
-
-
-
-          </div>
-
-        </div>
-      </div>
-
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 gap-6">
-        {loading && [...Array(9)].map((_, i) => (
-          <div key={i} className="flex flex-row space-y-3 gap-x-16">
-            <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-            <div className="space-y-2 flex flex-col">
-              <Skeleton className="h-4 w-[450px]" />
-              <Skeleton className="h-4 w-[700px]" />
-              <Skeleton className="h-12 w-[750px]" />
-            </div>
-          </div>
-        ))}
-
-        {currentPageProducts.map((product) => (
-          <AdminProductCard key={product._id} product={product} />
-        ))}
-      </div>
-
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center space-x-4 mt-6">
-          <button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span className="font-medium">
-            Page {currentPage} of {totalPages}
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Product Management</h1>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600">
+            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filteredProducts.length)} of {filteredProducts.length} products
           </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+          <Link href="/admin-products/add-product">
+            <Button>Add New Product</Button>
+          </Link>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="w-full max-w-md px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-[200px] w-full" />
+          ))}
+        </div>
+      ) : (
+        <>
+          <ProductManagementTable 
+            products={currentPageProducts} 
+            onDeleteProduct={handleDeleteProduct}
+            currentPage={currentPage}
+            pageSize={pageSize}
+          />
+          
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between border-t pt-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="sm"
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  {[...Array(totalPages)].map((_, i) => (
+                    <Button
+                      key={i}
+                      variant={currentPage === i + 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(i + 1)}
+                      className="w-8 h-8 p-0"
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                </div>
+                <Button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  size="sm"
+                >
+                  Next
+                </Button>
+              </div>
+              <span className="text-sm text-gray-600">
+                Page {currentPage} of {totalPages}
+              </span>
+            </div>
+          )}
+        </>
       )}
-    </section>
-  )
-}
+    </div>
+  );
+};
 
 export default AdminProductsPage

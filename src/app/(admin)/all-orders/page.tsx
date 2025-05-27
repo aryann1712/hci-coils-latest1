@@ -1,10 +1,43 @@
 "use client";
 
-import AdminOrderCheckItemCard from '@/components/AdminOrderCheckCard';
 import { useUser } from '@/context/UserContext';
 import { OrderItemType } from '@/lib/interfaces/OrderInterface';
+import { CartItemType } from '@/lib/interfaces/CartInterface';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import Link from 'next/link';
+
+interface ProductType extends CartItemType {
+    price?: number;
+    dimensions?: {
+        length: number;
+        width: number;
+        height: number;
+    };
+    description: string;
+}
+
+interface FlattenedOrder {
+    orderId: string;
+    orderObjectId: string;
+    user: {
+        companyName: string;
+        gstNumber: string;
+        email: string;
+        phone?: string;
+    };
+    item: {
+        product: ProductType;
+        quantity: number;
+    };
+    status: string;
+    createdAt: string;
+    customItems?: any[];
+    totalAmount?: number;
+}
 
 const AdminAllOrders = () => {
     const { user } = useUser();
@@ -12,426 +45,609 @@ const AdminAllOrders = () => {
     const [mounted, setMounted] = useState(false);
     const [userOrders, setUserOrders] = useState<OrderItemType[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 9;
+    const [pageSize] = useState(10);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedOrder, setSelectedOrder] = useState<OrderItemType | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [statusFilter, setStatusFilter] = useState<string>('all');
+    const [dateFilter, setDateFilter] = useState<string>('all');
+    const [searchTerm, setSearchTerm] = useState<string>('');
 
-    // Separate search states for each field
-    const [searchFilters, setSearchFilters] = useState({
-        productName: "",
-        orderId: "",
-        customerName: "",
-        companyName: "",
-        email: "",
-        gstNumber: "",
-        orderDate: ""
-    });
-
-    // Active filter to show which search field is currently displayed
-    const [activeFilter, setActiveFilter] = useState<string | null>("productName");
-
+    // Fetch orders on mount
     useEffect(() => {
         setMounted(true);
         async function fetchData() {
-            const data = await getUserOrder();
-            setUserOrders(data);
-        }
+            if (!user) {
+                router.replace("/");
+                return;
+            }
+            
+            if (!(user.role === "admin" || user.role === "manager")) {
+                router.replace("/");
+                return;
+            }
 
-        if (!user) {
-            router.replace("/");
-            return;
-        } else if (!(user.role === "admin" || user.role === "manager")) {
-            router.replace("/");
-            return;
-        } else {
-            fetchData();
-        }
-
-    }, [mounted, user, router]);
-
-    const filteredOrders = useMemo(() => {
-        // Start with the full array
-        let filtered = userOrders;
-
-        // Apply each filter that has a value
-        if (searchFilters.productName.trim()) {
-            const query = searchFilters.productName.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                order.items.some(item =>
-                    item.product.name.toLowerCase().includes(query) ||
-                    item.product.description.toLowerCase().includes(query) ||
-                    // item.product.category.toLowerCase().includes(query) ||
-                    item.product._id.toLowerCase().includes(query)
-                )
-            );
-        }
-
-        if (searchFilters.orderId.trim()) {
-            const query = searchFilters.orderId.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.orderId?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.customerName.trim()) {
-            const query = searchFilters.customerName.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.name?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.companyName.trim()) {
-            const query = searchFilters.companyName.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.companyName?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.email.trim()) {
-            const query = searchFilters.email.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.email?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.gstNumber.trim()) {
-            const query = searchFilters.gstNumber.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.user.gstNumber?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        if (searchFilters.orderDate.trim()) {
-            const query = searchFilters.orderDate.trim().toLowerCase();
-            filtered = filtered.filter(order =>
-                (order.createdAt?.toLowerCase().includes(query) || false)
-            );
-        }
-
-        return filtered;
-    }, [userOrders, searchFilters]);
-
-    // Pagination
-    const totalPages = Math.ceil(filteredOrders.length / pageSize);
-    const currentPageProducts = useMemo(() => {
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        return filteredOrders.slice(startIndex, endIndex);
-    }, [filteredOrders, currentPage]);
-
-    // Handlers
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setSearchFilters(prev => ({
-            ...prev,
-            [name]: value
-        }));
-        setCurrentPage(1);
-    };
-
-    const handleFilterSelect = (filterName: string) => {
-        setActiveFilter(activeFilter === filterName ? null : filterName);
-    };
-
-    const clearFilters = () => {
-        setSearchFilters({
-            productName: "",
-            orderId: "",
-            customerName: "",
-            companyName: "",
-            email: "",
-            gstNumber: "",
-            orderDate: ""
-        });
-        setCurrentPage(1);
-    };
-
-    const handleNextPage = () => {
-        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-    };
-
-    const handlePrevPage = () => {
-        setCurrentPage((prev) => Math.max(prev - 1, 1));
-    };
-
-    // Excel export function
-    const exportToExcel = () => {
-        // Define the type for our export row
-        type ExportRowType = {
-            "S.No": number;
-            "Order ID": string;
-            "Customer Name": string;
-            "Company": string;
-            "Email": string;
-            "GST Number": string;
-            "Address": string;
-            "Order Date": string;
-            "Total Items": number;
-            "Products": string;
-            "Custom Items": string;
-        };
-
-        // Format data for export
-        const exportData: ExportRowType[] = filteredOrders.map((order, index) => {
-            return {
-                "S.No": index + 1,
-                "Order ID": order.orderId || "N/A",
-                "Customer Name": order.user.name || "N/A",
-                "Company": order.user.companyName || "N/A",
-                "Email": order.user.email || "N/A",
-                "GST Number": order.user.gstNumber || "N/A",
-                "Address": order.user.address || "N/A",
-                "Order Date": order.createdAt || "N/A",
-                "Total Items": order.items.length,
-                "Products": order.items.map(item => {
-                    return `${item.product.name} x (${item.quantity})`;
-                }).join(",\n"),
-                "Custom Items": order.customItems ? order.customItems.map(item => {
-                return `Custom Coil Details:
-                    Coil Type: ${item.coilType || "N/A"}
-                    Height: ${item.height || "N/A"}
-                    Length: ${item.length || "N/A"}
-                    Rows: ${item.rows || "N/A"}
-                    FPI: ${item.fpi || "N/A"}
-                    Endplate Type: ${item.endplateType || "N/A"}
-                    Circuit Type: ${item.circuitType || "N/A"}
-                    Number of Circuits: ${item.numberOfCircuits || "N/A"}
-                    Header Size: ${item.headerSize || "N/A"}
-                    Tube Type: ${item.tubeType || "N/A"}
-                    Fin Type: ${item.finType || "N/A"}
-                    Distributor Holes: ${item.distributorHoles || (item.distributorHolesDontKnow ? "Don't Know" : "N/A")}
-                    Inlet Connection: ${item.inletConnection || (item.inletConnectionDontKnow ? "Don't Know" : "N/A")}
-                    Quantity: ${item.quantity || "N/A"}
-                    `;
-                }).join("\n\n") : "No custom items"
-            };
-        });
-
-        // Convert to CSV
-        if (exportData.length === 0) {
-            alert("No data to export");
-            return;
-        }
-
-        const headers = Object.keys(exportData[0]);
-        const csvRows = [];
-
-        // Add headers
-        csvRows.push(headers.join(','));
-
-        // Add data rows
-        for (const row of exportData) {
-            const values = headers.map(header => {
-                const value = row[header as keyof ExportRowType];
-                const escaped = ('' + value).replace(/"/g, '\\"');
-                return `"${escaped}"`;
-            });
-            csvRows.push(values.join(','));
-        }
-
-        const csvString = csvRows.join('\n');
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-
-        // Create a link to download
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `Orders_Export_${new Date().toLocaleDateString()}.csv`);
-        link.style.visibility = 'hidden';
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    async function getUserOrder(): Promise<OrderItemType[]> {
-        if (user) {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${user.token}`,
                     },
                 });
-                const data = await res.json();
-                if (!res.ok) {
-                    alert(data.error || "Error in fetching orders");
-                    return [];
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    toast.error(data.error || "Error in fetching orders");
+                    return;
                 }
 
-                return data.data;
+                setUserOrders(data.data);
             } catch (error) {
                 console.error("Error loading orders:", error);
-                return [];
+                toast.error("Failed to load orders");
+            } finally {
+                setLoading(false);
             }
-        } else {
-            return [];
         }
+
+        if (mounted) {
+            fetchData();
+        }
+    }, [user, router, mounted]);
+
+    // Calculate SQMM with type safety
+    const calculateSQMM = (item: { product: ProductType }) => {
+        const length = item.product.dimensions?.length || 0;
+        const width = item.product.dimensions?.width || 0;
+        const height = item.product.dimensions?.height || 0;
+        return ((length * width * height) / 144) * 10;
+    };
+
+    // Flatten orders and items for display
+    const flattenedOrders = useMemo(() => {
+        if (!mounted || loading) return [];
+        
+        const query = searchQuery.toLowerCase().trim();
+        
+        // First, filter the orders
+        const filteredOrders = userOrders.filter(order =>
+            order.orderId?.toLowerCase().includes(query) ||
+            order.user.companyName?.toLowerCase().includes(query) ||
+            order.user.gstNumber?.toLowerCase().includes(query) ||
+            order.items.some(item =>
+                (item.product as ProductType).name.toLowerCase().includes(query) ||
+                (item.product as ProductType).description?.toLowerCase().includes(query)
+            )
+        );
+
+        // Then, flatten the orders and items
+        return filteredOrders.flatMap(order =>
+            order.items.map((item): FlattenedOrder => ({
+                orderId: order.orderId || '',
+                orderObjectId: order._id,
+                user: {
+                    companyName: order.user.companyName || '',
+                    gstNumber: order.user.gstNumber || '',
+                    email: order.user.email || '',
+                    phone: order.user.phone || ''
+                },
+                item: {
+                    product: item.product as ProductType,
+                    quantity: item.quantity
+                },
+                status: order.status || 'enquiry',
+                createdAt: order.createdAt,
+                customItems: order.customItems,
+                totalAmount: order.totalAmount
+            }))
+        );
+    }, [userOrders, searchQuery, mounted, loading]);
+
+    // Add filter functions
+    const filterOrders = useMemo(() => {
+        return flattenedOrders.filter(order => {
+            const matchesStatus = statusFilter === 'all' || order.status.toLowerCase() === statusFilter.toLowerCase();
+            const matchesSearch = searchTerm === '' || 
+                order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.user.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.user.gstNumber.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            let matchesDate = true;
+            if (dateFilter !== 'all') {
+                const orderDate = new Date(order.createdAt);
+                const today = new Date();
+                const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+                
+                switch(dateFilter) {
+                    case 'today':
+                        matchesDate = orderDate.toDateString() === today.toDateString();
+                        break;
+                    case 'week':
+                        matchesDate = orderDate >= lastWeek;
+                        break;
+                    case 'month':
+                        matchesDate = orderDate >= lastMonth;
+                        break;
+                }
+            }
+            
+            return matchesStatus && matchesSearch && matchesDate;
+        });
+    }, [flattenedOrders, statusFilter, dateFilter, searchTerm]);
+
+    // Paginated orders
+    const paginatedOrders = useMemo(() => {
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        return filterOrders.slice(startIndex, endIndex);
+    }, [filterOrders, currentPage, pageSize]);
+
+    // Total pages calculation
+    const totalPages = useMemo(() => 
+        Math.ceil(filterOrders.length / pageSize)
+    , [filterOrders.length, pageSize]);
+
+    // Delete order function
+    const handleDeleteOrder = async (orderId: string) => {
+        if (!mounted || !user?.token) return;
+        
+        try {
+            setDeletingOrderId(orderId);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/${orderId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${user.token}`,
+                },
+            });
+
+            if (response.ok) {
+                setUserOrders(prev => prev.filter(order => order._id !== orderId));
+                toast.success("Order deleted successfully");
+            } else {
+                const data = await response.json();
+                toast.error(data.error || "Failed to delete order");
+            }
+        } catch (error) {
+            console.error("Error deleting order:", error);
+            toast.error("Error deleting order");
+        } finally {
+            setDeletingOrderId(null);
+        }
+    };
+
+    // Add export to Excel function
+    const handleExportToExcel = () => {
+        const exportData = filterOrders.map((orderItem, index) => ({
+            "Sr No.": index + 1,
+            "Order ID": orderItem.orderId,
+            "Product Name": orderItem.item.product.name,
+            "Description": orderItem.item.product.description || "N/A",
+            "Company": orderItem.user.companyName,
+            "GST Number": orderItem.user.gstNumber,
+            "Quantity": orderItem.item.quantity,
+            "Status": orderItem.status,
+            "Date": new Date(orderItem.createdAt).toLocaleDateString(),
+            "Email": orderItem.user.email,
+            "Phone": orderItem.user.phone || "N/A"
+        }));
+
+        // Convert to CSV
+        const headers = Object.keys(exportData[0]);
+        const csvContent = [
+            headers.join(","),
+            ...exportData.map(row => 
+                headers.map(header => {
+                    const value = row[header as keyof typeof row];
+                    // Escape commas and quotes in the value
+                    const escaped = String(value).replace(/"/g, '""');
+                    return `"${escaped}"`;
+                }).join(",")
+            )
+        ].join("\n");
+
+        // Create and download file
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `orders_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // Add handleStatusUpdate function
+    const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+        if (!user?.token) {
+            toast.error("Authentication required");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/${orderId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error(data.error || "Failed to update order status");
+                return;
+            }
+
+            // Update the local state
+            setUserOrders(prevOrders => 
+                prevOrders.map(order => 
+                    order.orderId === orderId 
+                        ? { ...order, status: newStatus }
+                        : order
+                )
+            );
+
+            toast.success("Order status updated successfully");
+        } catch (error) {
+            console.error("Error updating order status:", error);
+            toast.error("Failed to update order status");
+        }
+    };
+
+    // Show loading state
+    if (!mounted || loading) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="animate-pulse">
+                            <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
+                            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
     }
 
-    // Calculate how many filters are currently active
-    const activeFiltersCount = Object.values(searchFilters).filter(value => value.trim() !== "").length;
+    // Order Details Modal
+    const OrderDetailsModal = () => {
+        if (!selectedOrder) return null;
+
+        return (
+            <Transition appear show={isModalOpen} as={Fragment}>
+                <Dialog as="div" className="relative z-50" onClose={() => setIsModalOpen(false)}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4">
+                            <Transition.Child
+                                as={Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 scale-95"
+                                enterTo="opacity-100 scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 scale-100"
+                                leaveTo="opacity-0 scale-95"
+                            >
+                                <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 mb-4">
+                                        Order Details
+                                    </Dialog.Title>
+                                    <div className="mt-2 space-y-4">
+                                        <p><span className="font-semibold">Order ID:</span> {selectedOrder.orderId}</p>
+                                        <p><span className="font-semibold">Purchase Date:</span> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+                                        <p><span className="font-semibold">GST No:</span> {selectedOrder.user.gstNumber}</p>
+                                        
+                                        <div className="mt-4">
+                                            <h4 className="font-semibold text-lg mb-2">Products:</h4>
+                                            {selectedOrder.items.map((item, index) => {
+                                                const product = item.product as ProductType;
+                                                return (
+                                                    <div key={index} className="bg-gray-50 p-4 rounded-lg mb-4">
+                                                        <p className="font-medium">{product.name}</p>
+                                                        <p className="text-sm text-gray-600 mt-1">{product.description}</p>
+                                                        <div className="grid grid-cols-2 gap-4 mt-2">
+                                                            <p><span className="font-medium">Quantity:</span> {item.quantity}</p>
+                                                            <p><span className="font-medium">SQMM:</span> {calculateSQMM({ product }).toFixed(2)}</p>
+                                                            {product.price && (
+                                                                <p><span className="font-medium">Price:</span> ₹{product.price}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {selectedOrder.customItems && selectedOrder.customItems.length > 0 && (
+                                            <div className="mt-4">
+                                                <h4 className="font-semibold text-lg mb-2">Custom Coils:</h4>
+                                                {selectedOrder.customItems.map((item, index) => (
+                                                    <div key={index} className="bg-gray-50 p-4 rounded-lg mb-4">
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <p><span className="font-medium">Coil Type:</span> {item.coilType}</p>
+                                                            <p><span className="font-medium">Height:</span> {item.height}</p>
+                                                            <p><span className="font-medium">Length:</span> {item.length}</p>
+                                                            <p><span className="font-medium">Rows:</span> {item.rows}</p>
+                                                            <p><span className="font-medium">FPI:</span> {item.fpi}</p>
+                                                            <p><span className="font-medium">Endplate Type:</span> {item.endplateType}</p>
+                                                            <p><span className="font-medium">Circuit Type:</span> {item.circuitType}</p>
+                                                            <p><span className="font-medium">Number of Circuits:</span> {item.numberOfCircuits}</p>
+                                                            <p><span className="font-medium">Header Size:</span> {item.headerSize}</p>
+                                                            <p><span className="font-medium">Tube Type:</span> {item.tubeType}</p>
+                                                            <p><span className="font-medium">Fin Type:</span> {item.finType}</p>
+                                                            <p><span className="font-medium">Distributor Holes:</span> {item.distributorHoles}</p>
+                                                            <p><span className="font-medium">Inlet Connection:</span> {item.inletConnection}</p>
+                                                            <p><span className="font-medium">Quantity:</span> {item.quantity}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="mt-6">
+                                        <button
+                                            type="button"
+                                            className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                            onClick={() => setIsModalOpen(false)}
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </Dialog.Panel>
+                            </Transition.Child>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition>
+        );
+    };
 
     return (
-        <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
-            <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-blue-800 text-2xl md:text-3xl font-semibold italic">All Orders</h1>
-                    <button
-                        onClick={exportToExcel}
-                        className="px-2 md:px-4 text-sm md:text-base py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center"
+        <div className="container mx-auto px-4 py-8">
+            <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+                <h1 className="text-2xl font-bold text-gray-800">Order Management</h1>
+                
+                {/* Filters and Export Button */}
+                <div className="flex flex-wrap gap-4 items-center">
+                    <input
+                        type="text"
+                        placeholder="Search orders..."
+                        className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    
+                    <select
+                        className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
                     >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        <option value="all">All Status</option>
+                        <option value="enquiry">Enquiry</option>
+                        <option value="ordered">Ordered</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    
+                    <select
+                        className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                    >
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">Last 7 Days</option>
+                        <option value="month">Last 30 Days</option>
+                    </select>
+
+                    <button
+                        onClick={handleExportToExcel}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center gap-2"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                         Export to Excel
                     </button>
                 </div>
-
-                {/* Search Filters UI */}
-                <div className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                        <button
-                            onClick={() => handleFilterSelect("productName")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "productName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Product
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("orderId")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "orderId" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Order ID
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("customerName")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "customerName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Customer
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("companyName")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "companyName" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Company
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("email")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "email" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Email
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("gstNumber")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "gstNumber" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            GST
-                        </button>
-                        <button
-                            onClick={() => handleFilterSelect("orderDate")}
-                            className={`px-3 py-1 text-sm md:text-base rounded-md ${activeFilter === "orderDate" ? 'bg-blue-700 text-white' : 'bg-gray-200'}`}
-                        >
-                            Date
-                        </button>
-
-                        {activeFiltersCount > 0 && (
-                            <button
-                                onClick={clearFilters}
-                                className="px-3 py-1 text-sm md:text-base rounded-md bg-red-500 text-white ml-auto"
-                            >
-                                Clear All ({activeFiltersCount})
-                            </button>
-                        )}
-                    </div>
-
-                    {activeFilter && (
-                        <div className="flex items-center gap-2">
-                            <label htmlFor={activeFilter} className="text-sm md:text-base font-medium">
-                                {activeFilter === "productName" && "Search by product:"}
-                                {activeFilter === "orderId" && "Search by order ID:"}
-                                {activeFilter === "customerName" && "Search by customer name:"}
-                                {activeFilter === "companyName" && "Search by company:"}
-                                {activeFilter === "email" && "Search by email:"}
-                                {activeFilter === "gstNumber" && "Search by GST number:"}
-                                {activeFilter === "orderDate" && "Search by order date:"}
-                            </label>
-                            <input
-                                id={activeFilter}
-                                name={activeFilter}
-                                type="text"
-                                value={searchFilters[activeFilter as keyof typeof searchFilters]}
-                                onChange={handleSearchChange}
-                                placeholder={`Enter ${activeFilter}...`}
-                                className="border p-1 text-sm md:text-base flex-grow"
-                            />
-                            {searchFilters[activeFilter as keyof typeof searchFilters] && (
-                                <button
-                                    onClick={() => {
-                                        setSearchFilters(prev => ({
-                                            ...prev,
-                                            [activeFilter]: ""
-                                        }));
-                                    }}
-                                    className="p-1 bg-gray-200 rounded-full"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            )}
-                        </div>
-                    )}
-
-                    <div className="text-sm text-gray-600 flex justify-between">
-                        <span>{filteredOrders.length} orders found</span>
-                        {activeFiltersCount > 0 && (
-                            <span className="text-blue-600">{activeFiltersCount} filter{activeFiltersCount > 1 ? 's' : ''} applied</span>
-                        )}
-                    </div>
-                </div>
-
-                <div className=''>
-                    {currentPageProducts.length > 0 ? (
-                        currentPageProducts.map((orderData, index) => <AdminOrderCheckItemCard key={index} orderItem={orderData} />)
-                    ) : (
-                        <div className="text-center py-10 bg-gray-50 rounded-md">
-                            <p className="text-gray-500 text-lg">No orders match your search criteria</p>
-                            {activeFiltersCount > 0 && (
-                                <button
-                                    onClick={clearFilters}
-                                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Clear All Filters
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Pagination Controls */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-center space-x-4 mt-6">
-                        <button
-                            onClick={handlePrevPage}
-                            disabled={currentPage === 1}
-                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                        >
-                            Prev
-                        </button>
-                        <span className="font-medium">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            onClick={handleNextPage}
-                            disabled={currentPage === totalPages}
-                            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-                        >
-                            Next
-                        </button>
-                    </div>
-                )}
             </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-lg shadow">
+                    <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
+                    <p className="text-2xl font-bold text-gray-900">{filterOrders.length}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow">
+                    <h3 className="text-sm font-medium text-gray-500">Enquiries</h3>
+                    <p className="text-2xl font-bold text-blue-600">
+                        {filterOrders.filter(o => o.status.toLowerCase() === 'enquiry').length}
+                    </p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow">
+                    <h3 className="text-sm font-medium text-gray-500">Active Orders</h3>
+                    <p className="text-2xl font-bold text-green-600">
+                        {filterOrders.filter(o => o.status.toLowerCase() === 'ordered').length}
+                    </p>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow">
+                    <h3 className="text-sm font-medium text-gray-500">Completed Orders</h3>
+                    <p className="text-2xl font-bold text-purple-600">
+                        {filterOrders.filter(o => o.status.toLowerCase() === 'completed').length}
+                    </p>
+                </div>
+            </div>
+
+            <div className="overflow-x-auto shadow-lg rounded-lg">
+                <table className="min-w-full bg-white">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Sr No.</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Order ID</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">Company</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">GST</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Quantity</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Date</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {paginatedOrders.map((orderItem, index) => {
+                            const product = orderItem.item.product as ProductType;
+                            return (
+                                <tr key={`${orderItem.orderObjectId}-${index}`} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {((currentPage - 1) * pageSize) + index + 1}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <span 
+                                            className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                                            onClick={() => {
+                                                const originalOrder = userOrders.find(o => o._id === orderItem.orderObjectId);
+                                                if (originalOrder) {
+                                                    setSelectedOrder(originalOrder);
+                                                    setIsModalOpen(true);
+                                                }
+                                            }}
+                                        >
+                                            {orderItem.orderId}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {product.name}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-900">
+                                        <p className="line-clamp-2">{product.description}</p>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {orderItem.user.companyName}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {orderItem.user.gstNumber}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {orderItem.item.quantity}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            ${orderItem.status.toLowerCase() === 'enquiry' ? 'bg-yellow-100 text-yellow-800' : 
+                                            orderItem.status.toLowerCase() === 'ordered' ? 'bg-blue-100 text-blue-800' :
+                                            orderItem.status.toLowerCase() === 'processing' ? 'bg-purple-100 text-purple-800' :
+                                            orderItem.status.toLowerCase() === 'completed' ? 'bg-green-100 text-green-800' :
+                                            'bg-red-100 text-red-800'}`}>
+                                            {orderItem.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {new Date(orderItem.createdAt).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => {
+                                                    const originalOrder = userOrders.find(o => o._id === orderItem.orderObjectId);
+                                                    if (originalOrder) {
+                                                        setSelectedOrder(originalOrder);
+                                                        setIsModalOpen(true);
+                                                    }
+                                                }}
+                                                className="text-indigo-600 hover:text-indigo-900"
+                                            >
+                                                View
+                                            </button>
+                                            {orderItem.status.toLowerCase() === 'enquiry' && (
+                                                <button
+                                                    onClick={() => handleStatusUpdate(orderItem.orderId, 'ordered')}
+                                                    className="text-green-600 hover:text-green-900"
+                                                >
+                                                    Approve
+                                                </button>
+                                            )}
+                                            {orderItem.status.toLowerCase() === 'ordered' && (
+                                                <button
+                                                    onClick={() => handleStatusUpdate(orderItem.orderId, 'processing')}
+                                                    className="text-blue-600 hover:text-blue-900"
+                                                >
+                                                    Process
+                                                </button>
+                                            )}
+                                            {orderItem.status.toLowerCase() === 'processing' && (
+                                                <button
+                                                    onClick={() => handleStatusUpdate(orderItem.orderId, 'completed')}
+                                                    className="text-purple-600 hover:text-purple-900"
+                                                >
+                                                    Complete
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-4 flex justify-between items-center">
+                <div className="text-sm text-gray-700">
+                    Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filterOrders.length)} of {filterOrders.length} results
+                </div>
+                <div className="flex space-x-2">
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1 rounded ${
+                            currentPage === 1 
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
+                    >
+                        Previous
+                    </button>
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1 rounded ${
+                            currentPage === totalPages 
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
+                        }`}
+                    >
+                        Next
+                    </button>
+                </div>
+            </div>
+
+            {/* Order Details Modal */}
+            <OrderDetailsModal />
         </div>
-    )
+    );
 }
 
-export default AdminAllOrders
+export default AdminAllOrders;

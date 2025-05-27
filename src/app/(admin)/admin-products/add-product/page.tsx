@@ -5,6 +5,8 @@ import { predefinedCategories } from "@/data/allProducts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, ChangeEvent } from "react";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type ImagePreview = {
   file: File;
@@ -29,6 +31,11 @@ export default function AdminAddProduct() {
   // Track total upload size
   const [totalSize, setTotalSize] = useState(0);
   const MAX_TOTAL_SIZE = 7 * 1024 * 1024; // 7MB in bytes
+  const [dimensions, setDimensions] = useState({
+    length: '',
+    width: '',
+    height: ''
+  });
 
   const toggleCategory = (category: string) => {
     if (categories.includes(category)) {
@@ -116,54 +123,96 @@ export default function AdminAddProduct() {
     setCategories((prev) => prev.filter((c) => c !== cat));
   };
 
+  const handleDimensionChange = (field: 'length' | 'width' | 'height', value: string) => {
+    setDimensions(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setLoading(true);
 
     if (!sku || !name || !description || !price || !images.length) {
-      alert("Please fill in all fields");
+      toast.error("Please fill in all required fields", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setLoading(false);
       return;
     }
 
-    // Example: create form data to send to backend
-    // If you want to handle images, you might need an API route that handles multipart/form-data
     const formData = new FormData();
     formData.append("sku", sku);
     formData.append("name", name);
     formData.append("description", description);
     formData.append("price", price.toString());
 
+    // Add dimensions as individual fields
+    if (dimensions.length || dimensions.width || dimensions.height) {
+      formData.append("dimensions[length]", dimensions.length || "0");
+      formData.append("dimensions[width]", dimensions.width || "0");
+      formData.append("dimensions[height]", dimensions.height || "0");
+    }
+
     categories.forEach((item) => {
       formData.append("categories", item);
     });
 
+    // Add main product images
     images.forEach((img) => {
       formData.append("image", img.file);
     });
 
-    // Send to your backend route, e.g. /api/admin/products
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
         method: "POST",
         body: formData,
       });
-      console.log("res", res);
+
       if (!res.ok) {
         const data = await res.json();
-        alert(data.error || "Failed to create product");
+        toast.error(data.error || "Failed to create product", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         setLoading(false);
         return;
       }
-      // success
-      alert("Product added successfully!");
+
+      // Show success toast
+      toast.success("Product added successfully! 🎉", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        onClose: () => router.push("/admin-products")
+      });
       setLoading(false);
-      router.push("/admin-products"); // or wherever you list products
     } catch (error) {
       console.error(error);
+      toast.error("Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setLoading(false);
-      alert("Something went wrong");
     }
   };
 
@@ -171,21 +220,84 @@ export default function AdminAddProduct() {
 
   return (
     <div className="max-w-[75%] mx-auto py-10 mb-10">
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
         <h1 className="text-blue-800 text-3xl font-semibold italic">Add Product</h1>
 
         <form className="border p-4 rounded-sm border-dashed space-y-6" onSubmit={handleSubmit}>
-          {/* Name */}
+          {/* Dimensions */}
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block font-medium mb-1">Length </label>
+              <input
+                type="number"
+                className="border px-3 py-2 rounded-sm w-full"
+                value={dimensions.length}
+                onChange={(e) => handleDimensionChange('length', e.target.value)}
+                placeholder="Length"
+                min="0"
+                step="0.1"
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Width </label>
+              <input
+                type="number"
+                className="border px-3 py-2 rounded-sm w-full"
+                value={dimensions.width}
+                onChange={(e) => handleDimensionChange('width', e.target.value)}
+                placeholder="Width"
+                min="0"
+                step="0.1"
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">Height </label>
+              <input
+                type="number"
+                className="border px-3 py-2 rounded-sm w-full"
+                value={dimensions.height}
+                onChange={(e) => handleDimensionChange('height', e.target.value)}
+                placeholder="Height"
+                min="0"
+                step="0.1"
+              />
+            </div>
+          </div>
+
+          {/* Name with dimensions prefix */}
           <div>
             <label className="block font-medium mb-1">Name <span className="text-red-500">*</span></label>
-            <input
-              className="border px-3 py-2 rounded-sm w-full"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Product name"
-              required
-            />
+            <div className="flex items-center gap-2">
+              {dimensions.length || dimensions.width || dimensions.height ? (
+                <span className="text-gray-500 whitespace-nowrap">
+                  {[
+                    dimensions.length ? `${dimensions.length}` : '',
+                    dimensions.width ? `${dimensions.width}` : '',
+                    dimensions.height ? `${dimensions.height}` : ''
+                  ].filter(Boolean).join('/')}/
+                </span>
+              ) : null}
+              <input
+                className="border px-3 py-2 rounded-sm flex-1"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Product name"
+                required
+              />
+            </div>
           </div>
 
           {/* Description */}
@@ -204,24 +316,29 @@ export default function AdminAddProduct() {
           {/* Images */}
           <div>
             <label className="block font-medium mb-1">Images <span className="text-red-500">*</span></label>
-            <div className="mb-2 flex justify-between items-center">
-              <div className={`text-sm ${totalSize > MAX_TOTAL_SIZE ? "text-red-500" : "text-gray-500"}`}>
+            <div className="flex items-center gap-4">
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+                id="product-images"
+                required
+              />
+              <label
+                htmlFor="product-images"
+                className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer transition-colors flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Choose Files
+              </label>
+              <span className={`text-sm ${totalSize > MAX_TOTAL_SIZE ? "text-red-500" : "text-gray-500"}`}>
                 Total size: {(totalSize / (1024 * 1024)).toFixed(2)}MB / 7MB
-              </div>
-              <div className="h-2 bg-gray-200 rounded-full w-40">
-                <div 
-                  className={`h-2 rounded-full ${totalSize > MAX_TOTAL_SIZE ? "bg-red-500" : "bg-green-500"}`}
-                  style={{ width: `${Math.min(100, (totalSize / MAX_TOTAL_SIZE) * 100)}%` }}
-                ></div>
-              </div>
+              </span>
             </div>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-              required
-            />
             {/* Preview + reorder */}
             <div className="mt-3 flex gap-4 flex-wrap">
               {images.map((img, index) => (
@@ -333,8 +450,8 @@ export default function AdminAddProduct() {
                 className="border px-3 py-2 rounded-sm w-full"
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
-                placeholder="0"
-                min={0}
+                placeholder="Enter price"
+                min={1}
                 step={1}
                 required
               />
@@ -357,9 +474,24 @@ export default function AdminAddProduct() {
           <button
             disabled={loading}
             type="submit"
-            className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4"
+            className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4 hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 w-full"
           >
-            {loading ? "Submitting" : "Submit"}
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Adding Product...
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Add Product
+              </>
+            )}
           </button>
         </form>
       </div>

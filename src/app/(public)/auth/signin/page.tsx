@@ -21,8 +21,16 @@ export default function SignInPage() {
     e.preventDefault();
     setLoading(true);
 
+    // Debug log to check environment variable
+    console.log('NEXT_PUBLIC_BASE_URL:', process.env.NEXT_PUBLIC_BASE_URL);
+    console.log('Full URL:', `${process.env.NEXT_PUBLIC_BASE_URL}/users/signin`);
+
+    // Temporary hardcoded base URL for testing
+    const baseUrl = 'http://localhost:8080';
+    console.log('Using hardcoded base URL:', baseUrl);
+
     // Example: Real sign-in (uncomment to use real API)
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/signin`, {
+    const response = await fetch(`${baseUrl}/api/users/signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -58,7 +66,9 @@ export default function SignInPage() {
 
   return (
       <div className="w-full px-5  lg:px-0 lg:max-w-[75%] mx-auto py-10">
-        <h1 className="text-blue-800 text-3xl font-semibold italic">Sign In</h1>
+        <div className="text-center mb-8">
+          <h1 className="text-blue-800 text-4xl font-semibold italic">Sign In</h1>
+        </div>
 
         <div className="mx-auto py-16 px-4 lg:px-10 rounded-sm shadow-xl max-w-2xl">
           <form onSubmit={handleSignIn} className="flex flex-col gap-y-12 px-2 lg:px-10">

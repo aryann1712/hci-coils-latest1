@@ -2,6 +2,9 @@
 import { CartItemType, CustomCoilItemType, FinalCartItem } from "@/lib/interfaces/CartInterface";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "./UserContext";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 
 interface CartContextType {
   cartItems: FinalCartItem;
@@ -68,18 +71,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     // Update local state first
     setCartItems((prev) => {
-      // Ensure items array exists
       const currentItems = Array.isArray(prev.items) ? prev.items : [];
-      // Check if an item with the same ID already exists
       const existingItemIndex = currentItems.findIndex(i => i._id === item._id);
       
       if (existingItemIndex >= 0) {
-        // If item exists, update its quantity
         const updatedItems = [...currentItems];
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
           quantity: item.quantity
         };
+        
+        toast.success('Cart updated successfully!', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          icon: <FaCheckCircle className="text-white" />,
+          style: { background: '#22c55e', color: 'white' },
+          toastId: 'cart-update'
+        });
         
         return { 
           ...prev, 
@@ -87,7 +99,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
         };
       } else {
-        // If item doesn't exist, add it to the array
+        toast.success('Item added to cart!', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          icon: <FaCheckCircle className="text-white" />,
+          style: { background: '#22c55e', color: 'white' },
+          toastId: 'cart-add'
+        });
+        
         return { 
           ...prev, 
           items: [...currentItems, item],
@@ -111,13 +134,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         const data = await response.json();
         if (!response.ok) {
-          alert(data.error || "Adding To Cart Failed");
+          toast.error(data.error || "Failed to update cart", {
+            position: "top-right",
+            autoClose: 3000,
+            icon: <FaExclamationCircle className="text-white" />,
+            style: { background: '#ef4444', color: 'white' },
+            toastId: 'cart-error'
+          });
           console.log(data.error || "Adding To Cart Failed");
-        } else {
-          console.log("Product added successfully");
         }
       } catch (error) {
         console.error("Error adding to cart:", error);
+        toast.error("Failed to update cart", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'cart-error'
+        });
       }
     }
   };
@@ -147,19 +181,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     // Update local state first
     setCartItems((prev) => {
-      // Ensure customCoils array exists
       const currentCustomCoils = Array.isArray(prev.customCoils) ? prev.customCoils : [];
-      
-      // Check if a custom coil with the same specifications already exists
       const existingCoilIndex = currentCustomCoils.findIndex(c => areCustomCoilsEqual(c, item));
       
       if (existingCoilIndex >= 0) {
-        // If coil exists, update its quantity
         const updatedCoils = [...currentCustomCoils];
         updatedCoils[existingCoilIndex] = {
           ...updatedCoils[existingCoilIndex],
           quantity: item.quantity
         };
+        
+        toast.success('Custom coil updated successfully!', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          icon: <FaCheckCircle className="text-white" />,
+          style: { background: '#22c55e', color: 'white' },
+          toastId: 'custom-coil-update'
+        });
         
         return { 
           ...prev, 
@@ -167,7 +209,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           customCoils: updatedCoils 
         };
       } else {
-        // If coil doesn't exist, add it to the array
+        toast.success('Custom coil added to cart!', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          icon: <FaCheckCircle className="text-white" />,
+          style: { background: '#22c55e', color: 'white' },
+          toastId: 'custom-coil-add'
+        });
+        
         return { 
           ...prev, 
           items: Array.isArray(prev.items) ? prev.items : [],
@@ -190,29 +243,46 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         
         const data = await response.json();
         if (!response.ok) {
-          alert(data.error || "Adding Custom Coil To Cart Failed");
-          console.log(data.error || "Adding Custom Coil To Cart Failed");
-        } else {
-          console.log("Custom coil added successfully");
+          toast.error(data.error || "Failed to update custom coil", {
+            position: "top-right",
+            autoClose: 3000,
+            icon: <FaExclamationCircle className="text-white" />,
+            style: { background: '#ef4444', color: 'white' },
+            toastId: 'custom-coil-error'
+          });
         }
       } catch (error) {
         console.error("Error adding custom coil to cart:", error);
+        toast.error("Failed to update custom coil", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'custom-coil-error'
+        });
       }
     }
   };
-
-
 
   const removeCustomCoilFromCart = async (item: CustomCoilItemType) => {
     console.log("removing custom coil from cart", item);
     
     // Update local state first
     setCartItems((prev) => {
-      // Ensure customCoils array exists
       const currentCustomCoils = Array.isArray(prev.customCoils) ? prev.customCoils : [];
-      
-      // Find and remove the coil that matches all specifications
       const updatedCoils = currentCustomCoils.filter(c => !areCustomCoilsEqual(c, item));
+      
+      toast.success('Custom coil removed from cart', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        icon: <FaCheckCircle className="text-white" />,
+        style: { background: '#22c55e', color: 'white' },
+        toastId: 'custom-coil-remove'
+      });
       
       return { 
         ...prev, 
@@ -235,19 +305,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         
         const data = await response.json();
         if (!response.ok) {
-          alert(data.error || "Removing Custom Coil From Cart Failed");
-          console.log(data.error || "Removing Custom Coil From Cart Failed");
-        } else {
-          console.log("Custom coil removed successfully");
+          toast.error(data.error || "Failed to remove custom coil", {
+            position: "top-right",
+            autoClose: 3000,
+            icon: <FaExclamationCircle className="text-white" />,
+            style: { background: '#ef4444', color: 'white' },
+            toastId: 'custom-coil-remove-error'
+          });
         }
       } catch (error) {
         console.error("Error removing custom coil from cart:", error);
+        toast.error("Failed to remove custom coil", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'custom-coil-remove-error'
+        });
       }
     }
   };
-
-
-
 
   const updateProductToCart = (item: CartItemType) => {
     console.log("updating product in cart", item);
@@ -304,6 +381,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCartItems((prev) => {
       const currentItems = Array.isArray(prev.items) ? prev.items : [];
       const updatedItems = currentItems.filter(i => i._id !== id);
+      
+      toast.success('Item removed from cart', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        icon: <FaCheckCircle className="text-white" />,
+        style: { background: '#22c55e', color: 'white' },
+        toastId: 'cart-remove'
+      });
+      
       return { 
         ...prev, 
         items: updatedItems,
@@ -322,13 +412,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         
         const data = await response.json();
         if (!response.ok) {
-          alert(data.error || "Deleting From Cart Failed");
-          console.log(data.error || "Deleting From Cart Failed");
-        } else {
-          console.log("Product Deleted successfully");
+          toast.error(data.error || "Failed to remove item", {
+            position: "top-right",
+            autoClose: 3000,
+            icon: <FaExclamationCircle className="text-white" />,
+            style: { background: '#ef4444', color: 'white' },
+            toastId: 'cart-remove-error'
+          });
         }
       } catch (error) {
         console.error("Error removing from cart:", error);
+        toast.error("Failed to remove item", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'cart-remove-error'
+        });
       }
     }
   };
