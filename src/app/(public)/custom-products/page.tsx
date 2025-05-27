@@ -78,7 +78,7 @@ export default function CustomCoilForm() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [endplateRef, circuitRef]);
 
   // Effect to scroll to top when step changes
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function CustomCoilForm() {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [step]);
+  }, [step, formContainerRef]);
 
   // Effect to set default pipe type based on tube type selection
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function CustomCoilForm() {
         pipeType: 'plain-lwc'
       }));
     }
-  }, [formData.tubeType]);
+  }, [formData.tubeType, formData.pipeType]);
 
   const handleCoilTypeSelection = (type: string) => {
     setFormData({ ...formData, coilType: type });

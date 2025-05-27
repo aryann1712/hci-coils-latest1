@@ -28,7 +28,7 @@ export default function DashboardPage() {
       console.log("Redirecting to /admin-products");
       router.replace("/admin-products");
     }
-  }, []);
+  }, [user, router]);
 
 
 

@@ -7,8 +7,11 @@ import { useUser } from '@/context/UserContext';
 import { EnquiryItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CgSmile } from "react-icons/cg";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 
 const EnquirePage = () => {
@@ -16,46 +19,51 @@ const EnquirePage = () => {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const [userOrders, setUserOrders] = useState<EnquiryItemType[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const getUserOrder = useCallback(async () => {
+        if (!user?.userId) {
+            throw new Error("User ID is required");
+        }
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/user/${user.userId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || "Failed to fetch orders");
+        }
+        return data.data;
+    }, [user?.userId]);
 
     useEffect(() => {
         setMounted(true);
         async function fetchData() {
-            const data = await getUserOrder();
-            setUserOrders(data);
+            if (!user) {
+                router.replace("/");
+                return;
+            }
+            try {
+                const data = await getUserOrder();
+                setUserOrders(data);
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+                toast.error("Failed to load orders", {
+                    position: "top-right",
+                    autoClose: 3000,
+                    icon: <FaExclamationCircle className="text-white" />,
+                    style: { background: '#ef4444', color: 'white' },
+                    toastId: 'orders-error'
+                });
+            } finally {
+                setLoading(false);
+            }
         }
-
-        if (!user) {
-            router.replace("/");
-            return;
-        } else {
-            fetchData();
-        }
+        fetchData();
     }, [user, router, getUserOrder]);
 
     if (!mounted) {
         return null;
-    }
-
-
-
-    async function getUserOrder(): Promise<EnquiryItemType[]> {
-        if(user) {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/userid/${user.userId}`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-              });
-              const data = await response.json();
-            
-              console.log("data", data);
-              if (!response.ok) {
-                alert(data.error || "Error in fetching enquiry");
-                return [];
-              }
-            
-             return data.data;
-        } else {
-            return [];
-        }
     }
 
     return (

@@ -3,7 +3,7 @@
 import { useUser } from "@/context/UserContext";
 import { UserAllInfoType } from "@/lib/interfaces/UserInterface";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 
 
@@ -14,56 +14,42 @@ const ProfilePage = () => {
 
   const [userData, setUserData] = useState<UserAllInfoType | null>(null)
 
-  async function getUserInfoFromAPI(): Promise<UserAllInfoType> {
+  const getUserInfoFromAPI = useCallback(async (): Promise<UserAllInfoType> => {
+    if (!user?.userId) {
+      throw new Error("User ID is required");
+    }
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/profile/${user?.userId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/profile/${user.userId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
       if (!response.ok) {
-        alert(data.error || "Sign in failed");
-        return {
-          userId: "",
-          phone: "",
-          name: "",
-          address: "",
-          companyName: "",
-          email: "",
-          gstNumber: ""
-        };
+        throw new Error(data.error || "Failed to fetch user info");
       }
       return data.data;
     } catch (error) {
-      console.error("Sign in failed:", error);
-      return {
-        userId: "",
-        phone: "",
-        name: "",
-        address: "",
-        companyName: "",
-        email: "",
-        gstNumber: ""
-      };
+      console.error("Failed to fetch user info:", error);
+      throw error;
     }
-  };
-
+  }, [user?.userId]);
 
   useEffect(() => {
     setMounted(true);
     async function fetchData() {
-      const data = await getUserInfoFromAPI();
-      setUserData(data);
+      try {
+        if (!user) {
+          router.replace("/");
+          return;
+        }
+        const data = await getUserInfoFromAPI();
+        setUserData(data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     }
-
-    if (!user) {
-      router.replace("/");
-      return;
-    } else {
-      fetchData();
-    }
-    console.log("username => ", user)
-  }, [user, router]);
+    fetchData();
+  }, [user, router, getUserInfoFromAPI]);
 
   if (!mounted) {
     return null;

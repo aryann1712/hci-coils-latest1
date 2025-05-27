@@ -25,7 +25,7 @@ export default function ChangePasswordPage() {
       router.replace("/");
       return;
     }
-  }, [user]);
+  }, [user, router]);
 
 
   // Form validation

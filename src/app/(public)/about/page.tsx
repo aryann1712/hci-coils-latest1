@@ -5,6 +5,7 @@ import { TiTick } from "react-icons/ti";
 import { motion } from 'framer-motion';
 import { FaImage } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
+import Image from "next/image";
 
 export default function CompanyPage() {
   // State for modal
@@ -183,12 +184,16 @@ export default function CompanyPage() {
                   className="h-40 w-full bg-gray-100 mb-4 overflow-hidden flex items-center justify-center"
                   onContextMenu={preventContextMenu}
                 >
-                  <img 
-                    src={cert.src} 
-                    alt={cert.alt} 
-                    className="object-contain h-full w-full select-none" 
-                    draggable="false"
-                  />
+                  <div className="relative h-full w-full">
+                    <Image 
+                      src={cert.src} 
+                      alt={cert.alt} 
+                      fill
+                      className="object-contain select-none"
+                      draggable={false}
+                      sizes="(max-width: 768px) 100vw, 400px"
+                    />
+                  </div>
                 </div>
                 <h3 className="text-center font-medium text-gray-800">{cert.alt}</h3>
                 <div className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-md text-sm flex items-center">
@@ -224,13 +229,16 @@ export default function CompanyPage() {
             >
               {getPageSources(selectedCertificate).map((pageSrc, index) => (
                 <div key={index} className="mb-4 last:mb-0">
-                  <img 
-                    src={pageSrc} 
-                    alt={`${selectedCertificate.alt} - Page ${index + 1}`} 
-                    className="mx-auto max-w-full pointer-events-none select-none" 
-                    draggable="false"
-                    onDragStart={() => false}
-                  />
+                  <div className="relative mx-auto max-w-full h-96">
+                    <Image 
+                      src={pageSrc} 
+                      alt={`${selectedCertificate.alt} - Page ${index + 1}`}
+                      fill
+                      className="mx-auto object-contain pointer-events-none select-none"
+                      draggable={false}
+                      sizes="(max-width: 768px) 100vw, 600px"
+                    />
+                  </div>
                   {selectedCertificate.pages > 1 && (
                     <p className="text-center text-sm text-gray-500 mt-2">
                       Page {index + 1} of {selectedCertificate.pages}

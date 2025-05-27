@@ -2,7 +2,7 @@
 
 import ProductCard from "@/components/ProductCard";
 import { ProductAllTypeInterfact } from "@/data/allProducts";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
 export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
@@ -17,33 +17,63 @@ export default function ProductsPage() {
   });
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch data (simulate API call)
+  const getAllProductsFromAPI = useCallback(async () => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to fetch products");
+    }
+    return data.data;
+  }, []);
+
+  const getCategoryProductsFromAPI = useCallback(async (category: string) => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/category/${category}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to fetch category products");
+    }
+    return data.data;
+  }, []);
+
   useEffect(() => {
     async function fetchData() {
-      // Fetch all products
-      const allProductsData = await getAllProductsFromAPI();
-      setAllProducts(allProductsData);
-      
-      // Fetch category-specific products
-      const categories = [
-        "Open Type Old Model",
-        "Custom Coils",
-        "Open Type Rg Model",
-        "Open Type Rgs Model"
-      ];
-      
-      const categoryData: { [key: string]: ProductAllTypeInterfact[] } = {};
-      
-      for (const category of categories) {
-        const data = await getCategoryProductsFromAPI(category);
-        categoryData[category] = data;
+      try {
+        setLoading(true);
+        // Fetch all products
+        const allProductsData = await getAllProductsFromAPI();
+        setAllProducts(allProductsData);
+        
+        // Fetch category-specific products
+        const categories = [
+          "Open Type Old Model",
+          "Custom Coils",
+          "Open Type Rg Model",
+          "Open Type Rgs Model"
+        ];
+        
+        const categoryData: { [key: string]: ProductAllTypeInterfact[] } = {};
+        
+        for (const category of categories) {
+          const data = await getCategoryProductsFromAPI(category);
+          categoryData[category] = data;
+        }
+        
+        setCategoryProducts(categoryData);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
       }
-      
-      setCategoryProducts(categoryData);
     }
     
     fetchData();
-  }, []);
+  }, [getAllProductsFromAPI, getCategoryProductsFromAPI]);
 
   // Filter the products by search query across all categories
   const filteredAllProducts = useMemo(() => {
@@ -81,62 +111,6 @@ export default function ProductsPage() {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
-
-  // API Calls
-  async function getAllProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
-    try {
-      setLoading(true);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const data = await response.json();
-
-      setLoading(false);
-
-      if (!response.ok) {
-        alert(data.error || "Failed to fetch products");
-        return [];
-      }
-
-      return data.data;
-    } catch (error) {
-      setLoading(false);
-      console.error(error);
-      return [];
-    }
-  }
-
-  async function getCategoryProductsFromAPI(category: string): Promise<ProductAllTypeInterfact[]> {
-    try {
-      setLoading(true);
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/products/categories?categories=${encodeURIComponent(category)}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      const data = await response.json();
-
-      setLoading(false);
-
-      if (!response.ok) {
-        alert(data.error || "Failed to fetch category products");
-        return [];
-      }
-
-      return data.data;
-    } catch (error) {
-      setLoading(false);
-      console.error(error);
-      return [];
-    }
-  }
 
   // Render product category section
   const renderCategorySection = (category: string, products: ProductAllTypeInterfact[]) => {

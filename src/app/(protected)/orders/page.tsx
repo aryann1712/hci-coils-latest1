@@ -6,7 +6,7 @@ import { useUser } from '@/context/UserContext';
 import { OrderItemType } from '@/lib/interfaces/OrderInterface';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { CgSmile } from "react-icons/cg";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -19,6 +19,18 @@ const OrderPage = () => {
     const [mounted, setMounted] = useState(false);
     const [userOrders, setUserOrders] = useState<OrderItemType[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const getUserOrder = useCallback(async () => {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/user/${user?.userId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || "Failed to fetch orders");
+        }
+        return data.data;
+    }, [user?.userId]);
 
     useEffect(() => {
         setMounted(true);
@@ -51,41 +63,6 @@ const OrderPage = () => {
 
     if (!mounted) {
         return null;
-    }
-
-    async function getUserOrder(): Promise<OrderItemType[]> {
-        if (!user || !user.token) {
-            toast.error("Please sign in to view orders", {
-                position: "top-right",
-                autoClose: 3000,
-                icon: <FaExclamationCircle className="text-white" />,
-                style: { background: '#ef4444', color: 'white' },
-                toastId: 'orders-error'
-            });
-            router.push("/auth/signin");
-            return [];
-        }
-
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders/userid/${user.userId}`, {
-                method: "GET",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`
-                },
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to fetch orders");
-            }
-            
-            return data.data;
-        } catch (error) {
-            console.error("Error in getUserOrder:", error);
-            throw error;
-        }
     }
 
     if (loading) {

@@ -4,42 +4,72 @@ import AdminUserDetailsCard from '@/components/AdminUserDetailsCard';
 import { useUser } from '@/context/UserContext';
 import { EmployyeeAllInfoType } from '@/lib/interfaces/UserInterface';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 
 const ManageEmployeePage = () => {
   const { user } = useUser();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [employeeList, setEmployeeList] = useState<EmployyeeAllInfoType[]>([]);
+  const [employees, setEmployees] = useState<EmployyeeAllInfoType[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9;
 
 
+  const getEmployeeList = useCallback(async () => {
+    if (!user?.token) {
+      throw new Error("Authentication required");
+    }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/employees`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${user.token}`
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to fetch employees");
+    }
+    return data.data;
+  }, [user?.token]);
+
   useEffect(() => {
     setMounted(true);
     async function fetchData() {
-      const data = await getEmployeeList();
-      setEmployeeList(data);
+      if (!user) {
+        router.replace("/");
+        return;
+      }
+      try {
+        const data = await getEmployeeList();
+        setEmployees(data);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+        toast.error("Failed to load employees", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'employees-error'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
-
-    if (!user) {
-      router.replace("/");
-      return;
-    } else if (user.role != "admin") {
-      router.replace("/");
-      return;
-    } else {
-      fetchData();
-    }
-  }, [mounted, router, user, getEmployeeList]);
+    fetchData();
+  }, [user, router, getEmployeeList]);
 
 
   // Filter the products by category AND search query
   const filteredProducts = useMemo(() => {
     // 1) Category filter
-    let filtered = employeeList;
+    let filtered = employees;
 
     // 2) Search filter (case-insensitive match on product name OR description)
     if (searchQuery.trim() !== "") {
@@ -52,7 +82,7 @@ const ManageEmployeePage = () => {
     }
 
     return filtered;
-  }, [employeeList, searchQuery]);
+  }, [employees, searchQuery]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / pageSize);
@@ -76,30 +106,6 @@ const ManageEmployeePage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
 
-
-  async function getEmployeeList(): Promise<EmployyeeAllInfoType[]> {
-    if (user) {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/employees/${user.userId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || "Error in fetching employees");
-          return [];
-        }
-        return data.employees;
-      } catch (error) {
-        console.error("Error employees:", error);
-        return [];
-      }
-    } else {
-      return [];
-    }
-  }
 
   return (
     <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">

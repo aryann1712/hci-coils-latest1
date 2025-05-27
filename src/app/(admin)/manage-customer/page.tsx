@@ -5,7 +5,10 @@ import AdminUserDetailsCard from '@/components/AdminUserDetailsCard';
 import { useUser } from '@/context/UserContext';
 import { EmployyeeAllInfoType } from '@/lib/interfaces/UserInterface';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 
 const ManageCustomerPage = () => {
@@ -16,25 +19,51 @@ const ManageCustomerPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 9;
+  const [loading, setLoading] = useState(true);
 
+  const getCustomerList = useCallback(async () => {
+    if (!user?.token) {
+      throw new Error("Authentication required");
+    }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/customers`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${user.token}`
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to fetch customers");
+    }
+    return data.data;
+  }, [user?.token]);
 
   useEffect(() => {
     setMounted(true);
     async function fetchData() {
-      const data = await getCustomerList();
-      setEmployeeList(data);
+      if (!user) {
+        router.replace("/");
+        return;
+      }
+      try {
+        const data = await getCustomerList();
+        setEmployeeList(data);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+        toast.error("Failed to load customers", {
+          position: "top-right",
+          autoClose: 3000,
+          icon: <FaExclamationCircle className="text-white" />,
+          style: { background: '#ef4444', color: 'white' },
+          toastId: 'customers-error'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
-
-    if (!user) {
-      router.replace("/");
-      return;
-    } else if (user.role != "admin") {
-      router.replace("/");
-      return;
-    } else {
-      fetchData();
-    }
-  }, [mounted, router, user, getCustomerList]);
+    fetchData();
+  }, [user, router, getCustomerList]);
 
 
   // Filter the products by category AND search query
@@ -76,31 +105,6 @@ const ManageCustomerPage = () => {
   const handlePrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
-
-
-  async function getCustomerList(): Promise<EmployyeeAllInfoType[]> {
-    if (user) {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/customers/${user.userId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || "Error in fetching employees");
-          return [];
-        }
-        return data.employees;
-      } catch (error) {
-        console.error("Error employees:", error);
-        return [];
-      }
-    } else {
-      return [];
-    }
-  }
 
   return (
     <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
