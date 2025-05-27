@@ -9,7 +9,5 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200 
+# Remove the problematic redirect rule that was causing all requests to go to index.html
+# The @netlify/plugin-nextjs plugin will handle routing automatically 
