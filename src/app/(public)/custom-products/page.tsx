@@ -265,7 +265,7 @@ export default function CustomCoilForm() {
                     required
                   >
                     <option value="">Select Tube Type</option>
-                    <option value="copper-3/8">COPPER TUBE 3/8"</option>
+                    <option value="copper-3/8">COPPER TUBE 3/8&quot;</option>
                     <option value="copper-7mm">COPPER TUBE 7MM</option>
                   </select>
                 </div>
@@ -600,10 +600,10 @@ export default function CustomCoilForm() {
                     required
                   >
                     <option value="">Select Header Size</option>
-                    <option value="5/8">5/8"</option>
-                    <option value="6/8">6/8"</option>
-                    <option value="7/8">7/8"</option>
-                    <option value="1-1/8">1-1/8"</option>
+                    <option value="5/8">5/8&quot;</option>
+                    <option value="6/8">6/8&quot;</option>
+                    <option value="7/8">7/8&quot;</option>
+                    <option value="1-1/8">1-1/8&quot;</option>
                   </select>
                 </div>
               </div>
@@ -674,7 +674,7 @@ export default function CustomCoilForm() {
                         className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                       />
                       <label htmlFor="distributorHolesDontKnow" className="ml-2 block text-sm text-gray-700">
-                        Don't know
+                        Don&apos;t know
                       </label>
                     </div>
                   </div>
@@ -703,7 +703,7 @@ export default function CustomCoilForm() {
                         className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                       />
                       <label htmlFor="inletConnectionDontKnow" className="ml-2 block text-sm text-gray-700">
-                        Don't know
+                        Don&apos;t know
                       </label>
                     </div>
                   </div>
@@ -748,7 +748,7 @@ export default function CustomCoilForm() {
                   <div className="capitalize">{formData.coilType}</div>
 
                   <div className="font-medium">Dimensions:</div>
-                  <div>{formData.height}" × {formData.length}"</div>
+                  <div>{formData.height}&quot; × {formData.length}&quot;</div>
 
                   <div className="font-medium">Rows:</div>
                   <div>{formData.rows}</div>
@@ -780,10 +780,10 @@ export default function CustomCoilForm() {
                   {formData.coilType === 'cooling' && (
                     <>
                       <div className="font-medium">Distributor Holes:</div>
-                      <div>{formData.distributorHolesDontKnow ? "Don't know" : formData.distributorHoles}</div>
+                      <div>{formData.distributorHolesDontKnow ? "Don&apos;t know" : formData.distributorHoles}</div>
 
                       <div className="font-medium">Inlet Connection:</div>
-                      <div>{formData.inletConnectionDontKnow ? "Don't know" : formData.inletConnection}</div>
+                      <div>{formData.inletConnectionDontKnow ? "Don&apos;t know" : formData.inletConnection}</div>
                     </>
                   )}
                 </div>

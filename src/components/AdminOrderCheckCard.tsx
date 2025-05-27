@@ -22,8 +22,8 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             {/* Image */}
             <div>
               <Image
-                src={item.product.images[0] || '/logo.png'}
-                alt={formatProductName(item.product)}
+                src={(item.product as any).images?.[0] || '/logo.png'}
+                alt={formatProductName(item.product as any)}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -32,15 +32,15 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
 
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-4">
-              <h1 className="text-sm md:text-lg font-semibold">{formatProductName(item.product)}</h1>
-              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {item.product.sku || ''}</h1>
-              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{item.product.description || ''}</p>
+              <h1 className="text-sm md:text-lg font-semibold">{formatProductName(item.product as any)}</h1>
+              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {(item.product as any).sku || ''}</h1>
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{(item.product as any).description || ''}</p>
             </div>
 
             {/* Quantity */}
             <div className="flex flex-col justify-center">
               <h1 className="text-xs  text-gray-400 font-semibold">Qty</h1>
-              <h1 className="text-base md:text-lg font-semibold">{item.quantity || ''}</h1>
+              <h1 className="text-base md:text-lg font-semibold">{(item.quantity as any) || ''}</h1>
             </div>
 
           </div>
@@ -109,7 +109,7 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             {/* Image */}
             <div>
               <Image
-                src={item.product.images[0] || '/logo.png'}
+                src={(item.product as any).images?.[0] || '/logo.png'}
                 alt={formatProductName(item.product)}
                 width={1000}
                 height={1000}

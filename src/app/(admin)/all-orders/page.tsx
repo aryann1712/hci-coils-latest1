@@ -119,8 +119,8 @@ const AdminAllOrders = () => {
             order.user.companyName?.toLowerCase().includes(query) ||
             order.user.gstNumber?.toLowerCase().includes(query) ||
             order.items.some(item =>
-                (item.product as ProductType).name.toLowerCase().includes(query) ||
-                (item.product as ProductType).description?.toLowerCase().includes(query)
+                ((item.product as unknown) as ProductType).name.toLowerCase().includes(query) ||
+                ((item.product as unknown) as ProductType).description?.toLowerCase().includes(query)
             )
         );
 
@@ -136,13 +136,23 @@ const AdminAllOrders = () => {
                     phone: order.user.phone || ''
                 },
                 item: {
-                    product: item.product as ProductType,
+                    product: {
+                        ...(item.product as any),
+                        _id: (item.product as any)._id || '',
+                        sku: (item.product as any).sku || '',
+                        images: (item.product as any).images || [],
+                        name: (item.product as any).name || '',
+                        category: (item.product as any).category || '',
+                        description: (item.product as any).description || '',
+                        price: (item.product as any).price || 0,
+                        dimensions: (item.product as any).dimensions || { length: 0, width: 0, height: 0 }
+                    } as unknown as ProductType,
                     quantity: item.quantity
                 },
                 status: order.status || 'enquiry',
                 createdAt: order.createdAt,
                 customItems: order.customItems,
-                totalAmount: order.totalAmount
+                totalAmount: (order as any).totalAmount || (item.quantity * ((item.product as any).price || 0))
             }))
         );
     }, [userOrders, searchQuery, mounted, loading]);
@@ -226,8 +236,8 @@ const AdminAllOrders = () => {
         const exportData = filterOrders.map((orderItem, index) => ({
             "Sr No.": index + 1,
             "Order ID": orderItem.orderId,
-            "Product Name": orderItem.item.product.name,
-            "Description": orderItem.item.product.description || "N/A",
+            "Product Name": ((orderItem.item.product as unknown) as ProductType).name,
+            "Description": ((orderItem.item.product as unknown) as ProductType).description || "N/A",
             "Company": orderItem.user.companyName,
             "GST Number": orderItem.user.gstNumber,
             "Quantity": orderItem.item.quantity,
@@ -361,7 +371,7 @@ const AdminAllOrders = () => {
                                         <div className="mt-4">
                                             <h4 className="font-semibold text-lg mb-2">Products:</h4>
                                             {selectedOrder.items.map((item, index) => {
-                                                const product = item.product as ProductType;
+                                                const product = ((item.product as unknown) as ProductType);
                                                 return (
                                                     <div key={index} className="bg-gray-50 p-4 rounded-lg mb-4">
                                                         <p className="font-medium">{product.name}</p>
