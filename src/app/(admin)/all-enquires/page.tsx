@@ -34,7 +34,7 @@ export default function EnquiriesManagement() {
   const fetchEnquiries = async () => {
     try {
       cconst baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001";
-      const response = await fetch('${baseUrl}/api/enquire');
+      const response = await fetch(`${baseUrl}/api/enquire`);
       const data = await response.json();
       setEnquiries(data);
       setLoading(false);
