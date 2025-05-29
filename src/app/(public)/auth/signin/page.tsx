@@ -17,11 +17,10 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      debugger; 
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
       console.log("Attempting to sign in with:", formData.email);
       
-      const response = await fetch(`${baseUrl}api/users/signin`, {
+      const response = await fetch(`${baseUrl}/api/users/signin`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -43,7 +42,15 @@ export default function SignInPage() {
       console.log("Raw response:", responseText);
 
       // Try to parse as JSON
-      let data;
+      let data: {
+        id: string;
+        email: string;
+        phone: string;
+        role: string;
+        name: string;
+        token: string;
+        error?: string;
+      };
       try {
         data = JSON.parse(responseText);
       } catch (e) {
