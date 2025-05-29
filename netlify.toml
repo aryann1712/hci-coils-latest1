@@ -4,10 +4,11 @@
 
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
-  NODE_VERSION = "22"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Remove the problematic redirect rule that was causing all requests to go to index.html
-# The @netlify/plugin-nextjs plugin will handle routing automatically 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 
