@@ -10,6 +10,29 @@ import React, { useEffect, useState } from "react";
 import { CgSmile } from "react-icons/cg";
 import { toast } from "react-hot-toast";
 
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  category: string;
+  imageUrl: string;
+  // Add other fields as needed
+}
+
+interface CustomCoilItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  specifications: {
+    pipeType: string;
+    pipeSize: string;
+    circuit: string;
+    endplate: string;
+    // Add other specifications as needed
+  };
+}
 
 const CartPage: React.FC = () => {
   const { cartItems, setAllToCart } = useCart();
@@ -17,8 +40,6 @@ const CartPage: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { user } = useUser();
-
-
 
   const handlePurchase = () => {
     if (!user) {

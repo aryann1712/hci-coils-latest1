@@ -2,8 +2,6 @@
 import AdminProductCard from "@/components/AdminProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/context/UserContext";
-import { ProductAllTypeInterfact } from "@/data/allProducts";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -22,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
 // Define TypeScript interfaces for PDF document definition
 interface PdfStyle {
@@ -55,13 +54,19 @@ interface Product {
   _id: string;
   name: string;
   description: string;
-  category: string;
   price: number;
+  category: string;
   stock: number;
   status: string;
   imageUrl: string;
   createdAt: string;
   sku?: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: Product[];
+  error?: string;
 }
 
 const AdminProductsPage = () => {

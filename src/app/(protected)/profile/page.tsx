@@ -3,7 +3,7 @@
 import { useUser } from "@/context/UserContext";
 import { UserAllInfoType } from "@/lib/interfaces/UserInterface";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 
 
@@ -14,7 +14,7 @@ const ProfilePage = () => {
 
   const [userData, setUserData] = useState<UserAllInfoType | null>(null)
 
-  async function getUserInfoFromAPI(): Promise<UserAllInfoType> {
+  const getUserInfoFromAPI = useCallback(async (): Promise<UserAllInfoType> => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/profile/${user?.userId}`, {
         method: "GET",
@@ -46,7 +46,7 @@ const ProfilePage = () => {
         gstNumber: ""
       };
     }
-  };
+  }, [user?.userId]);
 
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const ProfilePage = () => {
       fetchData();
     }
     console.log("username => ", user)
-  }, [user, router, mounted]);
+  }, [user, router, getUserInfoFromAPI]);
 
   if (!mounted) {
     return null;
