@@ -8,9 +8,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { CgSmile } from "react-icons/cg";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+import { toast } from "react-hot-toast";
+
 
 const CartPage: React.FC = () => {
   const { cartItems, setAllToCart } = useCart();
@@ -19,20 +18,16 @@ const CartPage: React.FC = () => {
   const router = useRouter();
   const { user } = useUser();
 
+
+
   const handlePurchase = () => {
     if (!user) {
-      toast.error("Please sign in to continue", {
-        position: "bottom-right",
-        autoClose: 3000,
-        icon: <FaExclamationCircle className="text-white" />,
-        style: { background: '#ef4444', color: 'white' },
-        toastId: 'signin-required'
-      });
+      console.log("No user found... try to sign in");
       router.push("/auth/signin");
       return;
     }
   
-    setLoading(true);
+    setLoading(true); // Show spinner
   
     async function placeOrders() {
       try {
@@ -46,55 +41,99 @@ const CartPage: React.FC = () => {
   
           const customItems: CustomCoilItemType[] = [...cartItems.customCoils];
   
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/orders`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${user?.token}`,
-            },
-            body: JSON.stringify({
-              user: user?.userId,
-              items: tempItems,
-              customItems: customItems,
-            }),
-          });
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+          const token = localStorage.getItem('token');
   
-          const data = await response.json();
-  
-          if (!response.ok) {
-            toast.error(data.error || "Failed to place order", {
-              position: "bottom-right",
-              autoClose: 3000,
-              icon: <FaExclamationCircle className="text-white" />,
-              style: { background: '#ef4444', color: 'white' },
-              toastId: 'order-error'
+          if (!token) {
+            toast.error("Please log in again");
+            setLoading(false);
+            return;
+          }
+
+          if (!baseUrl) {
+            toast.error("API URL not configured");
+            setLoading(false);
+            return;
+          }
+
+          // Check if server is available by trying to fetch the orders endpoint
+          try {
+            const serverCheck = await fetch(`${baseUrl}/api/orders`, {
+              method: "GET",
+              headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
             });
+            
+            if (!serverCheck.ok && serverCheck.status !== 401) {
+              throw new Error("Server is not responding");
+            }
+          } catch (serverError) {
+            console.error("Server check failed:", serverError);
+            toast.error("Unable to connect to server. Please check if the server is running at " + baseUrl);
+            setLoading(false);
             return;
           }
   
-          toast.success("Order placed successfully!", {
-            position: "bottom-right",
-            autoClose: 2000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            icon: <FaCheckCircle className="text-white" />,
-            style: { background: '#22c55e', color: 'white' },
-            toastId: 'order-success'
-          });
-          setAllToCart({ items: [], customCoils: [] });
-          router.push("/orders");
+          try {
+            const response = await fetch(`${baseUrl}/api/orders`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
+              credentials: 'include',
+              body: JSON.stringify({
+                user: user?.userId,
+                items: tempItems,
+                customItems: customItems,
+              }),
+            });
+  
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
+  
+            if (!response.ok) {
+              let errorMessage = 'Failed to place order';
+              try {
+                const errorJson = JSON.parse(responseText);
+                errorMessage = errorJson.error || errorMessage;
+              } catch (e) {
+                console.error('Failed to parse error response:', e);
+              }
+              throw new Error(errorMessage);
+            }
+  
+            let data;
+            try {
+              data = JSON.parse(responseText);
+            } catch (parseError) {
+              console.error('Failed to parse response:', parseError);
+              throw new Error('Invalid response from server');
+            }
+  
+            if (!data || !data.success) {
+              throw new Error(data.error || 'Failed to place order');
+            }
+  
+            console.log("Order placed successfully");
+            setAllToCart({ items: [], customCoils: [] });
+            router.push("/orders");
+          } catch (fetchError: any) {
+            console.error("Network error:", fetchError);
+            if (fetchError.message === "Failed to fetch") {
+              toast.error("Unable to connect to server. Please check your internet connection and try again.");
+            } else {
+              toast.error(fetchError.message || "Network error. Please try again.");
+            }
+          }
         }
       } catch (error) {
-        console.error("Order error:", error);
-        toast.error("Something went wrong while placing the order", {
-          position: "top-right",
-          autoClose: 3000,
-          icon: <FaExclamationCircle className="text-white" />,
-          style: { background: '#ef4444', color: 'white' },
-          toastId: 'order-error'
-        });
+        const errorMessage = error instanceof Error ? error.message : 'Failed to place order';
+        console.error("Order error:", errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -126,11 +165,22 @@ const CartPage: React.FC = () => {
   
           const customItems: CustomCoilItemType[] = [...cartItems.customCoils];
   
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/`, {
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+          const token = localStorage.getItem('token');
+  
+          if (!token) {
+            toast.error("Please log in again");
+            return;
+          }
+  
+          const response = await fetch(`${baseUrl}/api/enquire`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": `Bearer ${token}`
             },
+            credentials: 'include',
             body: JSON.stringify({
               user: user?.userId,
               items: tempItems,
@@ -138,11 +188,30 @@ const CartPage: React.FC = () => {
             }),
           });
   
-          const data = await response.json();
+          const responseText = await response.text();
+          console.log('Raw response:', responseText);
   
           if (!response.ok) {
-            alert(data.error || "Enquiry failed");
-            return;
+            let errorMessage = 'Failed to place enquiry';
+            try {
+              const errorJson = JSON.parse(responseText);
+              errorMessage = errorJson.error || errorMessage;
+            } catch (e) {
+              console.error('Failed to parse error response:', e);
+            }
+            throw new Error(errorMessage);
+          }
+  
+          let data;
+          try {
+            data = JSON.parse(responseText);
+          } catch (parseError) {
+            console.error('Failed to parse response:', parseError);
+            throw new Error('Invalid response from server');
+          }
+  
+          if (!data || !data.success) {
+            throw new Error(data.error || 'Failed to place enquiry');
           }
   
           console.log("Enquiry placed successfully");
@@ -150,10 +219,11 @@ const CartPage: React.FC = () => {
           router.push("/enquire");
         }
       } catch (error) {
-        console.error("Enquiry error:", error);
-        alert("Something went wrong while sending the enquiry.");
+        const errorMessage = error instanceof Error ? error.message : 'Failed to place enquiry';
+        console.error("Enquiry error:", errorMessage);
+        toast.error(errorMessage);
       } finally {
-        setLoading(false); // Hide spinner
+        setLoading(false);
       }
     }
   
@@ -162,10 +232,12 @@ const CartPage: React.FC = () => {
   
 
   useEffect(() => {
+    setMounted(true);
+
     async function fetchAndMergeCart() {
       if (user && user.userId) {
         try {
-          const serverCart = await getCartFromAPI(user.userId);
+          const serverCart = await getCartFromAPI(user.userId, user);
 
           // Get local cart from localStorage
           const localCartStr = localStorage.getItem("cartItems");
@@ -184,7 +256,7 @@ const CartPage: React.FC = () => {
           const mergedCustomCoils = [...serverCart.customItems];
 
           localCart.customCoils.forEach((localCoil: any) => {
-            const index = mergedCustomCoils.findIndex((item: any) => item.name === localCoil.name);
+            const index = mergedCustomCoils.findIndex((item: any) => item.name === localCoil.name); // Use a better unique field if available
             if (index === -1) {
               mergedCustomCoils.push(localCoil);
             }
@@ -195,6 +267,9 @@ const CartPage: React.FC = () => {
             customCoils: mergedCustomCoils
           };
 
+          // Optionally update server with merged cart here
+
+          // Set merged cart to context + localStorage
           setAllToCart(mergedCart);
 
         } catch (error) {
@@ -206,7 +281,7 @@ const CartPage: React.FC = () => {
     if (user && user.userId) {
       fetchAndMergeCart();
     }
-  }, [user, setAllToCart, router]);
+  }, [user]);
 
 
 
@@ -268,18 +343,30 @@ export default CartPage;
 
 
 
-async function getCartFromAPI(userId: string) {
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${userId}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
-  const data = await response.json();
-
-  if (!response.ok) {
-    alert(data.error || "Sign in failed");
-    return [];
+async function getCartFromAPI(userId: string, user: any) {
+  if (!user?.token) {
+    console.error("No authentication token found");
+    return { items: [], customItems: [] };
   }
 
-  return data.data;
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/${userId}`, {
+      method: "GET",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${user.token}`
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    alert("Failed to fetch cart. Please try again.");
+    return { items: [], customItems: [] };
+  }
 }

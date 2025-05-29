@@ -1,57 +1,31 @@
 "use client";
 import { useCart } from '@/context/CartContext';
-import { EnquiryItemType } from '@/lib/interfaces/OrderInterface';
-import type { CartItemType, CustomCoilItemType as CartCustomCoilItemType } from '@/lib/interfaces/CartInterface';
-import type { CustomCoilItemType as OrderCustomCoilItemType } from '@/lib/interfaces/OrderInterface';
+import { EnquiryItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
 import Image from 'next/image';
 import { FaReply } from "react-icons/fa";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FaCheckCircle } from 'react-icons/fa';
-
-// Helper function to convert order custom coil to cart custom coil
-const convertToCartCustomCoil = (orderCoil: OrderCustomCoilItemType): CartCustomCoilItemType => {
-  const { tubeType, ...rest } = orderCoil;
-  return {
-    ...rest,
-    tubeType,
-    pipeType: tubeType // Use tubeType as pipeType since they represent the same thing
-  };
-};
+import { toast } from 'react-hot-toast';
 
 const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
   const { addToCart, addCustomCoilToCart } = useCart();
 
-  const addItemsToCart = (() => {
-    for (const item of orderItem.items) {
-      // Convert OrderItemType to CartItemType
-      const cartItem: CartItemType = {
-        _id: item.product._id,
-        sku: item.product.sku,
-        images: [(item.product as any).images?.[0] || '/logo.png'],
-        name: item.product.name,
-        category: (item.product as any).category || 'default',
-        description: item.product.description,
-        quantity: item.quantity
-      };
-      addToCart(cartItem);
+  const addItemsToCart = async () => {
+    try {
+      for (const item of orderItem.items) {
+        item.product.quantity = item.quantity;
+        await addToCart(item.product);
+      }
+      for (const customItem of orderItem.customItems) {
+        await addCustomCoilToCart(customItem);
+      }
+      toast.success('Items added to cart successfully!', {
+        icon: '🛒'
+      });
+    } catch (error) {
+      toast.error('Failed to add items to cart', {
+        icon: '❌'
+      });
     }
-    for (const customItem of orderItem.customItems) {
-      const cartCustomItem = convertToCartCustomCoil(customItem);
-      addCustomCoilToCart(cartCustomItem);
-    }
-    toast.success("Items added to cart!", {
-      position: "bottom-right",
-      autoClose: 2000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      icon: <FaCheckCircle className="text-white" />,
-      style: { background: '#22c55e', color: 'white' },
-      toastId: 'enquiry-items-add'
-    });
-  });
+  };
 
   return (
     <div className='shadow-md rounded-md my-5 py-5  px-1 md:px-5 border-dashed border flex flex-row gap-5 items-center justify-center'>
@@ -68,7 +42,7 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
             {/* Image */}
             <div>
               <Image
-                src={(item.product as any).images?.[0] || '/logo.png'}
+                src={item.product.images[0] || '/logo.png'}
                 alt={item.product.name}
                 width={1000}
                 height={1000}
@@ -99,7 +73,7 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
             <div>
               <Image
                 src={"/custom-coil-info1.png"}
-                alt="custom coil"
+                alt={"custom coil"}
                 width={1000}
                 height={1000}
                 className="w-[100px] h-[70px] md:h-[100px] md:w-[150px] rounded-md object-cover"
@@ -149,13 +123,13 @@ const EnquiryItemCard = ({ orderItem }: { orderItem: EnquiryItemType }) => {
                   <span className="font-semibold">Distributor Holes:</span>
                   <span>{item.distributorHoles}</span>
 
-                  <span className="font-semibold">Distributor Holes Don&apos;t Know:</span>
+                  <span className="font-semibold">Distributor Holes Don't Know:</span>
                   <span>{item.distributorHolesDontKnow ? 'Yes' : 'No'}</span>
 
                   <span className="font-semibold">Inlet Connection:</span>
                   <span>{item.inletConnection}</span>
 
-                  <span className="font-semibold">Inlet Connection Don&apos;t Know:</span>
+                  <span className="font-semibold">Inlet Connection Don't Know:</span>
                   <span>{item.inletConnectionDontKnow ? 'Yes' : 'No'}</span>
 
                   <span className="font-semibold">Quantity:</span>

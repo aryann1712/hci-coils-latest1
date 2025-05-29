@@ -1,14 +1,11 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import { CartItemType } from "@/lib/interfaces/CartInterface";
-import { formatProductName } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { MdDelete } from "react-icons/md";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+import { toast } from "react-hot-toast";
 
 interface CartProductItemCardProps {
   cardData: CartItemType;
@@ -17,33 +14,199 @@ interface CartProductItemCardProps {
 const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
   cardData,
 }) => {
-  const { addToCart, removeFromCart } = useCart();
+  const { updateProductToCart, removeFromCart } = useCart();
   const router = useRouter();
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [localQuantity, setLocalQuantity] = useState(cardData.quantity);
 
-  /**
-   * Called when user manually types a new quantity in the input.
-   */
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (isNaN(value) || value < 1) {
-      toast.error("Quantity must be at least 1", {
-        position: "top-right",
-        autoClose: 2000,
-        icon: <FaExclamationCircle className="text-white" />,
-        style: { background: '#ef4444', color: 'white' },
-        toastId: 'cart-update'
-      });
-      return;
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQty = parseInt(e.target.value, 10);
+    if (newQty >= 1 && !isUpdating) {
+      setLocalQuantity(newQty);
+      setIsUpdating(true);
+      try {
+        await updateProductToCart({
+          ...cardData,
+          quantity: newQty
+        });
+        toast.success('Quantity updated successfully!', {
+          duration: 2000,
+          position: 'top-right',
+          style: {
+            background: '#4CAF50',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          },
+          icon: '🔄',
+        });
+      } catch (error) {
+        setLocalQuantity(cardData.quantity);
+        if (error instanceof Error && 
+            error.message !== "Cart not found" && 
+            error.message !== "Product can not be less than 1 Unit.") {
+          toast.error('Failed to update quantity', {
+            duration: 2000,
+            position: 'top-right',
+            style: {
+              background: '#f44336',
+              color: '#fff',
+              padding: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            },
+            icon: '❌',
+          });
+        }
+      } finally {
+        setIsUpdating(false);
+      }
     }
-    cardData.quantity = value;
-    addToCart(cardData);
-    toast.success("Cart updated", {
-      position: "top-right",
-      autoClose: 2000,
-      icon: <FaCheckCircle className="text-white" />,
-      style: { background: '#22c55e', color: 'white' },
-      toastId: 'cart-update'
-    });
+  };
+
+  const handleIncrement = async () => {
+    if (isUpdating) return;
+    const newQty = localQuantity + 1;
+    setLocalQuantity(newQty);
+    setIsUpdating(true);
+    try {
+      await updateProductToCart({
+        ...cardData,
+        quantity: newQty
+      });
+      toast.success('Quantity increased!', {
+        duration: 2000,
+        position: 'top-right',
+        style: {
+          background: '#4CAF50',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        },
+        icon: '➕',
+      });
+    } catch (error) {
+      setLocalQuantity(cardData.quantity);
+      if (error instanceof Error && 
+          error.message !== "Cart not found" && 
+          error.message !== "Product can not be less than 1 Unit.") {
+        toast.error('Failed to update quantity', {
+          duration: 2000,
+          position: 'top-right',
+          style: {
+            background: '#f44336',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          },
+          icon: '❌',
+        });
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDecrement = async () => {
+    if (isUpdating) return;
+    if (localQuantity > 1) {
+      const newQty = localQuantity - 1;
+      setLocalQuantity(newQty);
+      setIsUpdating(true);
+      try {
+        await updateProductToCart({
+          ...cardData,
+          quantity: newQty
+        });
+        toast.success('Quantity decreased!', {
+          duration: 2000,
+          position: 'top-right',
+          style: {
+            background: '#4CAF50',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          },
+          icon: '➖',
+        });
+      } catch (error) {
+        setLocalQuantity(cardData.quantity);
+        if (error instanceof Error && 
+            error.message !== "Cart not found" && 
+            error.message !== "Product can not be less than 1 Unit.") {
+          toast.error('Failed to update quantity', {
+            duration: 2000,
+            position: 'top-right',
+            style: {
+              background: '#f44336',
+              color: '#fff',
+              padding: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            },
+            icon: '❌',
+          });
+        }
+      } finally {
+        setIsUpdating(false);
+      }
+    } else {
+      toast.error('Minimum quantity is 1', {
+        duration: 2000,
+        position: 'top-right',
+        style: {
+          background: '#f44336',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        },
+        icon: '⚠️',
+      });
+    }
+  };
+
+  const handleRemove = async () => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+    try {
+      await removeFromCart(cardData._id);
+      toast.success('Item removed from cart!', {
+        duration: 2000,
+        position: 'top-right',
+        style: {
+          background: '#4CAF50',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        },
+        icon: '🗑️',
+      });
+    } catch (error) {
+      if (error instanceof Error && 
+          error.message !== "Cart not found" && 
+          error.message !== "Product can not be less than 1 Unit.") {
+        toast.error('Failed to remove item', {
+          duration: 2000,
+          position: 'top-right',
+          style: {
+            background: '#f44336',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          },
+          icon: '❌',
+        });
+      }
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -52,7 +215,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
       <div>
         <Image
           src={cardData.images[0] || "/logo.png"}
-          alt={formatProductName(cardData)}
+          alt={cardData.name}
           width={1000}
           height={1000}
           className="h-[70px] w-[100px] md:h-[200px] md:w-[350px] rounded-md object-cover cursor-pointer"
@@ -62,7 +225,7 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
 
       {/* Name and Description */}
       <div className="col-span-2 flex flex-col px-4 cursor-pointer h-full md:gap-y-5 justify-center" onClick={() => router.push(`/products/${cardData._id}`)}>
-        <h1 className="text-sm md:text-lg font-semibold">{formatProductName(cardData)}</h1>
+        <h1 className="text-sm md:text-lg font-semibold">{cardData.name}</h1>
         <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3">{cardData.description}</p>
       </div>
 
@@ -73,29 +236,9 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
           <div className="flex items-center justify-end gap-2">
             {/* Decrement Button */}
             <button
-              onClick={() => {
-                if (cardData.quantity <= 1) {
-                  toast.error("Quantity must be at least 1", {
-                    position: "top-right",
-                    autoClose: 2000,
-                    icon: <FaExclamationCircle className="text-white" />,
-                    style: { background: '#ef4444', color: 'white' },
-                    toastId: 'cart-update'
-                  });
-                  return;
-                }
-                cardData.quantity--;
-                addToCart(cardData);
-                toast.success("Cart updated", {
-                  position: "top-right",
-                  autoClose: 2000,
-                  icon: <FaCheckCircle className="text-white" />,
-                  style: { background: '#22c55e', color: 'white' },
-                  toastId: 'cart-update'
-                });
-              }}
-              disabled={cardData.quantity <= 1}
-              className={`w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:bg-gray-100 transition`}
+              onClick={handleDecrement}
+              disabled={localQuantity <= 1 || isUpdating}
+              className={`w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:bg-gray-100 disabled:opacity-50 transition`}
             >
               –
             </button>
@@ -103,42 +246,25 @@ const CartProductItemCard: React.FC<CartProductItemCardProps> = ({
             {/* Editable Quantity Input */}
             <input
               type="text"
-              className="w-6 md:w-12 text-xs md:text-base text-center border border-gray-300 rounded appearance-none outline-none focus:ring-2 focus:ring-blue-500"
-              value={cardData.quantity}
+              className="w-6 md:w-12 text-xs md:text-base text-center border border-gray-300 rounded appearance-none outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              value={localQuantity}
               onChange={handleChange}
+              disabled={isUpdating}
             />
 
             {/* Increment Button */}
             <button
-              onClick={() => {
-                cardData.quantity++;
-                addToCart(cardData);
-                toast.success("Cart updated", {
-                  position: "top-right",
-                  autoClose: 2000,
-                  icon: <FaCheckCircle className="text-white" />,
-                  style: { background: '#22c55e', color: 'white' },
-                  toastId: 'cart-update'
-                });
-              }}
-              className="w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+              onClick={handleIncrement}
+              disabled={isUpdating}
+              className="w-4 h-4 md:w-8 md:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 transition"
             >
               +
             </button>
           </div>
         </div>
         <MdDelete 
-          className="text-2xl mb-1 text-gray-500 hover:text-black" 
-          onClick={() => {
-            removeFromCart(cardData._id);
-            toast.success("Cart updated", {
-              position: "top-right",
-              autoClose: 2000,
-              icon: <FaCheckCircle className="text-white" />,
-              style: { background: '#22c55e', color: 'white' },
-              toastId: 'cart-update'
-            });
-          }} 
+          className={`text-2xl mb-1 text-gray-500 hover:text-black cursor-pointer ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}
+          onClick={handleRemove}
         />
       </div>
     </div>

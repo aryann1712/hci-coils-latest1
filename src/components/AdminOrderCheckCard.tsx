@@ -1,6 +1,5 @@
 "use client";
 import { EnquireItemType, OrderItemType } from '@/lib/interfaces/OrderInterface';
-import { formatProductName } from '@/lib/utils';
 import Image from 'next/image';
 
 const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: OrderItemType, enquireItem?: EnquireItemType }) => {
@@ -22,8 +21,8 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             {/* Image */}
             <div>
               <Image
-                src={(item.product as any).images?.[0] || '/logo.png'}
-                alt={formatProductName(item.product as any)}
+                src={item.product.images[0] || '/logo.png'}
+                alt={item.product.name || ''}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -32,15 +31,15 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
 
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-4">
-              <h1 className="text-sm md:text-lg font-semibold">{formatProductName(item.product as any)}</h1>
-              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {(item.product as any).sku || ''}</h1>
-              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{(item.product as any).description || ''}</p>
+              <h1 className="text-sm md:text-lg font-semibold">{item.product.name || ''}</h1>
+              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {item.product.sku || ''}</h1>
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{item.product.description || ''}</p>
             </div>
 
             {/* Quantity */}
             <div className="flex flex-col justify-center">
               <h1 className="text-xs  text-gray-400 font-semibold">Qty</h1>
-              <h1 className="text-base md:text-lg font-semibold">{(item.quantity as any) || ''}</h1>
+              <h1 className="text-base md:text-lg font-semibold">{item.quantity || ''}</h1>
             </div>
 
           </div>
@@ -54,7 +53,7 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             <div>
               <Image
                 src={"/custom-coil-info1.png"}
-                alt="custom coil"
+                alt={"custom coil"}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -78,9 +77,9 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
                 <p><span className="font-semibold mr-2">tubeType:</span> {item.tubeType}</p>
                 <p><span className="font-semibold mr-2">finType:</span> {item.finType}</p>
                 <p><span className="font-semibold mr-2">distributorHoles:</span> {item.distributorHoles}</p>
-                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? "Yes" : "No"}</p>
+                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? 'Yes' : 'No'}</p>
                 <p><span className="font-semibold mr-2">inletConnection:</span> {item.inletConnection}</p>
-                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? "Yes" : "No"}</p>
+                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? 'Yes' : 'No'}</p>
                 <p><span className="font-semibold mr-2">quantity:</span> {item.quantity}</p>
               </div>
             </div>
@@ -109,8 +108,8 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             {/* Image */}
             <div>
               <Image
-                src={(item.product as any).images?.[0] || '/logo.png'}
-                alt={formatProductName(item.product.product)}
+                src={item.product.images[0] || '/logo.png'}
+                alt={item.product.name || ''}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -119,9 +118,9 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
 
             {/* Name and Description */}
             <div className="col-span-2 flex flex-col px-4">
-              <h1 className="text-sm md:text-lg font-semibold">{formatProductName(item.product.product)}</h1>
-              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {(item.product.product as any).sku || ''}</h1>
-              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{(item.product.product as any).description || ''}</p>
+              <h1 className="text-sm md:text-lg font-semibold">{item.product.name || ''}</h1>
+              <h1 className="text-xs md:text-xs font-gray-600 font-semibold">Part Code:  {item.product.sku || ''}</h1>
+              <p className="text-xs md:text-sm text-gray-600 line-clamp-2 md:line-clamp-3 font-semibold">{item.product.description || ''}</p>
             </div>
 
             {/* Quantity */}
@@ -139,7 +138,7 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
             <div>
               <Image
                 src={"/custom-coil-info1.png"}
-                alt="custom coil"
+                alt={"custom coil"}
                 width={1000}
                 height={1000}
                 className="h-[100px] w-[150px] rounded-md object-cover"
@@ -163,9 +162,9 @@ const AdminOrderCheckItemCard = ({ orderItem, enquireItem }: { orderItem?: Order
                 <p><span className="font-semibold mr-2">tubeType:</span> {item.tubeType}</p>
                 <p><span className="font-semibold mr-2">finType:</span> {item.finType}</p>
                 <p><span className="font-semibold mr-2">distributorHoles:</span> {item.distributorHoles}</p>
-                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? "Yes" : "No"}</p>
+                <p><span className="font-semibold mr-2">distributorHolesDontKnow:</span> {item.distributorHolesDontKnow ? 'Yes' : 'No'}</p>
                 <p><span className="font-semibold mr-2">inletConnection:</span> {item.inletConnection}</p>
-                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? "Yes" : "No"}</p>
+                <p><span className="font-semibold mr-2">inletConnectionDontKnow:</span> {item.inletConnectionDontKnow ? 'Yes' : 'No'}</p>
                 <p><span className="font-semibold mr-2">quantity:</span> {item.quantity}</p>
               </div>
             </div>

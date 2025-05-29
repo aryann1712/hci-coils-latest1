@@ -1,247 +1,160 @@
 "use client";
 
-import { useUser } from '@/context/UserContext';
-import { OrderItemType, CartItemType, EnquireItemType, CustomCoilItemType, EnquiryItemType } from '@/lib/interfaces/OrderInterface';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import EnquiryManagementTable from '@/components/EnquiryManagementTable';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from 'react-toastify';
 
-const AdminAllEnquires = () => {
-    const { user } = useUser();
-    const router = useRouter();
-    const [mounted, setMounted] = useState(false);
-    const [orders, setOrders] = useState<EnquiryItemType[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState("");
-    const pageSize = 10;
+interface Enquiry {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  subject: string;
+  message: string;
+  status: string;
+  createdAt: string;
+}
 
-    useEffect(() => {
-        setMounted(true);
-        async function fetchData() {
-            try {
-                setLoading(true);
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire`, {
-                    method: "GET",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${localStorage.getItem('token')}`
-                    },
-                });
+export default function EnquiriesManagement() {
+  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to fetch enquiries');
-                }
+  useEffect(() => {
+    fetchEnquiries();
+  }, []);
 
-                const data = await response.json();
-                setOrders(data.data);
-            } catch (error) {
-                console.error('Error fetching enquiries:', error);
-                toast.error(error instanceof Error ? error.message : 'Failed to fetch enquiries');
-                setOrders([]); // Set empty array on error
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (!user) {
-            router.replace("/");
-            return;
-        } else if (!(user.role === "admin" || user.role === "manager")) {
-            router.replace("/");
-            return;
-        } else {
-            fetchData();
-        }
-    }, [mounted, user, router]);
-
-    const filteredOrders = useMemo(() => {
-        if (!searchQuery.trim()) return orders;
-
-        const query = searchQuery.trim().toLowerCase();
-        return orders.filter(order => {
-            // Search in enquiry ID
-            if (order.enquiryId?.toLowerCase().includes(query)) return true;
-            
-            // Search in user details
-            if (order.user.name?.toLowerCase().includes(query)) return true;
-            if (order.user.email?.toLowerCase().includes(query)) return true;
-            if (order.user.companyName?.toLowerCase().includes(query)) return true;
-            if (order.user.gstNumber?.toLowerCase().includes(query)) return true;
-            
-            // Search in status
-            if (order.status?.toLowerCase().includes(query)) return true;
-            
-            // Search in products
-            if (order.items.some((item) => 
-                item.product.name.toLowerCase().includes(query.toLowerCase()) ||
-                item.product.description.toLowerCase().includes(query.toLowerCase()) ||
-                item.product.sku?.toLowerCase().includes(query.toLowerCase())
-            )) return true;
-
-            // Search in custom coils
-            if (order.customItems.some((item: CustomCoilItemType) => 
-                Object.values(item).some(value => 
-                    typeof value === 'string' && value.toLowerCase().includes(query.toLowerCase())
-                )
-            )) return true;
-
-            return false;
-        });
-    }, [orders, searchQuery]);
-
-    // Pagination
-    const totalPages = Math.ceil(filteredOrders.length / pageSize);
-    const currentPageOrders = useMemo(() => {
-        const startIndex = (currentPage - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        return filteredOrders.slice(startIndex, endIndex);
-    }, [filteredOrders, currentPage]);
-
-    const handleNextPage = () => {
-        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-    };
-
-    const handlePrevPage = () => {
-        setCurrentPage((prev) => Math.max(prev - 1, 1));
-    };
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1); // Reset to first page on search
-    };
-
-    const handleUpdateStatus = async (enquiryId: string, newStatus: string) => {
-        try {
-            setLoading(true);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/enquire/${enquiryId}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: newStatus }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update status');
-            }
-
-            // Update local state
-            setOrders(prevOrders =>
-                prevOrders.map(order =>
-                    order._id === enquiryId
-                        ? { ...order, status: newStatus }
-                        : order
-                )
-            );
-
-            toast.success('Status updated successfully');
-        } catch (error) {
-            console.error('Error updating status:', error);
-            toast.error('Failed to update status');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (!mounted || loading) {
-        return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-                    <div className="h-10 bg-gray-200 rounded"></div>
-                    <div className="space-y-3">
-                        {[...Array(5)].map((_, i) => (
-                            <div key={i} className="h-16 bg-gray-200 rounded"></div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
+  const fetchEnquiries = async () => {
+    try {
+      const response = await fetch('/api/enquiries');
+      const data = await response.json();
+      setEnquiries(data);
+      setLoading(false);
+    } catch (error) {
+      toast.error('Failed to fetch enquiries');
+      setLoading(false);
     }
+  };
 
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Enquiry Management</h1>
-                <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-600">
-                        Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filteredOrders.length)} of {filteredOrders.length} enquiries
+  const filteredEnquiries = enquiries.filter(enquiry => {
+    const matchesSearch = 
+      enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      enquiry.subject.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || enquiry.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const paginatedEnquiries = filteredEnquiries.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredEnquiries.length / itemsPerPage);
+
+  return (
+    <div className="container mx-auto py-10">
+      <h1 className="text-2xl font-bold mb-6">Enquiries Management</h1>
+      
+      <div className="flex gap-4 mb-6">
+        <Input
+          placeholder="Search enquiries..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="new">New</SelectItem>
+            <SelectItem value="in-progress">In Progress</SelectItem>
+            <SelectItem value="responded">Responded</SelectItem>
+            <SelectItem value="closed">Closed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Company</TableHead>
+              <TableHead>Subject</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center">Loading...</TableCell>
+              </TableRow>
+            ) : paginatedEnquiries.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center">No enquiries found</TableCell>
+              </TableRow>
+            ) : (
+              paginatedEnquiries.map((enquiry) => (
+                <TableRow key={enquiry._id}>
+                  <TableCell>{enquiry.name}</TableCell>
+                  <TableCell>{enquiry.email}</TableCell>
+                  <TableCell>{enquiry.phone}</TableCell>
+                  <TableCell>{enquiry.company}</TableCell>
+                  <TableCell>{enquiry.subject}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      enquiry.status === 'new' ? 'bg-blue-100 text-blue-800' :
+                      enquiry.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                      enquiry.status === 'responded' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {enquiry.status}
                     </span>
-                </div>
-            </div>
-
-            {/* Single Search Bar */}
-            <div className="mb-6">
-                <div className="relative">
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        placeholder="Search by enquiry ID, customer, company, product, status..."
-                        className="w-full p-3 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                        🔍
-                    </div>
-                </div>
-                <p className="mt-2 text-sm text-gray-500">
-                    Search across all fields including enquiry ID, customer details, company, products, and status
-                </p>
-            </div>
-
-            {/* Enquiry Table */}
-            <EnquiryManagementTable
-                enquiries={currentPageOrders}
-                onUpdateStatus={handleUpdateStatus}
-                currentPage={currentPage}
-                pageSize={pageSize}
-            />
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="mt-6 flex items-center justify-between border-t pt-4">
-                    <div className="flex items-center gap-2">
-                        <Button
-                            onClick={handlePrevPage}
-                            disabled={currentPage === 1}
-                            variant="outline"
-                            size="sm"
-                        >
-                            Previous
-                        </Button>
-                        <div className="flex items-center gap-1">
-                            {[...Array(totalPages)].map((_, i) => (
-                                <Button
-                                    key={i}
-                                    variant={currentPage === i + 1 ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => setCurrentPage(i + 1)}
-                                    className="w-8 h-8 p-0"
-                                >
-                                    {i + 1}
-                                </Button>
-                            ))}
-                        </div>
-                        <Button
-                            onClick={handleNextPage}
-                            disabled={currentPage === totalPages}
-                            variant="outline"
-                            size="sm"
-                        >
-                            Next
-                        </Button>
-                    </div>
-                    <span className="text-sm text-gray-600">
-                        Page {currentPage} of {totalPages}
-                    </span>
-                </div>
+                  </TableCell>
+                  <TableCell>{new Date(enquiry.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <Button variant="outline" size="sm" className="mr-2">View</Button>
+                    <Button variant="outline" size="sm">Reply</Button>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
-        </div>
-    );
-};
+          </TableBody>
+        </Table>
+      </div>
 
-export default AdminAllEnquires;
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          variant="outline"
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <Button
+          variant="outline"
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}

@@ -2,165 +2,252 @@
 import { CartItemType, CustomCoilItemType, FinalCartItem } from "@/lib/interfaces/CartInterface";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "./UserContext";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+import { toast } from "react-hot-toast";
 
 interface CartContextType {
-  cartItems: FinalCartItem;
+  cartItems: {
+    items: CartItemType[];
+    customCoils: CustomCoilItemType[];
+  };
   setAllToCart: (items: FinalCartItem) => void;
-  addToCart: (item: CartItemType) => void;
+  addToCart: (item: CartItemType) => Promise<void>;
   addCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
   removeCustomCoilFromCart: (customCoil: CustomCoilItemType) => void;
   updateCustomCoilToCart: (customCoil: CustomCoilItemType) => void;
   decrementToCart: (id: string) => void;
-  removeFromCart: (id: string) => void;
+  removeFromCart: (itemId: string) => void;
   updateProductToCart: (item: CartItemType) => void;
-  mounted: boolean;
+  clearCart: () => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
 }
 
-const CartContext = createContext<CartContextType>({
-  cartItems: { items: [], customCoils: [] },
-  setAllToCart: () => {},
-  addToCart: () => {},
-  addCustomCoilToCart: () => {},
-  removeCustomCoilFromCart: () => {},
-  updateCustomCoilToCart: () => {},
-  decrementToCart: () => {},
-  removeFromCart: () => {},
-  updateProductToCart: () => {},
-  mounted: false,
-});
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { user, mounted: userMounted } = useUser();
-  const [mounted, setMounted] = useState(false);
-  const [cartItems, setCartItems] = useState<FinalCartItem>({ items: [], customCoils: [] });
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useUser();
+  const [cartItems, setCartItems] = useState<{
+    items: CartItemType[];
+    customCoils: CustomCoilItemType[];
+  }>({
+    items: [],
+    customCoils: [],
+  });
 
-  // Initialize cart from localStorage after mount
   useEffect(() => {
-    setMounted(true);
-    const storedCart = localStorage.getItem("cartItems");
-    if (storedCart) {
-      try {
-        const parsedCart = JSON.parse(storedCart);
-        setCartItems({
-          items: Array.isArray(parsedCart.items) ? parsedCart.items : [],
-          customCoils: Array.isArray(parsedCart.customCoils) ? parsedCart.customCoils : []
-        });
-      } catch (error) {
-        console.error("Error parsing cart from localStorage:", error);
-        localStorage.removeItem("cartItems");
-      }
-    }
-  }, []);
-
-  // Store cart in localStorage when it changes
-  useEffect(() => {
-    if (mounted) {
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    }
-  }, [cartItems, mounted]);
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const setAllToCart = (items: FinalCartItem) => {
-    // Ensure both items and customCoils exist in the input
-    console.log("items", items);
-    console.log("setAllTOcart items", items.items);
-    console.log("setAllTOcart customCOil", items.customCoils);
     const safeItems = {
-      items: Array.isArray(items.items) ? items.items : [],
+      items: Array.isArray(items.items) ? items.items.map(item => ({ ...item, price: item.price || 0 })) : [],
       customCoils: Array.isArray(items.customCoils) ? items.customCoils : []
     };
     setCartItems(safeItems);
   };
 
-  const addToCart = async (item: CartItemType) => {
-    console.log("adding to cart", item);
-    
-    // Update local state first
-    setCartItems((prev) => {
-      const currentItems = Array.isArray(prev.items) ? prev.items : [];
-      const existingItemIndex = currentItems.findIndex(i => i._id === item._id);
-      
-      if (existingItemIndex >= 0) {
-        const updatedItems = [...currentItems];
-        updatedItems[existingItemIndex] = {
-          ...updatedItems[existingItemIndex],
-          quantity: item.quantity
-        };
-        
-        toast.success('Cart updated successfully!', {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          icon: <FaCheckCircle className="text-white" />,
-          style: { background: '#22c55e', color: 'white' },
-          toastId: 'cart-update'
-        });
-        
-        return { 
-          ...prev, 
-          items: updatedItems,
-          customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
-        };
+  const handleResponse = async (response: Response) => {
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        if (!response.ok) {
+          if (data.error === "Cart not found") {
+            // If cart not found, clear local cart and return
+            setCartItems({ items: [], customCoils: [] });
+            return null;
+          }
+          if (data.error === "Product can not be less than 1 Unit.") {
+            // If trying to reduce below 1, just return without error
+            return null;
+          }
+          throw new Error(data.error || "Operation failed");
+        }
+        return data;
       } else {
-        toast.success('Item added to cart!', {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          icon: <FaCheckCircle className="text-white" />,
-          style: { background: '#22c55e', color: 'white' },
-          toastId: 'cart-add'
-        });
-        
-        return { 
-          ...prev, 
-          items: [...currentItems, item],
-          customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
-        };
+        if (!response.ok) {
+          throw new Error("Server error occurred");
+        }
+        return null;
       }
-    });
+    } catch (error) {
+      console.error("Error handling response:", error);
+      throw error;
+    }
+  };
 
-    // Then update the server if user is logged in
-    if (user?.userId) {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/add`, {
+  const addToCart = async (item: CartItemType) => {
+    try {
+      // Update local state first
+      setCartItems((prevItems) => {
+        const existingItem = prevItems.items.find((i) => i._id === item._id);
+        if (existingItem) {
+          return {
+            ...prevItems,
+            items: prevItems.items.map((i) =>
+              i._id === item._id ? { ...i, quantity: item.quantity } : i
+            ),
+          };
+        }
+        return {
+          ...prevItems,
+          items: [...prevItems.items, item],
+        };
+      });
+
+      // If user is logged in, update server
+      if (user?.userId) {
+        const token = user.token;
+        if (!token) {
+          toast.error("Please log in again", {
+            duration: 2000,
+            position: 'top-right',
+            style: {
+              background: '#f44336',
+              color: '#fff',
+              padding: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            },
+            icon: '🔒',
+          });
+          return;
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/add`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({
             user: user.userId,
             productId: item._id,
             quantity: item.quantity,
+            price: item.price || 0,
           }),
         });
 
-        const data = await response.json();
-        if (!response.ok) {
-          toast.error(data.error || "Failed to update cart", {
-            position: "top-right",
-            autoClose: 3000,
-            icon: <FaExclamationCircle className="text-white" />,
-            style: { background: '#ef4444', color: 'white' },
-            toastId: 'cart-error'
-          });
-          console.log(data.error || "Adding To Cart Failed");
-        }
-      } catch (error) {
-        console.error("Error adding to cart:", error);
-        toast.error("Failed to update cart", {
-          position: "top-right",
-          autoClose: 3000,
-          icon: <FaExclamationCircle className="text-white" />,
-          style: { background: '#ef4444', color: 'white' },
-          toastId: 'cart-error'
+        await handleResponse(response);
+        toast.success('Added to cart successfully!', {
+          duration: 2000,
+          position: 'top-right',
+          style: {
+            background: '#4CAF50',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          },
+          icon: '🛒',
         });
       }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to add item to cart", {
+        duration: 2000,
+        position: 'top-right',
+        style: {
+          background: '#f44336',
+          color: '#fff',
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        },
+        icon: '❌',
+      });
+    }
+  };
+
+  const removeFromCart = async (itemId: string) => {
+    try {
+      // Update local state first
+      setCartItems((prev) => ({
+        ...prev,
+        items: prev.items.filter((item) => item._id !== itemId),
+      }));
+
+      // If user is logged in, update server
+      if (user?.userId) {
+        const token = user.token;
+        if (!token) {
+          toast.error("Please log in again");
+          return;
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/${itemId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId: user.userId,
+            productId: itemId
+          }),
+        });
+
+        await handleResponse(response);
+      }
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to remove item from cart");
+    }
+  };
+
+  const updateProductToCart = async (item: CartItemType) => {
+    try {
+      // Update local state first
+      setCartItems((prev) => ({
+        ...prev,
+        items: prev.items.map((i) =>
+          i._id === item._id ? { ...i, quantity: item.quantity } : i
+        ),
+      }));
+
+      // If user is logged in, update server
+      if (user?.userId) {
+        const token = user.token;
+        if (!token) {
+          toast.error("Please log in again");
+          return;
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/reduce/${item._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId: user.userId,
+          }),
+        });
+
+        await handleResponse(response);
+      }
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to update cart item");
+    }
+  };
+
+  const decrementToCart = async (id: string) => {
+    const item = cartItems.items.find((i) => i._id === id);
+    if (item && item.quantity > 1) {
+      await updateProductToCart({ ...item, quantity: item.quantity - 1 });
+    } else {
+      await removeFromCart(id);
+    }
+  };
+
+  const clearCart = () => {
+    setCartItems({ items: [], customCoils: [] });
+  };
+
+  const updateQuantity = async (itemId: string, quantity: number) => {
+    const item = cartItems.items.find((i) => i._id === itemId);
+    if (item) {
+      await updateProductToCart({ ...item, quantity });
     }
   };
 
@@ -189,27 +276,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     // Update local state first
     setCartItems((prev) => {
+      // Ensure customCoils array exists
       const currentCustomCoils = Array.isArray(prev.customCoils) ? prev.customCoils : [];
+      
+      // Check if a custom coil with the same specifications already exists
       const existingCoilIndex = currentCustomCoils.findIndex(c => areCustomCoilsEqual(c, item));
       
       if (existingCoilIndex >= 0) {
+        // If coil exists, update its quantity
         const updatedCoils = [...currentCustomCoils];
         updatedCoils[existingCoilIndex] = {
           ...updatedCoils[existingCoilIndex],
           quantity: item.quantity
         };
-        
-        toast.success('Custom coil updated successfully!', {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          icon: <FaCheckCircle className="text-white" />,
-          style: { background: '#22c55e', color: 'white' },
-          toastId: 'custom-coil-update'
-        });
         
         return { 
           ...prev, 
@@ -217,18 +296,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           customCoils: updatedCoils 
         };
       } else {
-        toast.success('Custom coil added to cart!', {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          icon: <FaCheckCircle className="text-white" />,
-          style: { background: '#22c55e', color: 'white' },
-          toastId: 'custom-coil-add'
-        });
-        
+        // If coil doesn't exist, add it to the array
         return { 
           ...prev, 
           items: Array.isArray(prev.items) ? prev.items : [],
@@ -240,9 +308,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     // Then update the server if user is logged in
     if (user?.userId) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/addCustomCoil`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/addCustomCoil`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...(user?.token ? { "Authorization": `Bearer ${user.token}` } : {})
+          },
           body: JSON.stringify({
             ...item,
             user: user.userId
@@ -251,23 +322,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         
         const data = await response.json();
         if (!response.ok) {
-          toast.error(data.error || "Failed to update custom coil", {
-            position: "top-right",
-            autoClose: 3000,
-            icon: <FaExclamationCircle className="text-white" />,
-            style: { background: '#ef4444', color: 'white' },
-            toastId: 'custom-coil-error'
-          });
+          alert(data.error || "Adding Custom Coil To Cart Failed");
+          console.log(data.error || "Adding Custom Coil To Cart Failed");
+        } else {
+          console.log("Custom coil added successfully");
         }
       } catch (error) {
         console.error("Error adding custom coil to cart:", error);
-        toast.error("Failed to update custom coil", {
-          position: "top-right",
-          autoClose: 3000,
-          icon: <FaExclamationCircle className="text-white" />,
-          style: { background: '#ef4444', color: 'white' },
-          toastId: 'custom-coil-error'
-        });
       }
     }
   };
@@ -277,20 +338,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     // Update local state first
     setCartItems((prev) => {
+      // Ensure customCoils array exists
       const currentCustomCoils = Array.isArray(prev.customCoils) ? prev.customCoils : [];
-      const updatedCoils = currentCustomCoils.filter(c => !areCustomCoilsEqual(c, item));
       
-      toast.success('Custom coil removed from cart', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        icon: <FaCheckCircle className="text-white" />,
-        style: { background: '#22c55e', color: 'white' },
-        toastId: 'custom-coil-remove'
-      });
+      // Find and remove the coil that matches all specifications
+      const updatedCoils = currentCustomCoils.filter(c => !areCustomCoilsEqual(c, item));
       
       return { 
         ...prev, 
@@ -302,9 +354,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     // Then update the server if user is logged in
     if (user?.userId) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/deleteCustomCoil`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/cart/removeCustomCoil`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            ...(user?.token ? { "Authorization": `Bearer ${user.token}` } : {})
+          },
           body: JSON.stringify({
             ...item,
             userId: user.userId
@@ -313,41 +368,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         
         const data = await response.json();
         if (!response.ok) {
-          toast.error(data.error || "Failed to remove custom coil", {
-            position: "top-right",
-            autoClose: 3000,
-            icon: <FaExclamationCircle className="text-white" />,
-            style: { background: '#ef4444', color: 'white' },
-            toastId: 'custom-coil-remove-error'
-          });
+          alert(data.error || "Removing Custom Coil From Cart Failed");
+          console.log(data.error || "Removing Custom Coil From Cart Failed");
+        } else {
+          console.log("Custom coil removed successfully");
         }
       } catch (error) {
         console.error("Error removing custom coil from cart:", error);
-        toast.error("Failed to remove custom coil", {
-          position: "top-right",
-          autoClose: 3000,
-          icon: <FaExclamationCircle className="text-white" />,
-          style: { background: '#ef4444', color: 'white' },
-          toastId: 'custom-coil-remove-error'
-        });
       }
     }
-  };
-
-  const updateProductToCart = (item: CartItemType) => {
-    console.log("updating product in cart", item);
-    setCartItems((prev) => {
-      const currentItems = Array.isArray(prev.items) ? prev.items : [];
-      const updatedItems = currentItems.map(i => 
-        i._id === item._id ? { ...i, quantity: item.quantity } : i
-      );
-      
-      return { 
-        ...prev, 
-        items: updatedItems,
-        customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
-      };
-    });
   };
 
   const updateCustomCoilToCart = (item: CustomCoilItemType) => {
@@ -366,103 +395,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const decrementToCart = (id: string) => {
-    console.log("decrement item in cart", id);
-    setCartItems((prev) => {
-      const currentItems = Array.isArray(prev.items) ? prev.items : [];
-      const updatedItems = currentItems.map(i => 
-        i._id === id ? { ...i, quantity: i.quantity - 1 } : i
-      ).filter(i => i.quantity > 0);
-      
-      return { 
-        ...prev, 
-        items: updatedItems,
-        customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
-      };
-    });
-  };
-
-  const removeFromCart = async (id: string) => {
-    console.log("removing from the cart with productId", id);
-    
-    // Update local state first
-    setCartItems((prev) => {
-      const currentItems = Array.isArray(prev.items) ? prev.items : [];
-      const updatedItems = currentItems.filter(i => i._id !== id);
-      
-      toast.success('Item removed from cart', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        icon: <FaCheckCircle className="text-white" />,
-        style: { background: '#22c55e', color: 'white' },
-        toastId: 'cart-remove'
-      });
-      
-      return { 
-        ...prev, 
-        items: updatedItems,
-        customCoils: Array.isArray(prev.customCoils) ? prev.customCoils : []
-      };
-    });
-
-    // Then update the server if user is logged in
-    if (user?.userId) {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/cart/${id}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.userId }),
-        });
-        
-        const data = await response.json();
-        if (!response.ok) {
-          toast.error(data.error || "Failed to remove item", {
-            position: "top-right",
-            autoClose: 3000,
-            icon: <FaExclamationCircle className="text-white" />,
-            style: { background: '#ef4444', color: 'white' },
-            toastId: 'cart-remove-error'
-          });
-        }
-      } catch (error) {
-        console.error("Error removing from cart:", error);
-        toast.error("Failed to remove item", {
-          position: "top-right",
-          autoClose: 3000,
-          icon: <FaExclamationCircle className="text-white" />,
-          style: { background: '#ef4444', color: 'white' },
-          toastId: 'cart-remove-error'
-        });
-      }
-    }
-  };
-
   return (
-    <CartContext.Provider value={{ 
-      cartItems, 
-      setAllToCart, 
-      addToCart, 
-      addCustomCoilToCart, 
-      updateCustomCoilToCart, 
-      decrementToCart, 
-      removeFromCart, 
-      updateProductToCart, 
-      removeCustomCoilFromCart,
-      mounted: mounted && userMounted 
-    }}>
+    <CartContext.Provider value={{ cartItems, setAllToCart, addToCart, addCustomCoilToCart, updateCustomCoilToCart, decrementToCart, removeFromCart, updateProductToCart, removeCustomCoilFromCart, clearCart, updateQuantity }}>
       {children}
     </CartContext.Provider>
   );
 }
 
-export const useCart = () => {
+export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider");
+    throw new Error('useCart must be used within a CartProvider');
   }
   return context;
-};
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { ProductAllTypeInterfact } from "@/data/allProducts";
 import ProductCard from "../ProductCard";
 import Link from "next/link";
@@ -9,29 +9,13 @@ import { Marquee } from "@/components/magicui/marquee";
 const DashboardProductCarousel = () => {
   const [products, setProducts] = useState<ProductAllTypeInterfact[]>([]);
 
-  const getProductsFromAPI = useCallback(async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to fetch products");
-    }
-    return data.data;
-  }, []);
-
   useEffect(() => {
     async function fetchData() {
-      try {
-        const data = await getProductsFromAPI();
-        setProducts(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
+      const data = await getProductsFromAPI();
+      setProducts(data);
     }
     fetchData();
-  }, [getProductsFromAPI]);
+  }, []);
 
   // Ensure we only have products before splitting
   if (products.length === 0) return null;
@@ -45,7 +29,7 @@ const DashboardProductCarousel = () => {
       <h1 className="font-bold text-4xl w-full px-10">Products</h1>
 
       {/* Marquee Animation for Products */}
-      <div className="relative flex w-full flex-col space-y-10 items-center justify-center overflow-hidden">
+      <div className="relative flex w-full flex-col  space-y-10 items-center justify-center overflow-hidden">
         {/* First Row - Moves Left */}
         <Marquee pauseOnHover={true} className="[--duration:300s]">
           {firstRow.map((product) => (
@@ -63,6 +47,7 @@ const DashboardProductCarousel = () => {
             </div>
           ))}
         </Marquee>
+
       </div>
 
       {/* Show More Button */}
@@ -76,3 +61,28 @@ const DashboardProductCarousel = () => {
 };
 
 export default DashboardProductCarousel;
+
+async function getProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+    const response = await fetch(`${baseUrl}/api/products`, {
+      method: "GET",
+      headers: { 
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch products:', response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.data || [];
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return [];
+  }
+}

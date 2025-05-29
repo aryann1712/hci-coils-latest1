@@ -2,7 +2,7 @@
 
 import ProductCard from "@/components/ProductCard";
 import { ProductAllTypeInterfact } from "@/data/allProducts";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
@@ -17,63 +17,33 @@ export default function ProductsPage() {
   });
   const [searchQuery, setSearchQuery] = useState("");
 
-  const getAllProductsFromAPI = useCallback(async () => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to fetch products");
-    }
-    return data.data;
-  }, []);
-
-  const getCategoryProductsFromAPI = useCallback(async (category: string) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products/category/${category}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error || "Failed to fetch category products");
-    }
-    return data.data;
-  }, []);
-
+  // Fetch data (simulate API call)
   useEffect(() => {
     async function fetchData() {
-      try {
-        setLoading(true);
-        // Fetch all products
-        const allProductsData = await getAllProductsFromAPI();
-        setAllProducts(allProductsData);
-        
-        // Fetch category-specific products
-        const categories = [
-          "Open Type Old Model",
-          "Custom Coils",
-          "Open Type Rg Model",
-          "Open Type Rgs Model"
-        ];
-        
-        const categoryData: { [key: string]: ProductAllTypeInterfact[] } = {};
-        
-        for (const category of categories) {
-          const data = await getCategoryProductsFromAPI(category);
-          categoryData[category] = data;
-        }
-        
-        setCategoryProducts(categoryData);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
+      // Fetch all products
+      const allProductsData = await getAllProductsFromAPI();
+      setAllProducts(allProductsData);
+      
+      // Fetch category-specific products
+      const categories = [
+        "Open Type Old Model",
+        "Custom Coils",
+        "Open Type Rg Model",
+        "Open Type Rgs Model"
+      ];
+      
+      const categoryData: { [key: string]: ProductAllTypeInterfact[] } = {};
+      
+      for (const category of categories) {
+        const data = await getCategoryProductsFromAPI(category);
+        categoryData[category] = data;
       }
+      
+      setCategoryProducts(categoryData);
     }
     
     fetchData();
-  }, [getAllProductsFromAPI, getCategoryProductsFromAPI]);
+  }, []);
 
   // Filter the products by search query across all categories
   const filteredAllProducts = useMemo(() => {
@@ -112,16 +82,112 @@ export default function ProductsPage() {
     setSearchQuery(e.target.value);
   };
 
+  // API Calls
+  async function getAllProductsFromAPI(): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+      console.log('Fetching all products from:', `${baseUrl}/api/products`);
+
+      const response = await fetch(`${baseUrl}/api/products`, {
+        method: "GET",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: 'include'
+      });
+
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Error parsing response:', e);
+        throw new Error('Invalid response from server');
+      }
+
+      setLoading(false);
+
+      if (!response.ok) {
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        });
+        throw new Error(data.message || data.error || "Failed to fetch products");
+      }
+
+      return data.data || [];
+    } catch (error) {
+      setLoading(false);
+      console.error('Error fetching products:', error);
+      return [];
+    }
+  }
+
+  async function getCategoryProductsFromAPI(category: string): Promise<ProductAllTypeInterfact[]> {
+    try {
+      setLoading(true);
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+      console.log('Fetching category products from:', `${baseUrl}/api/products/categories?categories=${encodeURIComponent(category)}`);
+
+      const response = await fetch(
+        `${baseUrl}/api/products/categories?categories=${encodeURIComponent(category)}`,
+        {
+          method: "GET",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          credentials: 'include'
+        }
+      );
+
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Error parsing response:', e);
+        throw new Error('Invalid response from server');
+      }
+
+      setLoading(false);
+
+      if (!response.ok) {
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        });
+        throw new Error(data.message || data.error || "Failed to fetch category products");
+      }
+
+      return data.data || [];
+    } catch (error) {
+      setLoading(false);
+      console.error('Error fetching category products:', error);
+      return [];
+    }
+  }
+
   // Render product category section
   const renderCategorySection = (category: string, products: ProductAllTypeInterfact[]) => {
     if (products.length === 0) return null;
     
     return (
-      <div className="mb-20">
-        <h2 className="mb-8 text-2xl font-bold text-gray-600">{category}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div key={category} className="mb-20">
+        <h2 className="mb-4 text-xl font-bold text-gray-600">{category}</h2>
+        <div className="flex flex-row overflow-x-scroll gap-x-20">
           {products.map((product) => (
-            <div key={product._id} className="w-full">
+            <div key={product._id} className="w-40 lg:w-96 rounded-md shadow-lg flex flex-col items-start justify-center gap-5">
               <ProductCard product={product} />
             </div>
           ))}
@@ -153,7 +219,7 @@ export default function ProductsPage() {
       {loading && (
         <div className="grid grid-col-1 gap-8 gap-y-10 md:grid-cols-3">
           {[...Array(9)].map((_, i) => (
-            <div key={i} className="animate-pulse rounded-md bg-primary/10 h-96" />
+            <div key={`loading-${i}`} className="animate-pulse rounded-md bg-primary/10 h-96" />
           ))}
         </div>
       )}
@@ -164,7 +230,7 @@ export default function ProductsPage() {
       )}
 
       {/* All Products Section */}
-      {renderCategorySection("All Products", filteredAllProducts)}
+      {filteredAllProducts.length > 0 && renderCategorySection("All Products", filteredAllProducts)}
     </section>
   );
 }

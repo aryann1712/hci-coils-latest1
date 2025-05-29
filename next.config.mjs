@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'standalone',
-    assetPrefix: process.env.NODE_ENV === 'production' ? undefined : undefined,
     images: {
         remotePatterns: [
           {
@@ -23,7 +21,6 @@ const nextConfig = {
             pathname: '/**' // or '/photos/*' or '/**' if you prefer
           },
         ],
-        unoptimized: process.env.NODE_ENV === 'production',
       },    
 };
 

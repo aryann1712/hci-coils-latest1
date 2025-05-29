@@ -5,8 +5,8 @@ import { predefinedCategories } from "@/data/allProducts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, ChangeEvent } from "react";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type ImagePreview = {
   file: File;
@@ -31,11 +31,6 @@ export default function AdminAddProduct() {
   // Track total upload size
   const [totalSize, setTotalSize] = useState(0);
   const MAX_TOTAL_SIZE = 7 * 1024 * 1024; // 7MB in bytes
-  const [dimensions, setDimensions] = useState({
-    length: '',
-    width: '',
-    height: ''
-  });
 
   const toggleCategory = (category: string) => {
     if (categories.includes(category)) {
@@ -70,7 +65,16 @@ export default function AdminAddProduct() {
     
     // Check if adding these new files would exceed the limit
     if (totalSize + newFilesSize > MAX_TOTAL_SIZE) {
-      alert(`Total image size cannot exceed 7MB. Current: ${(totalSize/1024/1024).toFixed(2)}MB, Trying to add: ${(newFilesSize/1024/1024).toFixed(2)}MB`);
+      toast.error(`Total image size cannot exceed 7MB. Current: ${(totalSize/1024/1024).toFixed(2)}MB, Trying to add: ${(newFilesSize/1024/1024).toFixed(2)}MB`);
+      return;
+    }
+
+    // Validate file types
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type));
+    
+    if (invalidFiles.length > 0) {
+      toast.error('Only JPEG, PNG, and WebP images are allowed');
       return;
     }
 
@@ -123,181 +127,103 @@ export default function AdminAddProduct() {
     setCategories((prev) => prev.filter((c) => c !== cat));
   };
 
-  const handleDimensionChange = (field: 'length' | 'width' | 'height', value: string) => {
-    setDimensions(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    setLoading(true);
-
-    if (!sku || !name || !description || !price || !images.length) {
-      toast.error("Please fill in all required fields", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      setLoading(false);
+    
+    // Validate required fields
+    if (!name || !description || !price) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("sku", sku);
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("price", price.toString());
-
-    // Add dimensions as individual fields
-    if (dimensions.length || dimensions.width || dimensions.height) {
-      formData.append("dimensions[length]", dimensions.length || "0");
-      formData.append("dimensions[width]", dimensions.width || "0");
-      formData.append("dimensions[height]", dimensions.height || "0");
+    // Validate categories
+    if (categories.length === 0) {
+      toast.error("Please select at least one category");
+      return;
     }
 
-    categories.forEach((item) => {
-      formData.append("categories", item);
-    });
-
-    // Add main product images
-    images.forEach((img) => {
-      formData.append("image", img.file);
-    });
+    // Validate images
+    if (images.length === 0) {
+      toast.error("Please add at least one image");
+      return;
+    }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/products`, {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("price", price.toString());
+      
+      // Append all categories
+      categories.forEach((category, index) => {
+        formData.append(`categories[${index}]`, category);
+      });
+
+      if (sku) formData.append("sku", sku);
+      
+      // Append each image file
+      images.forEach((image, index) => {
+        formData.append(`images`, image.file);
+      });
+
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+      
+      const response = await fetch(`${baseUrl}/products`, {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || "Failed to create product", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-        setLoading(false);
-        return;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create product');
       }
 
-      // Show success toast
-      toast.success("Product added successfully! 🎉", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        onClose: () => router.push("/admin-products")
-      });
-      setLoading(false);
+      const data = await response.json();
+      
+      if (data.success) {
+        toast.success("Product created successfully!");
+        router.push("/admin-products");
+      } else {
+        throw new Error(data.message || 'Failed to create product');
+      }
     } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      console.error('Error creating product:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create product');
+    } finally {
       setLoading(false);
     }
   };
+
+  // Cleanup preview URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      images.forEach(image => {
+        URL.revokeObjectURL(image.previewUrl);
+      });
+    };
+  }, [images]);
 
   if (!mounted) return null;
 
   return (
-    <div className="max-w-[75%] mx-auto py-10 mb-10">
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      <div className="mx-auto py-16 px-10 rounded-sm shadow-xl w-full space-y-10">
-        <h1 className="text-blue-800 text-3xl font-semibold italic">Add Product</h1>
-
-        <form className="border p-4 rounded-sm border-dashed space-y-6" onSubmit={handleSubmit}>
-          {/* Dimensions */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block font-medium mb-1">Length </label>
-              <input
-                type="number"
-                className="border px-3 py-2 rounded-sm w-full"
-                value={dimensions.length}
-                onChange={(e) => handleDimensionChange('length', e.target.value)}
-                placeholder="Length"
-                min="0"
-                step="0.1"
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Width </label>
-              <input
-                type="number"
-                className="border px-3 py-2 rounded-sm w-full"
-                value={dimensions.width}
-                onChange={(e) => handleDimensionChange('width', e.target.value)}
-                placeholder="Width"
-                min="0"
-                step="0.1"
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Height </label>
-              <input
-                type="number"
-                className="border px-3 py-2 rounded-sm w-full"
-                value={dimensions.height}
-                onChange={(e) => handleDimensionChange('height', e.target.value)}
-                placeholder="Height"
-                min="0"
-                step="0.1"
-              />
-            </div>
-          </div>
-
-          {/* Name with dimensions prefix */}
+    <div className="w-full px-2 md:px-0 md:max-w-[75%] mx-auto py-10 mb-10">
+      <div className="mx-auto py-16 px-2 md:px-10 rounded-sm shadow-xl w-full space-y-10">
+        <h1 className="text-blue-800 text-2xl md:text-3xl font-semibold italic">Add New Product</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Name */}
           <div>
             <label className="block font-medium mb-1">Name <span className="text-red-500">*</span></label>
-            <div className="flex items-center gap-2">
-              {dimensions.length || dimensions.width || dimensions.height ? (
-                <span className="text-gray-500 whitespace-nowrap">
-                  {[
-                    dimensions.length ? `${dimensions.length}` : '',
-                    dimensions.width ? `${dimensions.width}` : '',
-                    dimensions.height ? `${dimensions.height}` : ''
-                  ].filter(Boolean).join('/')}/
-                </span>
-              ) : null}
-              <input
-                className="border px-3 py-2 rounded-sm flex-1"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Product name"
-                required
-              />
-            </div>
+            <input
+              className="border px-3 py-2 rounded-sm w-full"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Product name"
+              required
+            />
           </div>
 
           {/* Description */}
@@ -315,71 +241,93 @@ export default function AdminAddProduct() {
 
           {/* Images */}
           <div>
-            <label className="block font-medium mb-1">Images <span className="text-red-500">*</span></label>
-            <div className="flex items-center gap-4">
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                id="product-images"
-                required
-              />
-              <label
-                htmlFor="product-images"
-                className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer transition-colors flex items-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Choose Files
-              </label>
-              <span className={`text-sm ${totalSize > MAX_TOTAL_SIZE ? "text-red-500" : "text-gray-500"}`}>
-                Total size: {(totalSize / (1024 * 1024)).toFixed(2)}MB / 7MB
-              </span>
-            </div>
-            {/* Preview + reorder */}
-            <div className="mt-3 flex gap-4 flex-wrap">
-              {images.map((img, index) => (
-                <div key={index} className="border p-2 relative">
-                  <Image
-                    src={img.previewUrl}
-                    alt={`preview-${index}`}
-                    height={1000}
-                    width={1000}
-                    className="w-32 h-32 object-cover"
-                  />
-                  <span className="absolute bottom-10 left-2 bg-black bg-opacity-50 text-white text-xs p-1 rounded">
-                    {(img.file.size / 1024 / 1024).toFixed(2)}MB
-                  </span>
-                  <button
-                    type="button"
-                    className="absolute top-1 right-1 text-white bg-red-500 rounded-full px-2"
-                    onClick={() => removeImage(index)}
-                  >
-                    X
-                  </button>
-                  {/* Move up/down buttons */}
-                  <div className="flex gap-1 mt-2 justify-center">
-                    <button
-                      type="button"
-                      onClick={() => moveImage(index, "up")}
-                      className="bg-blue-500 text-white px-2 rounded-sm"
-                    >
-                      {`<`}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => moveImage(index, "down")}
-                      className="bg-blue-500 text-white px-2 rounded-sm"
-                    >
-                      {`>`}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <label className="block font-medium mb-1">Product Images</label>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              onChange={handleImageChange}
+              className="border px-3 py-2 rounded-sm w-full"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Maximum total size: 7MB. Supported formats: JPEG, PNG, WebP
+            </p>
+
+            {images.length > 0 && (
+              <div className="mt-4 border rounded-md overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Preview
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        File Name
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Size
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {images.map((img, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="relative w-20 h-20">
+                            <Image
+                              src={img.previewUrl}
+                              alt={`preview-${index}`}
+                              fill
+                              className="object-cover rounded"
+                            />
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 truncate max-w-xs">
+                            {img.file.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">
+                            {(img.file.size / 1024 / 1024).toFixed(2)} MB
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => moveImage(index, "up")}
+                              className="text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={index === 0}
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImage(index, "down")}
+                              className="text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={index === images.length - 1}
+                            >
+                              ↓
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           {/* Categories */}
@@ -450,8 +398,8 @@ export default function AdminAddProduct() {
                 className="border px-3 py-2 rounded-sm w-full"
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
-                placeholder="Enter price"
-                min={1}
+                placeholder="0"
+                min={0}
                 step={1}
                 required
               />
@@ -474,24 +422,9 @@ export default function AdminAddProduct() {
           <button
             disabled={loading}
             type="submit"
-            className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4 hover:bg-blue-800 transition-colors flex items-center justify-center gap-2 w-full"
+            className="bg-blue-700 text-white px-6 py-2 rounded-md font-semibold mt-4"
           >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Adding Product...
-              </>
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
-                Add Product
-              </>
-            )}
+            {loading ? "Submitting" : "Submit"}
           </button>
         </form>
       </div>

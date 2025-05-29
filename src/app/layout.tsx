@@ -6,10 +6,8 @@ import { CartProvider } from "@/context/CartContext";
 import { UserProvider } from "@/context/UserContext";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,12 +37,24 @@ export default function RootLayout({
       >
         <UserProvider>
           <CartProvider>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 2000,
+                style: {
+                  background: '#fff',
+                  color: '#333',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                },
+              }}
+            />
             <Navbar />
             <Navbar2 />
             {children}
             <DashboardLowerBottom />
             <Footer />
-            <ToastContainer />
           </CartProvider>
         </UserProvider>
       </body>

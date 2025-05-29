@@ -6,12 +6,6 @@ export interface ProductAllTypeInterfact {
     sku: string;
     description: string;
     images: string[]
-    sqmm?: number;
-    dimensions?: {
-        length: number;
-        width: number;
-        height: number;
-    };
 }
 
 

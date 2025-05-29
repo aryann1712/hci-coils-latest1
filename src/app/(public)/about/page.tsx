@@ -5,7 +5,6 @@ import { TiTick } from "react-icons/ti";
 import { motion } from 'framer-motion';
 import { FaImage } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
-import Image from "next/image";
 
 export default function CompanyPage() {
   // State for modal
@@ -17,16 +16,16 @@ export default function CompanyPage() {
     { id: "cert2", src: "/certificates/2025030414 - heat craft industries - iso 13585-2021.png", alt: "ISO 13585-2021 Certificate", pages: 1 },
     { id: "cert3", src: "/certificates/FACTORY LICENSE.png", alt: "Factory License", pages: 1 },
     { id: "cert4", src: "/certificates/FIRE NOC.png", alt: "Fire NOC Certificate", pages: 1 },
-    { id: "cert4", src: "/certificates/TRADE MARK CERTIFICATE-1.png", alt: "Trade Mark Certificate", pages: 1 },
-    { id: "cert5", src: "/certificates/HEAT CRAFT INDUSTRIES  9001 final.png", alt: "ISO 9001 Certificate", pages: 1 },
-    { id: "cert6", src: "/certificates/HEAT CRAFT INDUSTRIES 45001 final.png", alt: "ISO 45001 Certificate", pages: 1 },
-    { id: "cert7", src: "/certificates/HEAT CRAFT INDUSTRIES CE MARK 504.png", alt: "CE Mark Certificate", pages: 1 },
-    { id: "cert8", src: "/certificates/HEAT CRAFT INDUSTRIES ROHS 503.png", alt: "RoHS Compliance Certificate", pages: 1 },
-    { id: "cert9", src: "/certificates/heatCraftIndustries14001Final.png", alt: "ISO 14001 Certificate", pages: 1 },
-    { id: "cert10", src: "/certificates/UQ - 2025030413 - HEAT CRAFT INDUSTRIES -  EN 13134-2000 UKCERT.png", alt: "EN 13134-2000 UK Certificate", pages: 1 },
-    { id: "cert11", src: "/certificates/bis/bis certificate_1.png", alt: "BIS Certificate", pages: 4, multiplePages: true, pagePattern: "/certificates/bis/bis certificate_{page}.png" },
-    { id: "cert12", src: "/certificates/gst/GST REGISTRATION CERTIFICATE_1.png", alt: "GST Registration Certificate", pages: 3, multiplePages: true, pagePattern: "/certificates/gst/GST REGISTRATION CERTIFICATE_{page}.png" },
-    { id: "cert13", src: "/certificates/udyam/MSME Udyam Registration Certificate LATEST_1.png", alt: "MSME Udyam Registration Certificate", pages: 2, multiplePages: true, pagePattern: "/certificates/udyam/MSME Udyam Registration Certificate LATEST_{page}.png" },
+    { id: "cert5", src: "/certificates/TRADE MARK CERTIFICATE-1.png", alt: "Trade Mark Certificate", pages: 1 },
+    { id: "cert6", src: "/certificates/HEAT CRAFT INDUSTRIES  9001 final.png", alt: "ISO 9001 Certificate", pages: 1 },
+    { id: "cert7", src: "/certificates/HEAT CRAFT INDUSTRIES 45001 final.png", alt: "ISO 45001 Certificate", pages: 1 },
+    { id: "cert8", src: "/certificates/HEAT CRAFT INDUSTRIES CE MARK 504.png", alt: "CE Mark Certificate", pages: 1 },
+    { id: "cert9", src: "/certificates/HEAT CRAFT INDUSTRIES ROHS 503.png", alt: "RoHS Compliance Certificate", pages: 1 },
+    { id: "cert10", src: "/certificates/heatCraftIndustries14001Final.png", alt: "ISO 14001 Certificate", pages: 1 },
+    { id: "cert11", src: "/certificates/UQ - 2025030413 - HEAT CRAFT INDUSTRIES -  EN 13134-2000 UKCERT.png", alt: "EN 13134-2000 UK Certificate", pages: 1 },
+    { id: "cert12", src: "/certificates/bis/bis certificate_1.png", alt: "BIS Certificate", pages: 4, multiplePages: true, pagePattern: "/certificates/bis/bis certificate_{page}.png" },
+    { id: "cert13", src: "/certificates/gst/GST REGISTRATION CERTIFICATE_1.png", alt: "GST Registration Certificate", pages: 3, multiplePages: true, pagePattern: "/certificates/gst/GST REGISTRATION CERTIFICATE_{page}.png" },
+    { id: "cert14", src: "/certificates/udyam/MSME Udyam Registration Certificate LATEST_1.png", alt: "MSME Udyam Registration Certificate", pages: 2, multiplePages: true, pagePattern: "/certificates/udyam/MSME Udyam Registration Certificate LATEST_{page}.png" },
   ];
 
   // Handle certificate click
@@ -184,16 +183,12 @@ export default function CompanyPage() {
                   className="h-40 w-full bg-gray-100 mb-4 overflow-hidden flex items-center justify-center"
                   onContextMenu={preventContextMenu}
                 >
-                  <div className="relative h-full w-full">
-                    <Image 
-                      src={cert.src} 
-                      alt={cert.alt} 
-                      fill
-                      className="object-contain select-none"
-                      draggable={false}
-                      sizes="(max-width: 768px) 100vw, 400px"
-                    />
-                  </div>
+                  <img 
+                    src={cert.src} 
+                    alt={cert.alt} 
+                    className="object-contain h-full w-full select-none" 
+                    draggable="false"
+                  />
                 </div>
                 <h3 className="text-center font-medium text-gray-800">{cert.alt}</h3>
                 <div className="mt-3 bg-blue-600 text-white py-2 px-4 rounded-md text-sm flex items-center">
@@ -229,16 +224,13 @@ export default function CompanyPage() {
             >
               {getPageSources(selectedCertificate).map((pageSrc, index) => (
                 <div key={index} className="mb-4 last:mb-0">
-                  <div className="relative mx-auto max-w-full h-96">
-                    <Image 
-                      src={pageSrc} 
-                      alt={`${selectedCertificate.alt} - Page ${index + 1}`}
-                      fill
-                      className="mx-auto object-contain pointer-events-none select-none"
-                      draggable={false}
-                      sizes="(max-width: 768px) 100vw, 600px"
-                    />
-                  </div>
+                  <img 
+                    src={pageSrc} 
+                    alt={`${selectedCertificate.alt} - Page ${index + 1}`} 
+                    className="mx-auto max-w-full pointer-events-none select-none" 
+                    draggable="false"
+                    onDragStart={() => false}
+                  />
                   {selectedCertificate.pages > 1 && (
                     <p className="text-center text-sm text-gray-500 mt-2">
                       Page {index + 1} of {selectedCertificate.pages}

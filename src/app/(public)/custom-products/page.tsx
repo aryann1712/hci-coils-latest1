@@ -6,8 +6,7 @@ import Image from 'next/image';
 import Head from 'next/head';
 import { useCart } from '@/context/CartContext';
 import { CustomCoilItemType } from '@/lib/interfaces/CartInterface';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React from 'react';
 
 export default function CustomCoilForm() {
   const { addCustomCoilToCart } = useCart();
@@ -78,7 +77,7 @@ export default function CustomCoilForm() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [endplateRef, circuitRef]);
+  }, []);
 
   // Effect to scroll to top when step changes
   useEffect(() => {
@@ -87,7 +86,7 @@ export default function CustomCoilForm() {
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [step, formContainerRef]);
+  }, [step]);
 
   // Effect to set default pipe type based on tube type selection
   useEffect(() => {
@@ -103,7 +102,7 @@ export default function CustomCoilForm() {
         pipeType: 'plain-lwc'
       }));
     }
-  }, [formData.tubeType, formData.pipeType]);
+  }, [formData.tubeType]);
 
   const handleCoilTypeSelection = (type: string) => {
     setFormData({ ...formData, coilType: type });
@@ -185,18 +184,23 @@ export default function CustomCoilForm() {
     return (
       <div className="mt-2 flex items-center">
         {Array.from({ length: totalSteps }).map((_, index) => (
-          <>
+          <React.Fragment key={`step-container-${index + 1}`}>
             <span
               key={`step-${index + 1}`}
-              className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${step >= index + 1 ? 'bg-white text-blue-600' : 'bg-blue-400'
-                } ${index > 0 ? 'mx-2' : 'mr-2'}`}
+              className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${
+                step >= index + 1 ? 'bg-white text-blue-600' : 'bg-blue-400'
+              }`}
             >
               {index + 1}
             </span>
             {index < totalSteps - 1 && (
-              <div key={`line-${index + 1}`} className="h-1 w-10 bg-blue-400"></div>
+              <div
+                className={`h-1 w-12 ${
+                  step > index + 1 ? 'bg-white' : 'bg-blue-400'
+                }`}
+              />
             )}
-          </>
+          </React.Fragment>
         ))}
       </div>
     );
@@ -265,7 +269,7 @@ export default function CustomCoilForm() {
                     required
                   >
                     <option value="">Select Tube Type</option>
-                    <option value="copper-3/8">COPPER TUBE 3/8&quot;</option>
+                    <option value="copper-3/8">COPPER TUBE 3/8"</option>
                     <option value="copper-7mm">COPPER TUBE 7MM</option>
                   </select>
                 </div>
@@ -600,10 +604,10 @@ export default function CustomCoilForm() {
                     required
                   >
                     <option value="">Select Header Size</option>
-                    <option value="5/8">5/8&quot;</option>
-                    <option value="6/8">6/8&quot;</option>
-                    <option value="7/8">7/8&quot;</option>
-                    <option value="1-1/8">1-1/8&quot;</option>
+                    <option value="5/8">5/8"</option>
+                    <option value="6/8">6/8"</option>
+                    <option value="7/8">7/8"</option>
+                    <option value="1-1/8">1-1/8"</option>
                   </select>
                 </div>
               </div>
@@ -674,7 +678,7 @@ export default function CustomCoilForm() {
                         className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                       />
                       <label htmlFor="distributorHolesDontKnow" className="ml-2 block text-sm text-gray-700">
-                        Don&apos;t know
+                        Don't know
                       </label>
                     </div>
                   </div>
@@ -703,7 +707,7 @@ export default function CustomCoilForm() {
                         className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                       />
                       <label htmlFor="inletConnectionDontKnow" className="ml-2 block text-sm text-gray-700">
-                        Don&apos;t know
+                        Don't know
                       </label>
                     </div>
                   </div>
@@ -748,7 +752,7 @@ export default function CustomCoilForm() {
                   <div className="capitalize">{formData.coilType}</div>
 
                   <div className="font-medium">Dimensions:</div>
-                  <div>{formData.height}&quot; × {formData.length}&quot;</div>
+                  <div>{formData.height}" × {formData.length}"</div>
 
                   <div className="font-medium">Rows:</div>
                   <div>{formData.rows}</div>
@@ -780,10 +784,10 @@ export default function CustomCoilForm() {
                   {formData.coilType === 'cooling' && (
                     <>
                       <div className="font-medium">Distributor Holes:</div>
-                      <div>{formData.distributorHolesDontKnow ? "Don&apos;t know" : formData.distributorHoles}</div>
+                      <div>{formData.distributorHolesDontKnow ? "Don't know" : formData.distributorHoles}</div>
 
                       <div className="font-medium">Inlet Connection:</div>
-                      <div>{formData.inletConnectionDontKnow ? "Don&apos;t know" : formData.inletConnection}</div>
+                      <div>{formData.inletConnectionDontKnow ? "Don't know" : formData.inletConnection}</div>
                     </>
                   )}
                 </div>
@@ -799,8 +803,8 @@ export default function CustomCoilForm() {
                 <button
                   onClick={() => {
                     addCustomCoilToCart(formData);
-                    toast.success("Item added successfully");
-                    router.push('/cart');
+                    alert("Item added successfully");
+                    return router.push('/cart');
                   }}
                   className="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors"
                 >
