@@ -3,6 +3,7 @@
 import ProductCard from "@/components/ProductCard";
 import { ProductAllTypeInterfact } from "@/data/allProducts";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 
 export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
@@ -87,44 +88,37 @@ export default function ProductsPage() {
     try {
       setLoading(true);
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
-      console.log('Fetching all products from:', `${baseUrl}/api/products`);
+      const apiUrl = `${baseUrl}/api/products`;
+      console.log('Fetching all products from:', apiUrl);
 
-      const response = await fetch(`${baseUrl}/api/products`, {
+      const response = await fetch(apiUrl, {
         method: "GET",
         headers: { 
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        credentials: 'include'
+        credentials: 'include',
+        mode: 'cors'
       });
 
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Raw response:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.error('Error parsing response:', e);
-        throw new Error('Invalid response from server');
-      }
-
-      setLoading(false);
-
       if (!response.ok) {
+        const errorText = await response.text();
         console.error('API Error:', {
           status: response.status,
           statusText: response.statusText,
-          data: data
+          body: errorText,
+          url: apiUrl
         });
-        throw new Error(data.message || data.error || "Failed to fetch products");
+        throw new Error(`Failed to fetch products: ${response.statusText}`);
       }
 
+      const data = await response.json();
+      setLoading(false);
       return data.data || [];
     } catch (error) {
       setLoading(false);
       console.error('Error fetching products:', error);
+      toast.error('Failed to fetch products. Please try again later.');
       return [];
     }
   }
@@ -133,47 +127,37 @@ export default function ProductsPage() {
     try {
       setLoading(true);
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
-      console.log('Fetching category products from:', `${baseUrl}/api/products/categories?categories=${encodeURIComponent(category)}`);
+      const apiUrl = `${baseUrl}/api/products/categories?categories=${encodeURIComponent(category)}`;
+      console.log('Fetching category products from:', apiUrl);
 
-      const response = await fetch(
-        `${baseUrl}/api/products/categories?categories=${encodeURIComponent(category)}`,
-        {
-          method: "GET",
-          headers: { 
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          credentials: 'include'
-        }
-      );
-
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Raw response:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.error('Error parsing response:', e);
-        throw new Error('Invalid response from server');
-      }
-
-      setLoading(false);
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: 'include',
+        mode: 'cors'
+      });
 
       if (!response.ok) {
+        const errorText = await response.text();
         console.error('API Error:', {
           status: response.status,
           statusText: response.statusText,
-          data: data
+          body: errorText,
+          url: apiUrl
         });
-        throw new Error(data.message || data.error || "Failed to fetch category products");
+        throw new Error(`Failed to fetch category products: ${response.statusText}`);
       }
 
+      const data = await response.json();
+      setLoading(false);
       return data.data || [];
     } catch (error) {
       setLoading(false);
       console.error('Error fetching category products:', error);
+      toast.error('Failed to fetch category products. Please try again later.');
       return [];
     }
   }
