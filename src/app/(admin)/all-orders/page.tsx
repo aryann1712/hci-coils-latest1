@@ -45,108 +45,65 @@ const AllOrdersPage = () => {
   const pageSize = 10;
 
   const getOrders = async (): Promise<Order[]> => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
-    const maxRetries = 3;
-    let retryCount = 0;
-    
-    while (retryCount < maxRetries) {
-      try {
-        if (!user) {
-          console.log('No user found, redirecting to home');
-          router.replace("/");
-          return [];
-        }
-
-        if (user.role !== "admin") {
-          console.log('User is not admin, redirecting to home');
-          router.replace("/");
-          return [];
-        }
-
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.log('No token found, redirecting to home');
-          router.replace("/");
-          return [];
-        }
-
-        // First check if server is available
-        try {
-          const healthCheck = await fetch(`${baseUrl}/api/orders/health`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (!healthCheck.ok) {
-            throw new Error('Server health check failed');
-          }
-        } catch (error) {
-          console.error('Server health check failed:', error);
-          if (retryCount < maxRetries - 1) {
-            retryCount++;
-            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
-            continue;
-          }
-          toast.error("Server is not responding. Please try again later.");
-          return [];
-        }
-
-        // If server is available, proceed with fetching orders
-        const response = await fetch(`${baseUrl}/api/orders`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Orders fetch error:', {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorData
-          });
-
-          if (response.status === 401 || response.status === 403) {
-            console.log('Authentication error, redirecting to home');
-            router.replace("/");
-          } else {
-            if (retryCount < maxRetries - 1) {
-              retryCount++;
-              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-              continue;
-            }
-            toast.error(errorData.message || "Failed to fetch orders");
-          }
-          return [];
-        }
-
-        const data = await response.json();
-        
-        if (!data || !Array.isArray(data)) {
-          console.error('Invalid response format:', data);
-          toast.error("Invalid response from server");
-          return [];
-        }
-
-        return data;
-      } catch (error) {
-        console.error('Error in getOrders:', error);
-        if (retryCount < maxRetries - 1) {
-          retryCount++;
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-          continue;
-        }
-        toast.error("Failed to fetch orders. Please try again.");
-        return [];
-      }
+    if (!user) {
+      console.error('No user found');
+      return [];
     }
 
-    return [];
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No authentication token found');
+        toast.error("Please log in again");
+        return [];
+      }
+
+      const response = await fetch(`${baseUrl}/api/orders`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        credentials: 'include'
+      });
+
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to fetch orders';
+        try {
+          const errorJson = JSON.parse(responseText);
+          errorMessage = errorJson.error || errorMessage;
+        } catch (e) {
+          console.error('Failed to parse error response:', e);
+        }
+        throw new Error(errorMessage);
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        throw new Error('Invalid response from server');
+      }
+
+      if (!data || !data.success || !Array.isArray(data.data)) {
+        console.error('Invalid response format:', data);
+        throw new Error('Invalid response format from server');
+      }
+
+      return data.data;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch orders';
+      console.error("Error fetching orders:", errorMessage);
+      toast.error(errorMessage);
+      return [];
+    }
   };
 
   useEffect(() => {

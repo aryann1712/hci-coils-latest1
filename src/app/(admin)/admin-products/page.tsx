@@ -395,9 +395,15 @@ const AdminProductsPage = () => {
     // If it's already a full URL, return it as is
     if (imageUrl.startsWith('http')) return imageUrl;
     
-    // Otherwise, prepend the base URL
+    // If it's a relative URL starting with /uploads, prepend the base URL
+    if (imageUrl.startsWith('/uploads')) {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+      return `${baseUrl}${imageUrl}`;
+    }
+    
+    // If it's a relative URL without /uploads, add it
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
-    return `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+    return `${baseUrl}/uploads/${imageUrl}`;
   };
 
   return (
@@ -460,16 +466,18 @@ const AdminProductsPage = () => {
                   <TableCell>{(currentPage - 1) * itemsPerPage + index + 1}</TableCell>
                   <TableCell>
                     {product.imageUrl ? (
-                      <img 
-                        src={formatImageUrl(product.imageUrl)} 
-                        alt={product.name}
-                        className="w-16 h-16 object-cover rounded"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/placeholder-image.png';
-                          target.onerror = null;
-                        }}
-                      />
+                      <div className="relative w-16 h-16">
+                        <img 
+                          src={formatImageUrl(product.imageUrl)} 
+                          alt={product.name}
+                          className="w-full h-full object-cover rounded"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder-image.png';
+                            target.onerror = null;
+                          }}
+                        />
+                      </div>
                     ) : (
                       <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
                         <span className="text-gray-400 text-xs">No image</span>
