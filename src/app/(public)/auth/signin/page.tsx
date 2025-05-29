@@ -65,9 +65,9 @@ export default function SignInPage() {
         email: data.email,
         phone: data.phone,
         role: data.role,
-        token: data.token,
         name: data.name,
-      });
+        token: data.token
+      }, data.token);
 
       // Redirect
       router.push("/");
