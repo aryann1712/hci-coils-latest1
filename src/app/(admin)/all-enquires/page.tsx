@@ -33,7 +33,7 @@ export default function EnquiriesManagement() {
 
   const fetchEnquiries = async () => {
     try {
-      const response = await fetch('/api/enquire');
+      const response = await fetch('${baseUrl}/api/enquire');
       const data = await response.json();
       setEnquiries(data);
       setLoading(false);
