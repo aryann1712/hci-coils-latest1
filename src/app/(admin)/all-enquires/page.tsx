@@ -45,7 +45,7 @@ export default function EnquiriesManagement() {
     }
   };
 
-  const filteredEnquiries = enquiries.filter(enquiry => {
+  const filteredEnquiries = enquiries?.filter(enquiry => {
     const matchesSearch = 
       enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
