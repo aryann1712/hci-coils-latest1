@@ -20,7 +20,11 @@ export default function SignInPage() {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
       console.log("Attempting to sign in with:", formData.email);
       
-      const response = await fetch(`${baseUrl}`, {
+      try {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
+      console.log("Attempting to sign in with:", formData.email);
+      
+      const response = await fetch(`${baseUrl}/api/users/signin`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -34,8 +38,7 @@ export default function SignInPage() {
       });
 
       // Log the response status and headers
-      const data4 = await response.json();  
-alert(JSON.stringify(data4, null, 2)); 
+    
       console.log("Response status:", response.status);
       console.log("Response headers:", Object.fromEntries(response.headers.entries()));
 
