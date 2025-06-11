@@ -132,7 +132,7 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/create.php`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
