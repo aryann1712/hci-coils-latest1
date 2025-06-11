@@ -33,18 +33,24 @@ export default function EnquiriesManagement() {
 
   const fetchEnquiries = async () => {
     try {
-      cconst baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001";
+
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5001";
       const response = await fetch(`${baseUrl}/api/enquire`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch enquiries');
+      }
       const data = await response.json();
-      setEnquiries(data);
+      setEnquiries(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
+      console.error('Error fetching enquiries:', error);
+      setEnquiries([]);
       toast.error('Failed to fetch enquiries');
       setLoading(false);
     }
   };
 
-  const filteredEnquiries = enquiries.filter(enquiry => {
+  const filteredEnquiries = enquiries?.filter(enquiry => {
     const matchesSearch = 
       enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
