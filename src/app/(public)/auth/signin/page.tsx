@@ -20,7 +20,7 @@ export default function SignInPage() {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
       console.log("Attempting to sign in with:", formData.email);
       
-      const response = await fetch(`${baseUrl}/auth/login.php`, {
+      const response = await fetch(`${baseUrl}`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
