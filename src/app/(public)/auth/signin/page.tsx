@@ -34,7 +34,8 @@ export default function SignInPage() {
       });
 
       // Log the response status and headers
-      alert(response)
+      const data = await response.json();  
+alert(JSON.stringify(data, null, 2)); 
       console.log("Response status:", response.status);
       console.log("Response headers:", Object.fromEntries(response.headers.entries()));
 
