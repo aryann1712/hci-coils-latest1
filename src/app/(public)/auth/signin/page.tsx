@@ -20,10 +20,6 @@ export default function SignInPage() {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
       console.log("Attempting to sign in with:", formData.email);
       
-      try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
-      console.log("Attempting to sign in with:", formData.email);
-      
       const response = await fetch(`${baseUrl}/api/users/signin`, {
         method: "POST",
         headers: { 
@@ -38,7 +34,6 @@ export default function SignInPage() {
       });
 
       // Log the response status and headers
-    
       console.log("Response status:", response.status);
       console.log("Response headers:", Object.fromEntries(response.headers.entries()));
 
