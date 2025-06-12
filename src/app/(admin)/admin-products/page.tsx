@@ -471,17 +471,12 @@ const AdminProductsPage = () => {
                   <TableCell>
                     {product.imageUrl ? (
                       <div className="relative w-16 h-16">
-                       
-                       
-                      
                         <img 
                           src={formatImageUrl(product.imageUrl)} 
                           alt={product.name}
                           className="w-full h-full object-cover rounded"
                           onError={(e) => {
-                          
-                           
-                            const target = e.target as HTMLImageElement;
+                           const target = e.target as HTMLImageElement;
                             target.src = '/placeholder-image.png';
                             target.onerror = null;
                           }}
