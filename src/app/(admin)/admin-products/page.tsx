@@ -390,20 +390,33 @@ const AdminProductsPage = () => {
 
   // Update the formatImageUrl function
   const formatImageUrl = (imageUrl: string | undefined | null) => {
-    if (!imageUrl) return '/placeholder-image.png';
-    
+    //if (!imageUrl) return '/placeholder-image.png';
+    if (!imageUrl) {
+      console.log('No image URL provided');
+      return '/placeholder-image.png';
+    }
     // If it's already a full URL, return it as is
-    if (imageUrl.startsWith('http')) return imageUrl;
-    
+    //if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('http')) {
+      console.log('Using full URL:', imageUrl);
+      return imageUrl;
+    }
     // If it's a relative URL starting with /uploads, prepend the base URL
     if (imageUrl.startsWith('/uploads')) {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
-      return `${baseUrl}${imageUrl}`;
+      //return `${baseUrl}${imageUrl}`;
+      const fullUrl = `${baseUrl}${imageUrl}`;
+      console.log('Constructed URL from /uploads path:', fullUrl);
+      return fullUrl;
+    }
     }
     
     // If it's a relative URL without /uploads, add it
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
-    return `${baseUrl}/uploads/${imageUrl}`;
+    //return `${baseUrl}/uploads/${imageUrl}`;
+  const fullUrl = `${baseUrl}/uploads/${imageUrl}`;
+    console.log('Constructed URL from relative path:', fullUrl);
+    return fullUrl;
   };
 
   return (
@@ -467,11 +480,17 @@ const AdminProductsPage = () => {
                   <TableCell>
                     {product.imageUrl ? (
                       <div className="relative w-16 h-16">
+                       
+                        {console.log('Product image URL before formatting:', product.imageUrl)}
+                      
                         <img 
                           src={formatImageUrl(product.imageUrl)} 
                           alt={product.name}
                           className="w-full h-full object-cover rounded"
                           onError={(e) => {
+                            
+                            console.error('Image failed to load:', e);
+                           
                             const target = e.target as HTMLImageElement;
                             target.src = '/placeholder-image.png';
                             target.onerror = null;
