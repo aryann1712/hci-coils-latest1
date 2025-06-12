@@ -392,11 +392,11 @@ const AdminProductsPage = () => {
   const formatImageUrl = (imageUrl: string | undefined | null) => {
     if (!imageUrl) return '/placeholder-image.png';
     
-    }
+    
     // If it's already a full URL, return it as is
     if (imageUrl.startsWith('http')) return imageUrl;
     
-    }
+    
     // If it's a relative URL starting with /uploads, prepend the base URL
     if (imageUrl.startsWith('/uploads')) {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5001';
